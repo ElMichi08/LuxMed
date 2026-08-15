@@ -1,6 +1,5 @@
 # Fuente: NO estaba en Requisitos.MD v1.0 — feature nueva, levantada en sesión BDD 2026-08-12.
-# Estado: BORRADOR. Falta trasladar esta decisión a Requisitos.MD (Terminología / éxito por paciente)
-# para que quede como fuente de verdad única.
+# Estado: validado con el propietario (confirmación explícita 2026-08-15).
 #
 # Resuelto (convención de nombre, decisión de ingeniería — no requiere validación del propietario):
 # el PDF combinado se nombra "{cedula}_{fecha_atencion:%Y%m%d}.pdf". Se usa cédula + fecha de
@@ -21,21 +20,18 @@ Feature: Consolidación de PDFs por paciente
   Quiero recibir un solo PDF por paciente en vez de 2 o 3 archivos sueltos
   Para tener un único documento de respaldo fácil de archivar y compartir
 
-  @borrador
   Scenario: Unión de PDFs en Rama A
     Given un paciente de "Rama A" con los PDFs #1, #2 y #3 descargados y verificados
     When el sistema arma el entregable final del paciente
     Then los tres PDFs se combinan en un único PDF en el orden Portal 1, Portal 2, Portal 3
     And los PDFs individuales se descartan, conservando solo el PDF combinado
 
-  @borrador
   Scenario: Unión de PDFs en Rama B
     Given un paciente de "Rama B" con los PDFs #1 y #3 descargados y verificados
     When el sistema arma el entregable final del paciente
     Then los dos PDFs se combinan en un único PDF en el orden Portal 1, Portal 3
     And los PDFs individuales se descartan, conservando solo el PDF combinado
 
-  @borrador
   Scenario: Reanudación antes de armar el combinado
     Given un paciente cuyas fases requeridas por su rama ya están completas (PDFs individuales descargados y verificados)
     And el lote se pausó o se cortó antes de armar el PDF combinado de ese paciente
