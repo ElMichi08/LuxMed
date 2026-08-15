@@ -4,14 +4,11 @@
 > **Fuente:** decisiones conversadas originalmente a partir de `Requisitos.MD` v1.0 (eliminado del repositorio — su comportamiento quedó cubierto y superado por `docs/BDD/`, su Preámbulo/Apéndice A están duplicados en `CLAUDE.md`, su Apéndice B legal en `docs/legal.md`), **actualizadas** (sesión de arquitectura 2026-08-14) contra `docs/BDD/*.feature`, que es la fuente de verdad vigente del comportamiento (sesión BDD 2026-08-12: consolidación de PDFs, exportación a Excel, resumen numérico, y un modelo más preciso de fallos del Portal 2).
 > Varios escenarios de `docs/BDD/` siguen etiquetados `@borrador` o `@pendiente` (sin confirmación explícita del propietario, o extrapolados por analogía — el caso más notorio es Portal 3, ver `docs/BDD/06_consulta_portal3.feature`). Este documento asume esas formas como plausibles para diseñar las capas, pero **no** las trata como cerradas; no construir el adapter de Portal 3 ni fijar `ERROR_PORTAL_3` en el dominio hasta que se confirmen con el propietario.
 
-## El falso dilema: "monolito" vs. "capas"
+## Decisión
 
-Al plantear la arquitectura se contrapuso "capas con bajo acoplamiento / alta cohesión" contra "monolito, porque el flujo no va a cambiar". Son dos ejes distintos:
+**Monolito de despliegue + arquitectura interna hexagonal (puertos y adaptadores).**
 
-- **Monolito** describe la **unidad de despliegue**: ¿un solo proceso/ejecutable o varios servicios? Aquí la respuesta no se discute — un solo `.exe` en la máquina del médico, sin servidor central (invariante #1, ver `CLAUDE.md`). No hay motivo para microservicios.
-- **Capas / bajo acoplamiento** describe la **organización interna del código dentro de ese único proceso**. Esta sí es una decisión de diseño real, independiente de la anterior.
-
-**Decisión: monolito de despliegue + arquitectura interna hexagonal (puertos y adaptadores).**
+La unidad de despliegue no está en discusión: un solo `.exe` en la máquina del médico, sin servidor central (invariante #1, ver `CLAUDE.md`) — no hay motivo para microservicios. La organización interna del código dentro de ese proceso sí es una decisión de diseño independiente; el porqué de hexagonal está a continuación, y una revisión posterior de esa justificación contra `docs/BDD/` está al final de este documento.
 
 ## Por qué hexagonal, y no "porque el flujo no cambia"
 
@@ -143,6 +140,23 @@ Antes: "verificar si el PDF ya existe en disco y es válido" era suficiente para
 - **Unit tests de `domain` y `application`** usando *fakes* de los `ports` (sin browser real) — rápidos, cubren máquina de estados, clasificación de rama, criterio de éxito, reintentos.
 - **Tests de contrato/integración de adapters** contra los portales reales — separados, más lentos, se corren manualmente, respetando el throttling (no golpear portales reales en cada commit).
 - Documentar los `ports/*.py` como el contrato de referencia para quien se incorpore — es la superficie que un desarrollador nuevo necesita entender primero.
+
+## Revisión de la justificación (2026-08-15)
+
+Sesión aparte, con este documento y `docs/BDD/` ya estables: se revisó si "hexagonal" seguía justificado frente al comportamiento real documentado, o si era ceremonia de más para un ejecutable on-premise de un solo médico.
+
+**Veredicto: sí se justifica**, por dos motivos reales — no por "el flujo no va a cambiar" (ya descartado como argumento arriba):
+
+1. **Heterogeneidad genuina entre los 3 portales.** Portal 1 usa interceptación de respuesta; Portal 2 tiene ALTCHA con proof-of-work y **3 desenlaces de negocio distintos** (cobertura vigente, `SIN_COBERTURA_PORTAL_2`, PDF corrupto) más **2 ciclos de reintento + intervención humana independientes**; Portal 3 reutiliza una sesión persistente en memoria. "Un gateway por portal" evita forzar esto a un `PortalClient` genérico con parámetros opcionales e ifs internos.
+2. **Lógica de negocio no trivial e independiente del scraping**, que vale la pena testear con fakes: clasificación Rama A/B, máquina de estados de 8 valores, criterio de éxito por rama, checkpoint por fase completada (no por archivo en disco, por la consolidación que borra los PDFs individuales — `docs/BDD/09_idempotencia_pdfs.feature` + `11_consolidacion_pdf_paciente.feature`), e intervalos de pausa para "tiempo activo". A esto se suma que el patrón "agotar reintentos → bloquear worker → pedir decisión al médico → reanudar" ya se repite dos veces solo dentro de Portal 2 (ALTCHA, PDF corrupto) antes de tocar Portal 3 — con el spec mostrando la repetición dos veces, `human_intervention.py` como puerto genérico no es abstracción prematura.
+
+**Matices — no todo el diseño pesa igual:**
+
+- Sólidos: `portal_gateway.py`, `human_intervention.py`, `checkpoint_repository.py` — volatilidad externa real o repetición de patrón confirmada por el spec.
+- Justificados por testabilidad, no por volatilidad: `pdf_verifier.py`, `pdf_merger.py` — pikepdf no cambia como un portal de terceros, pero aislarlo permite testear la orquestación de consolidación sin I/O real.
+- El más discutible: `excel_source.py` / `excel_report_writer.py` — una sola implementación esperada, sin volatilidad tipo "portal que cambia sin aviso". Se sostiene solo por testabilidad de `process_batch`, no por aislar cambio externo impredecible. Si algún día la capa de puertos pesa más de lo que aporta, es el primer candidato a recortar — no `portal_gateway.py`.
+
+Esto no cambia ninguna decisión de las listadas arriba; confirma que se sostienen frente al comportamiento real documentado en `docs/BDD/`, y señala dónde el argumento es más débil si en el futuro se quisiera simplificar.
 
 ## Pendiente / no decidido todavía
 
