@@ -72,6 +72,25 @@ Decisiones ya tomadas que vale la pena no revisitar sin razón nueva (detalle y 
 - **SQLite vía Repository pattern fino, sin ORM** — el checkpoint registra fases completadas por paciente (no presencia de archivos, por la consolidación de PDFs) e intervalos de pausa del lote; sigue sin justificar un ORM para este volumen y equipo.
 - **Throttling centralizado en el orquestador**, no repetido por adapter — y es un mecanismo distinto del backoff de reintentos dentro de cada adapter.
 
+## Convención de ramas y commits
+
+El repositorio tiene una rama de git por capa de `docs/arquitectura.md`, con el mismo nombre que su carpeta: `domain`, `application`, `infrastructure/excel`, `infrastructure/pdf`, `infrastructure/persistence`, `infrastructure/playwright`, `infrastructure/throttling`, `interface`. `main` es el tronco — no contiene implementación de ninguna capa, solo lo que es transversal a todas.
+
+**Va en `main`, nunca directo en una rama de capa:**
+- `docs/BDD/*.feature` — la especificación es compartida por todas las capas, no de una sola.
+- `CLAUDE.md`, `docs/arquitectura.md`, `docs/gui.md`, `docs/legal.md`, `AGENTS.md`, `README.md`.
+- Configuración transversal: `.gitignore`, futuros `pyproject.toml`/`package.json`, CI.
+
+**Va en la rama de su capa:**
+- Código bajo `domain/`, `application/`, `infrastructure/<sub>/`, `interface/` — cada uno en su rama, nunca mezclado en otra.
+- Los tests que ejercitan esa capa (`tests/domain/`, etc.).
+
+**Si mientras se trabaja en una rama de capa hace falta un cambio compartido** (confirmar una feature con el propietario, actualizar `arquitectura.md`, etc.): comitealo en `main`, no en la rama de capa activa, y después traelo con `git merge main` desde la rama de capa (no rebase, para no reescribir el historial de la rama). Ejemplo real ya aplicado: cierre de features `@borrador` con el propietario (2026-08-15) → commit en `main` → merge a `domain`.
+
+**Mensajes de commit:** frase corta en modo imperativo (español), sin prefijo tipo Conventional Commits obligatorio (el historial mezcla `fix: ...` con frases planas — no hay convención estricta), pero concreta sobre el *por qué*, no solo el *qué*. Si el commit registra una decisión de negocio recién confirmada por el propietario, poné la fecha explícita (ej. "confirmado 2026-08-15") — ayuda a distinguir qué viene de una sesión BDD validada vs. una inferencia todavía abierta.
+
+**No pushear a `origin` sin que se pida explícitamente** — commitear localmente es reversible, pushear no lo es.
+
 ## Stack de referencia (Apéndice A rescatado del `Requisitos.MD` original)
 
 Python 3.12+ · Playwright (navegador visible, contexto no persistente) · httpx · pandas + openpyxl · pikepdf / pdfplumber · SQLite · tenacity (reintentos) · typer (CLI de soporte) · empaquetado tipo PyInstaller `--onedir` para distribución on-premise en Windows (no confirmado).
