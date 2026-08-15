@@ -124,7 +124,16 @@ El software implementa medidas técnicas que *contribuyen* al cumplimiento; el c
 
 ## 🤝 Desarrollo
 
-Antes de tocar código, lee [`AGENTS.md`](./AGENTS.md) — incluye qué skill de Playwright instalar y las reglas no negociables de la arquitectura. No hay comandos de build/lint/test todavía; se agregan cuando exista el primer código.
+Antes de tocar código o documentación, lee [`AGENTS.md`](./AGENTS.md) — incluye las reglas no negociables de la arquitectura y las skills requeridas según qué vayas a tocar. No hay comandos de build/lint/test todavía; se agregan cuando exista el primer código.
+
+### Skills requeridas
+
+| Skill | Fuente | Cuándo instalarla |
+|---|---|---|
+| `playwright-dev` | [`microsoft/playwright`](https://github.com/microsoft/playwright) (declarada en `skills-lock.json`) | Antes de escribir cualquier adapter en `infrastructure/playwright/`. |
+| `gherkin-spec` | [`ElMichi08/gherkin-spec`](https://github.com/ElMichi08/gherkin-spec.git) | Antes de modificar o agregar escenarios en `docs/BDD/*.feature`, para mantener el formato narrativo correcto. |
+
+Detalle de instalación y por qué cada una es necesaria en [`AGENTS.md`](./AGENTS.md).
 
 ## 📄 Licencia
 
