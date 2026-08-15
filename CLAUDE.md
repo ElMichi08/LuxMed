@@ -38,8 +38,8 @@ El Apéndice B legal (personería jurídica, convenios de acceso, cumplimiento L
 - **Rama A** (menor de edad, o seguro "IESS"/"Afiliado Seguro Campesino"): pasa por los 3 portales, produce 3 PDFs, éxito = los 3 verificados.
 - **Rama B** (cualquier otro caso): omite Portal 2, produce 2 PDFs (#1 y #3), éxito = los 2 verificados.
 - Portal 1 responde "no encontrado" → estado `NO_ENCONTRADO`, corta el flujo para ese paciente sin tocar Portal 2/3.
-- Timeouts en cualquier portal → reintentos acotados (3 adicionales); fallo persistente → estado de error específico (`ERROR_PORTAL_1`, `ERROR_PORTAL_2`) y el lote continúa con el siguiente paciente.
-- Fallo persistente de extracción en Portal 2 requiere decisión del médico (continuar marcando error vs. pausar el lote) — no es autodecidible por el sistema.
+- Timeouts en cualquier portal → reintentos acotados (3 adicionales); fallo persistente → estado de error específico (`ERROR_PORTAL_1`, y `ERROR_PORTAL_3` aún `@pendiente` de confirmar — ver `docs/BDD/06_consulta_portal3.feature`) y el lote continúa con el siguiente paciente.
+- Portal 2 tiene 3 desenlaces distintos, no un solo fallo genérico (`docs/BDD/05_consulta_portal2.feature`, mayormente `@borrador`): cobertura vigente (PDF #2 normal), "SIN COBERTURA" sin PDF que generar (`SIN_COBERTURA_PORTAL_2` — resultado de negocio válido, no un error técnico), y dos ciclos de fallo técnico independientes que agotan reintentos automáticos y requieren decisión del médico: ALTCHA sin resolver (`ERROR_PORTAL_2`) y PDF del titular ilegible (`PDF_CORRUPTO_PORTAL_2`). Ninguno de los dos es autodecidible por el sistema.
 - El lote es pausable/reanudable con checkpoint por paciente (nunca a mitad de una consulta), y los PDFs ya descargados e íntegros no se vuelven a descargar al reanudar (idempotencia).
 - Throttling con jitter entre consultas, sin ráfagas concurrentes contra un mismo portal — es una regla de comportamiento del sistema, no solo cortesía.
 
@@ -63,12 +63,14 @@ main.py                 Composition root: inyecta adapters concretos en el orque
 Decisiones ya tomadas que vale la pena no revisitar sin razón nueva (detalle y justificación completos en `docs/arquitectura.md`):
 
 - **Un gateway por portal** (`Portal1Gateway`, `Portal2Gateway`, `Portal3Gateway`), no una interfaz `PortalClient` genérica — cada portal tiene semántica distinta (interceptación de respuesta / sincronización ALTCHA / sesión persistente en memoria).
-- **Máquina de estados explícita** en `domain/state_machine.py`, no dispersa en el orquestador.
-- **Comunicación orquestador → GUI vía eventos de dominio** (`PatientStateChanged`, `BatchPaused`, `SessionExpired`, `BatchCompleted`), traducidos a UI por una capa delgada de viewmodel fuera del dominio.
+- **Máquina de estados explícita** en `domain/state_machine.py`, con `EstadoPaciente` y `EstadoLote` como enums separados (`PAUSADO` es de lote, nunca de un paciente individual) — no dispersa en el orquestador.
+- **Comunicación orquestador → GUI vía eventos de dominio** (`PatientStateChanged`, `BatchPaused`, `SessionExpired`, `BatchCompleted`, `HumanInterventionRequested`, `HumanInterventionResolved`), traducidos a UI por una capa delgada de viewmodel fuera del dominio.
+- **La intervención humana es un puerto genérico** (`ports/human_intervention.py`), no lógica ad-hoc de Portal 2 — el patrón "agotar reintentos → bloquear el worker → pedir algo al médico → reanudar" ya se repite dos veces solo en Portal 2 (ALTCHA, PDF corrupto) y es candidato a repetirse en Portal 3.
+- **El mapeo estado interno → texto de reporte vive en `domain/reporte.py`**, no en el adapter de Excel — es una regla determinista, testeable sin I/O.
 - **Playwright síncrono** dentro de un worker/thread dedicado (no asyncio) — coherente con procesamiento serial sin ráfagas concurrentes.
 - **Pausa entre pacientes, nunca a mitad de una consulta** — evita estados intermedios corruptos en el checkpoint.
-- **SQLite vía Repository pattern fino, sin ORM** — el esquema es simple, un ORM sería sobre-ingeniería aquí.
-- **Throttling centralizado en el orquestador**, no repetido por adapter.
+- **SQLite vía Repository pattern fino, sin ORM** — el checkpoint registra fases completadas por paciente (no presencia de archivos, por la consolidación de PDFs) e intervalos de pausa del lote; sigue sin justificar un ORM para este volumen y equipo.
+- **Throttling centralizado en el orquestador**, no repetido por adapter — y es un mecanismo distinto del backoff de reintentos dentro de cada adapter.
 
 ## Stack de referencia (Apéndice A rescatado del `Requisitos.MD` original)
 

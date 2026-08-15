@@ -22,7 +22,7 @@ El Apéndice A de stack (ver `CLAUDE.md`) menciona CLI (typer) como interfaz de 
 3. **Resumen**
    - Resultado consolidado del flujo al terminar (o al pausar) el lote.
    - Botones para descargar los procesos/PDFs generados por paciente.
-   - Debe distinguir estados finales por paciente: `COMPLETADO`, `NO_ENCONTRADO`, `ERROR_PORTAL_1`, `ERROR_PORTAL_2` — coherente con la Feature "Definición de éxito por paciente".
+   - Debe distinguir todos los estados finales por paciente: `COMPLETADO`, `NO_ENCONTRADO`, `SIN_COBERTURA_PORTAL_2`, `CEDULA_INVALIDA`, `ERROR_PORTAL_1`, `ERROR_PORTAL_2`, `PDF_CORRUPTO_PORTAL_2`, `ERROR_PORTAL_3` (`@pendiente`) — lista autoritativa en `docs/BDD/12_exportacion_excel_resultado.feature`, agrupados como en esa feature para el texto en pantalla (p. ej. "Error Portal 2" cubre dos estados internos distintos).
    - Al reanudar un lote pausado, esta misma información (resumen de procesados/pendientes) se muestra antes de que el médico confirme continuar (Feature "Pausa y reanudación del lote").
 
 ## Conexión con la capa de aplicación
