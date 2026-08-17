@@ -1,0 +1,32 @@
+name: tests
+
+# Config transversal (docs/CLAUDE.md): vive en main, no en una rama de capa.
+# Corre en main y test -- las ramas de capa (domain, application, infrastructure/*,
+# interface) se validan cuando se mergean a test, no antes de eso.
+on:
+  push:
+    branches: [main, test]
+  pull_request:
+    branches: [main, test]
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # No hay pyproject.toml/requirements.txt todavia (ver CLAUDE.md, "Estado del
+      # repositorio"). Cuando se agregue, reemplazar por `pip install -e .[dev]` o
+      # equivalente -- las capas de infrastructure van a necesitar playwright, pandas,
+      # pikepdf, etc., que este workflow todavia no instala.
+      - run: pip install pytest
+
+      - run: pytest tests/ -q
