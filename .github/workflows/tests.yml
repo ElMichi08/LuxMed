@@ -21,10 +21,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: pip
+          # Sin cache: pip aca -- ese modo necesita requirements.txt/pyproject.toml
+          # para generar la cache key, y ninguno existe todavia (ver CLAUDE.md, "Estado
+          # del repositorio"); con cache: pip puesto y sin ese archivo, este paso falla
+          # el job antes de llegar a pytest (confirmado 2026-08-17). Agregarlo cuando
+          # exista un archivo de dependencias real.
 
-      # No hay pyproject.toml/requirements.txt todavia (ver CLAUDE.md, "Estado del
-      # repositorio"). Cuando se agregue, reemplazar por `pip install -e .[dev]` o
+      # Cuando se cree el packaging real, reemplazar por `pip install -e .[dev]` o
       # equivalente -- las capas de infrastructure van a necesitar playwright, pandas,
       # pikepdf, etc., que este workflow todavia no instala.
       - run: pip install pytest
