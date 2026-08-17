@@ -150,6 +150,14 @@ Las URLs de los 3 portales **no van hardcodeadas** dentro de `infrastructure/pla
 - **Tests de contrato/integración de adapters** contra los portales reales — separados, más lentos, se corren manualmente, respetando el throttling (no golpear portales reales en cada commit).
 - Documentar los `ports/*.py` como el contrato de referencia para quien se incorpore — es la superficie que un desarrollador nuevo necesita entender primero.
 
+## CI / Pipeline (nuevo, 2026-08-16)
+
+- **Un solo workflow, `.github/workflows/tests.yml`**, un job `pytest` que corre `pytest tests/ -q`. No hay matriz de versiones de Python ni lint todavía — se agrega cuando haga falta, no antes.
+- **Vive en `main`** (es config transversal, igual que `.gitignore` o un futuro `pyproject.toml` — ver `CLAUDE.md`, "Convención de ramas y commits"). Se agrega ahí y se trae a las ramas activas con `git merge main` (nunca rebase), el mismo patrón ya usado dos veces en `domain` (commits `b6c0b67`, `a29cbb6`) para traer cambios compartidos sin mezclarlos con el historial de una rama de capa.
+- **Dispara solo en `main` y `test`** (`push` y `pull_request`), no en cada rama de capa individual. Las ramas de capa (`domain`, `application`, `infrastructure/*`, `interface`) no corren CI por sí solas — se validan cuando se mergean a `test`, que es donde ya se hace la revisión manual antes de `main` (ejemplo real: merge de `domain` + `application` a `test`, 2026-08-16). Si en el futuro se prefiere que una rama de capa individual corra CI apenas se le hace push (para que un colaborador vea el fallo sin esperar al merge a `test`), es un cambio de una línea en el `on:` del workflow — no una decisión que valga la pena tomar antes de que haga falta.
+- **Instala dependencias con `pip install pytest` a pelo**, porque no existe `pyproject.toml`/`requirements.txt` todavía y `domain`/`application` solo usan la stdlib. Hay que actualizar este paso cuando se cree el packaging real — las ramas de `infrastructure/*` van a necesitar Playwright, pandas, pikepdf, etc., que este workflow todavía no instala.
+- **El workflow por sí solo no bloquea nada** — solo reporta rojo/verde. Para que de verdad impida mergear a `main` con tests rotos hace falta una branch protection rule en GitHub (Settings → Branches → `main` → "Require a pull request before merging" + "Require status checks to pass before merging", seleccionando el job `pytest`) — no es config versionable en el repo, se configura manualmente en GitHub y queda pendiente de que el propietario la habilite (ver "Pendiente" abajo).
+
 ## Revisión de la justificación (2026-08-15)
 
 Sesión aparte, con este documento y `docs/BDD/` ya estables: se revisó si "hexagonal" seguía justificado frente al comportamiento real documentado, o si era ceremonia de más para un ejecutable on-premise de un solo médico.
@@ -169,6 +177,7 @@ Esto no cambia ninguna decisión de las listadas arriba; confirma que se sostien
 
 ## Pendiente / no decidido todavía
 
+- **Habilitar branch protection en GitHub para `main`** exigiendo el check `pytest` de `.github/workflows/tests.yml` antes de mergear (ver "CI / Pipeline" arriba) — configuración manual en GitHub, no versionable, pendiente de que el propietario la active.
 - Framework de GUI concreto y su integración con el worker de orquestación — ver `docs/gui.md`.
 - **Mecanismo concreto de bloqueo cross-thread para `human_intervention.py`** (worker esperando una respuesta que solo puede dar el hilo de la GUI, sin congelar la ventana) — la necesidad ya está confirmada por el spec, falta el diseño técnico.
 - Empaquetado final para distribución on-premise en Windows. Riesgo concreto a resolver, no solo "candidato no confirmado": PyInstaller no empaqueta de forma transparente los binarios de Chromium de Playwright dentro del `.exe` — probablemente se necesite distribuir la carpeta de navegadores aparte (o `playwright install` post-instalación) y fijar `PLAYWRIGHT_BROWSERS_PATH`. Si el propietario espera literalmente un único archivo `.exe` sin nada al lado, hay que alinear esa expectativa antes de llegar al empaquetado.

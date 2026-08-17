@@ -79,7 +79,7 @@ El repositorio tiene una rama de git por capa de `docs/arquitectura.md`, con el 
 **Va en `main`, nunca directo en una rama de capa:**
 - `docs/BDD/*.feature` — la especificación es compartida por todas las capas, no de una sola.
 - `CLAUDE.md`, `docs/arquitectura.md`, `docs/gui.md`, `docs/legal.md`, `AGENTS.md`, `README.md`.
-- Configuración transversal: `.gitignore`, futuros `pyproject.toml`/`package.json`, CI.
+- Configuración transversal: `.gitignore`, futuros `pyproject.toml`/`package.json`, CI (`.github/workflows/`) — política de pipeline detallada en `docs/arquitectura.md`, sección "CI / Pipeline".
 
 **Va en la rama de su capa:**
 - Código bajo `domain/`, `application/`, `infrastructure/<sub>/`, `interface/` — cada uno en su rama, nunca mezclado en otra.
