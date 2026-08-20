@@ -29,13 +29,17 @@ class Portal1Gateway(Protocol):
     PortalTimeoutError (se traduce a "ERROR_PORTAL_1" en application).
     """
 
-    def consultar(self, cedula: str, fecha_atencion: date) -> ResultadoConsultaPortal1: ...
+    def consultar(
+        self, cedula: str, fecha_atencion: date
+    ) -> ResultadoConsultaPortal1: ...
 
 
 @dataclass(frozen=True)
 class ResultadoConsultaPortal2:
     tiene_cobertura: bool
-    pdf_path: Path | None = None  # None cuando tiene_cobertura es False (SIN_COBERTURA_PORTAL_2)
+    pdf_path: Path | None = (
+        None  # None cuando tiene_cobertura es False (SIN_COBERTURA_PORTAL_2)
+    )
 
 
 class ErrorPortal2(Exception):

@@ -9,12 +9,44 @@ on:
   pull_request:
     branches: [main, test]
 
+# Cancela ejecuciones anteriores si se empuja un nuevo commit a la misma rama/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
-  pytest:
+  static-analysis:
+    name: Lint & Type Checking
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install static analysis tools
+        run: pip install ruff mypy
+
+      - name: Run Ruff (Linter & Format check)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Run Mypy (Type Checking)
+        run: mypy domain application tests
+
+  pytest:
+    name: Pytest (${{ matrix.os }})
+    needs: static-analysis
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +62,8 @@ jobs:
       # Cuando se cree el packaging real, reemplazar por `pip install -e .[dev]` o
       # equivalente -- las capas de infrastructure van a necesitar playwright, pandas,
       # pikepdf, etc., que este workflow todavia no instala.
-      - run: pip install pytest
+      - name: Install test runner
+        run: pip install pytest
 
-      - run: pytest tests/ -q
+      - name: Run tests
+        run: pytest tests/ -v

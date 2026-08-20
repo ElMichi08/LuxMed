@@ -9,4 +9,3 @@ def clasificar_rama(es_menor_edad: bool, tipo_seguro: str) -> Rama:
     if es_menor_edad or tipo_seguro in SEGUROS_RAMA_A:
         return Rama.RAMA_A
     return Rama.RAMA_B
-    
