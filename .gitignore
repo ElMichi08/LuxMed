@@ -1,3 +1,8 @@
 # Contenido instalado de skills de Claude Code (reproducible vía skills-lock.json)
 .agents/
 .claude/
+.atl
+.venv
+.vscode
+.codegraph
+backup_historico
