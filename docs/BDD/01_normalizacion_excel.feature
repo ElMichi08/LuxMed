@@ -1,5 +1,7 @@
 # Fuente: Requisitos.MD — Feature "Normalización previa del Excel (pre-flujo)"
-# Estado: validado con el propietario (v1.0)
+# Estado: validado con el propietario (v1.0). Re-confirmado en sesión SDD 2026-09-10: la validación
+# de cédula es solo longitud de 10 dígitos, sin algoritmo de dígito verificador — business-rules.md
+# §2 se corrigió para dejar de exigirlo.
 
 Feature: Normalización previa del Excel (pre-flujo)
 

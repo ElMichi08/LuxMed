@@ -6,3 +6,6 @@
 .vscode
 .codegraph
 backup_historico
+__pycache__/
+*.py[cod]
+*$py.class

@@ -1,17 +1,20 @@
 # Fuente: Requisitos.MD — Feature "Consulta Portal 1 (siempre) — cobertura del paciente"
 # Estado: validado con el propietario (v1.0)
 #
-# Resuelto (sesión BDD 2026-08-12): si el PDF #1 falla la verificación de integridad en su primera
+# Resuelto (sesión BDD 2026-08-12): si el PDF del paciente falla la verificación de integridad en su primera
 # descarga (no al reanudar), se trata igual que un timeout — reintenta hasta 3 veces (cubierto por
 # los escenarios "Timeout dispara reintentos acotados" / "Fallo persistente..." de abajo) y luego
 # ERROR_PORTAL_1. Este archivo (Portal 1) queda validado con este criterio; el mismo criterio se
-# propuso por analogía para Portal 3, pero ahí sigue pendiente de revisión — ver 06_consulta_portal3.feature.
+# propuso por analogía para Portal 3, y quedó CONFIRMADO como uniforme en sesión SDD 2026-09-10
+# (tercera ronda) — ver business-rules.md §5 "Fallo de Integridad en la Primera Descarga". Aplica
+# igual al PDF de Portal 3 y al PDF del titular en la re-consulta a Portal 1 (ver
+# 06_consulta_portal3.feature y 05_consulta_portal2.feature).
 
 Feature: Consulta Portal 1 (siempre) — cobertura del paciente
 
   Como sistema
   Quiero obtener la cobertura y el tipo de seguro del paciente
-  Para decidir la rama de procesamiento y obtener el PDF #1
+  Para decidir la rama de procesamiento y obtener el PDF del paciente
 
   Background:
     Given un paciente con estado "PENDIENTE" en el lote
@@ -19,8 +22,8 @@ Feature: Consulta Portal 1 (siempre) — cobertura del paciente
 
   Scenario: Consulta exitosa devuelve cobertura y tipo de seguro
     When el sistema consulta el Portal 1 con la cédula del paciente y la fecha de atención
-    Then el sistema descarga el PDF #1 de cobertura interceptando la respuesta original
-    And el sistema verifica la integridad del PDF #1
+    Then el sistema descarga el PDF del paciente (Portal 1) interceptando la respuesta original
+    And el sistema verifica la integridad del PDF del paciente
     And el sistema registra el tipo de seguro y si el paciente es menor de edad
 
   Scenario: Paciente no encontrado corta el flujo

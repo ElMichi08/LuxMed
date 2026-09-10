@@ -1,33 +1,26 @@
-# Fuente: Requisitos.MD — Feature "Consulta Portal 2 (solo Rama A) — titular del seguro"
-# Estado: los 2 primeros escenarios (espera ALTCHA, consulta exitosa) están validados (v1.0).
-# El resto de escenarios de este archivo son BORRADOR — reescritos en sesión BDD 2026-08-12
-# a partir de un modelo más preciso del comportamiento real del Portal 2, que reemplaza al
-# escenario original "No se puede extraer la cédula del titular" de Requisitos.MD v1.0:
+# Fuente: business-rules.md §1/§2/§5 (glosario "Seguro Derivado", regla de derivación, ALTCHA).
+# Estado: CONFIRMADO con el propietario en sesión SDD 2026-09-10 (segunda ronda, a partir de una
+# revisión de código del equipo) y promovido a business-rules.md v1.2.0 — reemplaza el modelo
+# anterior de este archivo, que asumía que el Portal 2 generaba un PDF del titular.
 #
-#   - El Portal 2 tiene 3 desenlaces posibles, no uno solo genérico de "extracción fallida":
-#     1) Responde con un PDF válido del titular (caso normal).
-#     2) Responde "SIN COBERTURA" directamente en el HTML, sin generar ningún PDF.
-#     3) Responde con un PDF, pero el PDF está corrupto/no se puede leer — esto solo lo puede
-#        juzgar el médico viendo el documento, no un chequeo automático.
-#   - El fallo de ALTCHA (no pasar la prueba de trabajo) y el fallo de lectura del PDF son
-#     problemas de naturaleza distinta (automatización de navegador vs. dato ilegible) y cada
-#     uno tiene su propio ciclo de reintento + intervención humana.
-#   - "Headless = false" (navegador visible) todo el tiempo es el modo normal de operación, no
-#     algo exclusivo de la intervención humana — coherente con Apéndice A de Requisitos.MD.
-#
-# Falta trasladar esta revisión a Requisitos.MD para que quede como fuente de verdad única.
-#
-# Punto abierto (resuelto por inferencia, pendiente de confirmación explícita): en todos los
-# casos donde el paciente termina sin cédula del titular (ERROR_PORTAL_2, SIN_COBERTURA_PORTAL_2,
-# PDF_CORRUPTO_PORTAL_2), se asume que el Portal 3 se omite para ese paciente — ver
-# 06_consulta_portal3.feature. No se ha vuelto a confirmar explícitamente tras introducir estos
-# 3 estados nuevos (antes solo existía el genérico ERROR_PORTAL_2).
+# Modelo real confirmado: el Portal 2 **no genera ningún documento**. Solo devuelve un dato:
+#   - Si identifica a un titular que le deriva la cobertura al paciente → `seguro_derivado = True`,
+#     se guardan los datos de ese titular, y el sistema vuelve a consultar el PORTAL 1 (no el
+#     Portal 2) con la cédula del titular para obtener su PDF de cobertura — ver
+#     06_consulta_portal3.feature y business-rules.md §7 para el resto de esa ruta.
+#   - Si no identifica ningún titular → `seguro_derivado = False`. Esto NO es un rechazo: el
+#     paciente es su propio titular y continúa directo al Portal 3 sin ningún documento adicional
+#     de esta fase (reemplaza a los antiguos escenarios "SIN_COBERTURA_PORTAL_2" y
+#     "PDF_CORRUPTO_PORTAL_2", que trataban erróneamente este resultado — y la corrupción de un PDF
+#     que en realidad no emite el Portal 2 — como estados de fallo/rechazo).
+# El único motivo de error real en el Portal 2 es el fallo persistente del widget ALTCHA al enviar
+# el formulario — no hay ningún PDF de Portal 2 que pueda "salir corrupto".
 
-Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
+Feature: Consulta Portal 2 (solo Rama A) — determinación de seguro derivado
 
   Como sistema
-  Quiero obtener la cédula del titular que extendió la cobertura
-  Para poder consultar la atención en el Portal 3 con el identificador correcto
+  Quiero saber si existe un titular distinto que le derive la cobertura al paciente
+  Para decidir si debo volver a consultar el Portal 1 por esa persona, o continuar directo al Portal 3
 
   Background:
     Given un paciente clasificado en "Rama A"
@@ -38,53 +31,29 @@ Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
     Then el sistema espera a que la verificación se complete antes de enviar el formulario
     # Sincronización con el widget legítimo del portal, no evasión del control.
 
-  @borrador
   Scenario: Fallo de ALTCHA — reintentos automáticos y luego intervención humana
     Given el formulario del Portal 2 está cargado con cédula del paciente, fecha de atención y motivo "Enfermedad"
     When el widget ALTCHA no logra completar la verificación tras 3 intentos automáticos vía Playwright
     Then el sistema pausa el navegador visible y le pide al médico resolver el ALTCHA manualmente
     And al resolverse manualmente, el sistema retoma el envío del formulario de forma automática
 
-  @borrador
   Scenario: Fallo persistente de ALTCHA tras intervención humana — decide el médico
     Given la intervención humana en el ALTCHA tampoco logró completar la verificación
     When el sistema consulta al médico cómo proceder
     Then si el médico elige reintentar, se repite el ciclo completo (3 intentos automáticos + 1 con intervención humana)
     And si el médico elige marcar como error, el paciente se marca "ERROR_PORTAL_2" y el sistema continúa con el siguiente paciente
+    # Este es el único motivo de error posible en el Portal 2: no genera documentos que puedan fallar de otra forma.
 
-  Scenario: Consulta exitosa entrega el PDF del titular
+  Scenario: El Portal 2 identifica un titular — seguro derivado
     Given el formulario del Portal 2 fue enviado con la verificación completada
-    When el Portal 2 responde con cobertura vigente del titular
-    Then el sistema descarga el PDF #2 del titular del seguro
-    And el sistema verifica la integridad del PDF #2
+    When el Portal 2 responde identificando a un titular que le deriva la cobertura al paciente
+    Then el sistema fija "paciente.seguro_derivado" en verdadero
+    And guarda los datos del titular (incluyendo su cédula) para volver a consultar el Portal 1
+    And no se descarga ningún documento en esta fase
 
-  @borrador
-  Scenario: El Portal 2 responde "SIN COBERTURA" — no hay PDF que descargar
+  Scenario: El Portal 2 no identifica ningún titular — seguro propio
     Given el formulario del Portal 2 fue enviado con la verificación completada
-    When el Portal 2 responde "SIN COBERTURA" directamente en el HTML de la página, sin generar ningún PDF
-    Then el sistema marca al paciente como "SIN_COBERTURA_PORTAL_2"
-    And no se descarga ningún PDF #2
-    # En el Excel de resultados este estado se traduce como "Desactualizado" — ver 12_exportacion_excel_resultado.feature.
-
-  Scenario: Extracción exitosa de la cédula del titular
-    Given el PDF #2 fue descargado y verificado
-    When el sistema extrae localmente los datos del titular
-    Then obtiene la cédula del titular para usarla en el Portal 3
-    # Extracción local determinista (sin LLM). El Portal 2 solo genera este PDF cuando sí hay
-    # cobertura, así que el formato es consistente y la extracción no debería fallar por datos
-    # ausentes — el único fallo esperable en este punto es que el archivo esté corrupto (ver abajo).
-
-  @borrador
-  Scenario: El PDF del titular está corrupto — reintento y luego intervención humana
-    Given el PDF #2 fue descargado pero no se puede leer o falla su verificación de integridad
-    When el sistema reintenta la descarga hasta 3 veces
-    And el PDF sigue sin poder leerse
-    Then el sistema pausa y le pide al médico revisar el documento en el navegador y escribir manualmente la cédula del titular en un campo de texto
-    # Solo un humano puede juzgar si el PDF realmente está corrupto o no.
-
-  @borrador
-  Scenario: El médico tampoco puede resolver el PDF corrupto del titular
-    Given el médico revisó el PDF del titular y no puede proporcionar su cédula
-    When el médico marca el paciente como fallo
-    Then el paciente se marca "PDF_CORRUPTO_PORTAL_2"
-    And el sistema continúa con el siguiente paciente
+    When el Portal 2 no identifica a ningún titular para el paciente
+    Then el sistema fija "paciente.seguro_derivado" en falso
+    And el paciente continúa directo al Portal 3 con su propia cédula
+    And este resultado no se trata como un error ni como un rechazo del paciente
