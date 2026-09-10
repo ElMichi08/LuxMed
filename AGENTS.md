@@ -6,21 +6,6 @@
 
 ---
 
-<<<<<<< HEAD
-Fase de diseño con una primera capa de código: `domain/` ya tiene implementación (`models`, `branch_rules`, `success_criteria`, `estados`, `state_machine`, `reporte`) con tests en `tests/domain/`. Las demás capas (`application/`, `infrastructure/*`, `interface/`) siguen vacías. Antes de proponer o escribir código, lee en este orden:
-
-1. `docs/BDD/*.feature` — especificación de comportamiento vigente (fuente de verdad del *qué*).
-2. `docs/arquitectura.md` — decisiones de arquitectura interna (el *cómo* a nivel de capas).
-3. `docs/gui.md` — diseño superficial de la GUI.
-4. `docs/legal.md` — contexto legal (no comportamiento de software).
-5. `CLAUDE.md` — invariantes de diseño, convención de ramas/commits y resumen de todo lo anterior.
-
-No hay `package.json` ni `pyproject.toml` todavía. Sí hay tests: `python -m pytest` desde la raíz corre `tests/domain/` (requiere `pytest` instalado en el entorno; no hay `requirements.txt` todavía, instálalo manualmente si tu entorno no lo trae). La estructura de carpetas (`domain/`, `application/`, `infrastructure/`, `interface/`) ya está decidida — respétala en vez de improvisar una nueva.
-
-## Ramas y commits
-
-Una rama de git por capa, mismo nombre que la carpeta (`domain`, `application`, `infrastructure/excel`, `infrastructure/pdf`, `infrastructure/persistence`, `infrastructure/playwright`, `infrastructure/throttling`, `interface`). `main` es el tronco: ahí van `docs/BDD/*.feature`, el resto de `docs/`, `CLAUDE.md`, `AGENTS.md` y config transversal (`.gitignore`, futuro `pyproject.toml`, CI) — **nunca** directo en una rama de capa. El código de cada capa va solo en su propia rama. Si necesitás un cambio compartido mientras trabajás en una rama de capa, comitealo en `main` y traelo con `git merge main` (no rebase). Detalle completo y ejemplo real en `CLAUDE.md` → "Convención de ramas y commits". No pushees a `origin` sin que se te pida explícitamente.
-=======
 ## 1. Reglas Inmutables de Comportamiento del Agente
 
 ### ❌ Prohibición Absoluta de Autonomía Incondicional
@@ -28,7 +13,6 @@ El agente **JAMÁS** creará archivos, modificará lógica o tomará decisiones 
 
 ### ❌ Cero Comentarios Generados por IA
 El código de producción generado debe ser limpio, autodocumentado y libre de cualquier comentario decorativo redundante o texto autogenerado típico de modelos de lenguaje (ej. `# Este método guarda los datos`). Si el código requiere claridad, se utilizará tipado estático estricto y nombres de variables descriptivos y explícitos.
->>>>>>> project-scaffolding
 
 ### 🔒 Conservación Estricta de la Arquitectura Hexagonal Directa
 Cualquier archivo de código generado debe encajar quirúrgicamente dentro de la topología modular de carpetas. Los adaptadores técnicos (infraestructura) nunca se comunicarán entre sí. La comunicación cruzada se realizará obligatoriamente a través de la inyección de abstracciones definidas en el dominio.
@@ -64,14 +48,8 @@ El desarrollo en LuxMed se rige por especificaciones estructuradas que actúan c
 2. **Validación de Restricciones:**  
    El agente verifica que la especificación no viole ninguna regla previa del dominio médico o del árbol de decisión de seguros.
 
-<<<<<<< HEAD
-- Mantiene el formato narrativo usado en este proyecto para `docs/BDD/`: Preámbulo de invariantes, Terminología, Features/Scenarios en español, Apéndices que separan stack técnico y contexto legal del comportamiento verificable — el mismo formato que tenía `Requisitos.MD` y que heredaron los `.feature` actuales.
-- **Úsala siempre que modifiques o agregues un escenario** en `docs/BDD/` — `06_consulta_portal3.feature` sigue con escenarios `@pendiente` (ver `docs/arquitectura.md`, sección de pendientes) hasta explorar el Portal 3 real; el resto de features ya fue confirmado por el propietario (2026-08-15). Escribir un escenario a mano sin la skill es la forma más fácil de romper la consistencia narrativa entre los 13 archivos.
-- No sustituye la validación del propietario (el médico) — la skill asegura que el *formato* quede correcto, no que el *contenido* esté confirmado como comportamiento real.
-=======
 3. **Escritura Quirúrgica:**  
    El agente genera el código en la subcarpeta exacta de la rama de trabajo, sin modificar líneas adyacentes ni agregar dependencias no autorizadas.
->>>>>>> project-scaffolding
 
 ---
 
