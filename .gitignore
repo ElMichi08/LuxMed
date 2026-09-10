@@ -1,6 +1,7 @@
 # Contenido instalado de skills de Claude Code (reproducible vía skills-lock.json)
 .agents/
 .claude/
+<<<<<<< HEAD
 
 # Python: bytecode y caches de ejecución
 __pycache__/
@@ -49,3 +50,10 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+=======
+.atl
+.venv
+.vscode
+.codegraph
+backup_historico
+>>>>>>> project-scaffolding
