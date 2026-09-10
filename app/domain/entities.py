@@ -33,7 +33,7 @@ class Paciente:
         hoy = date.today()
         return hoy.year - self.fecha_nacimiento.year - (
             (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
-        )
+            )
 
     @property
     def es_menor_de_edad(self) -> bool:
