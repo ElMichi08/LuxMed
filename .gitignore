@@ -1,0 +1,17 @@
+# Entorno de Claude Code (convencion previa del repo)
+.agents/
+.claude/
+.atl
+.vscode/
+.codegraph
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Automatizacion LUXMED: credenciales y datos generados en runtime
+.env
+data/
+output/
