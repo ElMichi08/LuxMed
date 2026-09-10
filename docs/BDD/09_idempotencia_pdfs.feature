@@ -10,6 +10,9 @@
 # ese registro de fases (no la presencia de los PDFs individuales, que pueden ya no existir) para
 # saber qué le falta. Ver escenario nuevo en 11_consolidacion_pdf_paciente.feature.
 
+# Promovido a business-rules.md §6 en sesión SDD 2026-09-10 como fuente de verdad formal (antes
+# solo vivía en este BDD).
+
 Feature: Idempotencia de PDFs al reanudar
 
   Como sistema

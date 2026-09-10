@@ -1,6 +1,6 @@
 # Architecture.md · LuxMed System 🏥
 
-> **Versión de Arquitectura:** 1.0.0 (Septiembre 2026)  
+> **Versión de Arquitectura:** 1.3.0 (Septiembre 2026)  
 > **Modelo de Despliegue:** On-Premise Blindado (Ecuador)
 
 ---
@@ -47,8 +47,8 @@ El problema central que resuelve es la saturación y lentitud del flujo de atenc
            │ y Excel Espejo                    ▼
   ┌────────┴────────┐             ┌─────────────────────────┐
   │                 │             │ Portales Web Externos   │
-  │  Sistema de     │             │ • P1: MSP Cobertura     │
-  │  Archivos Local │             │ • P2: Portal Seguro     │
+  │  Sistema de     │             │ • P1: Portal Coberturas │
+  │  Archivos Local │             │ • P2: Portal Validación │
   │  (Windows OS)   │             │ • P3: Portal Destino    │
   └─────────────────┘             └─────────────────────────┘
 ```
@@ -65,7 +65,7 @@ El problema central que resuelve es la saturación y lentitud del flujo de atenc
   │                           CORE APLICACIÓN                           │
   │                                                                     │
   │   [ Orchestrator Service ] ◄───────► [ Validator Service ]          │
-  │   (Árbol de Decisión P1, P2, P3)     (Cédulas 2-1-2 / Edad Inm.)    │
+  │   (Árbol de Decisión P1, P2, P3)     (Longitud Cédula / Edad Inm.) │
   └──────────────────────────────────┬──────────────────────────────────┘
                                       │
           Inyección de Dependencias   │ Implementa contratos (Puertos)
@@ -99,21 +99,23 @@ El problema central que resuelve es la saturación y lentitud del flujo de atenc
    El usuario deposita el Excel en la Dropzone. El adaptador de Pandas lee únicamente: **B** (Nombres), **C** (Cédula), **E** (Fecha Nacimiento), **G** (Tipo Seguro), **H** (Código Clínica) y **M** (Nombre Establecimiento).
 
 2. **Higienización en el Dominio:**  
-   El Validator evalúa la cédula (Columna C) mediante el algoritmo del coeficiente 2-1-2 de Ecuador. Si el tamaño excede los 10 dígitos o falla el dígito verificador, el paciente es marcado inmediatamente como **INVÁLIDO**. La columna E transforma el string de fecha y calcula dinámicamente la edad actual; si el paciente es menor de edad y el sistema detecta que carece de cobertura previa, es clasificado automáticamente como **INVÁLIDO**. Los registros sanos ingresan en la base de datos SQLite en estado **PENDIENTE**.
+   El Validator evalúa la cédula (Columna C): si no tiene exactamente 10 dígitos numéricos, el paciente es marcado inmediatamente como **INVÁLIDO** (`CEDULA_INVALIDA`), sin ningún algoritmo adicional de dígito verificador. La columna E transforma el string de fecha y calcula dinámicamente la edad actual; si el paciente es menor de edad y el sistema detecta que carece de cobertura previa, es clasificado automáticamente como **INVÁLIDO**. Los registros sanos ingresan en la base de datos SQLite en estado **PENDIENTE**.
 
-3. **Auditoría de Red en P_1 (MSP):**  
-   El orquestador arranca el `QThread` de Playwright. Rellena los inputs de Cédula y Fecha de consulta en `https://msp.gob.ec`. Al presionar el botón de consulta, Playwright no descarga el archivo; intercepta de forma asíncrona la respuesta del servidor web y captura los bytes del PDF de previsualización directamente en memoria.
+3. **Auditoría de Red en P_1 (Portal de Coberturas):**  
+   El orquestador arranca el `QThread` de Playwright. Rellena los inputs de Cédula y Fecha de consulta en el Portal de Coberturas. Al presionar el botón de consulta, Playwright no descarga el archivo; intercepta de forma asíncrona la respuesta del servidor web y captura los bytes del PDF de previsualización directamente en memoria.
 
-4. **Evaluación de Cobertura Activa y Rutas de Desvío:**
-   - **Si las 3 entidades (IESS, ISSFA, ISSPOL) reportan "no registra cobertura":**  
-     El paciente pasa a estado **INVÁLIDO**, se guarda el fallo en SQLite y se marca su fila para pintarse en rojo en el reporte de auditoría. El flujo para este registro concluye inmediatamente.
-   - **Si el portal detecta cobertura activa en ISSFA o ISSPOL:**  
-     El paciente es marcado como **VÁLIDO**, se conservan los bytes de P_1, se omite el Portal_2 y el bot navega directamente a extraer la información técnica del Portal_3.
-   - **Si el portal detecta cobertura activa en IESS:**  
-     El paciente es clasificado como **VÁLIDO**, pero por regla estricta de negocio, el bot está obligado a procesar de forma secuencial la información del Portal_2 y posteriormente la del Portal_3.
+4. **Evaluación de Cobertura Activa y Rutas de Desvío (Rama A / Rama B):**
+   - **Si el Portal de Coberturas no reporta cobertura vigente en ninguna entidad:**  
+     El paciente pasa a estado **INVÁLIDO** (`NO_ENCONTRADO`), se guarda el fallo en SQLite y se marca su fila para pintarse en rojo en el reporte de auditoría. El flujo para este registro concluye inmediatamente.
+   - **Si el Portal de Coberturas reporta cobertura vigente en la familia IESS (cualquiera de sus variantes):**  
+     El paciente se clasifica en **Rama A**. El bot consulta el Portal_2, el cual no genera ningún documento — solo devuelve si existe un titular distinto que le derive la cobertura al paciente (`seguro_derivado`). Si `seguro_derivado = True`, el bot vuelve a consultar el Portal_1, ahora con la cédula del titular, para capturar su documento de cobertura, y luego continúa al Portal_3 con la cédula del titular. Si `seguro_derivado = False`, no hay documento adicional y el bot navega directo al Portal_3 con la cédula del propio paciente.
+   - **Si el Portal de Coberturas reporta cobertura vigente en la Entidad Previsional Especial:**  
+     El paciente se clasifica en **Rama B**, se omite el Portal_2 y el bot navega directamente a extraer la información técnica del Portal_3 con la cédula del propio paciente.
+
+   Las dos familias de cobertura son mutuamente excluyentes: ningún paciente tiene cobertura vigente de ambas al mismo tiempo, por lo que no existe un caso de doble afiliación simultánea a resolver.
 
 5. **Consolidación y Cierre de Entregables:**  
-   Al finalizar el árbol de decisiones del paciente, un adaptador basado en memoria unifica los flujos de bytes capturados de los portales en un único archivo PDF consolidado indexado bajo la nomenclatura plana `[CÉDULA]_[NOMBRE]_REPORT.pdf` dentro de la carpeta del mes, evitando la saturación del sistema de archivos.
+   Al finalizar el árbol de decisiones del paciente, un adaptador basado en memoria unifica los flujos de bytes capturados de los portales en un único archivo PDF consolidado: Portal 1 (paciente) → Portal 1 (titular, re-consulta) → Portal 3 cuando `seguro_derivado = True`; o Portal 1 (paciente) → Portal 3 cuando `seguro_derivado = False` o en Rama B. El archivo se indexa bajo la nomenclatura plana `NOMBRE_CEDULA.pdf` dentro de la carpeta del mes correspondiente a la fecha de atención, evitando la saturación del sistema de archivos y la colisión entre corridas de meses distintos.
 
 ---
 
@@ -133,9 +135,10 @@ El desarrollo de LuxMed se gestiona de forma estricta mediante el aislamiento de
 
 ## 7. Seguridad y Cumplimiento (Security)
 
-- **Autenticación Local (RBAC Básico):** Acceso protegido a la aplicación a través de la interfaz de Login nativa que valida credenciales locales almacenadas de forma cifrada en la base de datos local SQLite.
+- **Autenticación Local (RBAC Básico):** Acceso protegido a la aplicación a través de la interfaz de Login nativa que valida credenciales locales almacenadas de forma cifrada en la base de datos local SQLite. Esta capa protege el acceso a la aplicación misma — es independiente de cualquier autenticación contra los portales externos, y existe como blindaje LOPDP para que solo un médico autorizado pueda operar el sistema.
 - **Privacidad de Datos Médicos (LOPDP):** Ningún dato personal identificable (PII) o registro de salud de los pacientes viaja a servidores web externos de desarrollo. Toda la información de auditoría se procesa localmente en la memoria RAM de la máquina y se escribe en caliente en el almacenamiento local del consultorio.
-- **Protección de Credenciales de Portales:** Las credenciales de acceso institucional fijas requeridas para los Portales 2 y 3 se cargan en caliente en el arranque del sistema a través de variables de entorno seguras alojadas en el archivo `.env` local de cada sucursal, el cual está estrictamente bloqueado en el archivo `.gitignore`.
+- **Autenticación al Portal 3 (único portal que requiere sesión):** Es un flujo **manual asistido**, no automatizado: al arrancar un lote, el sistema abre el navegador en modo visible en la página de login del Portal 3 y pausa hasta que el médico introduce sus propias credenciales. El sistema no captura, almacena ni transmite esas credenciales. La sesión/cookie resultante se mantiene **únicamente en memoria (RAM)** durante toda la corrida del lote — nunca se persiste a disco. Si la aplicación se cierra o falla a mitad de la corrida, la sesión se pierde junto con el resto del estado en memoria y el médico debe re-autenticarse al reanudar (ver `08_pausa_reanudacion_lote.feature`); es el mismo comportamiento ya definido para una expiración de sesión a mitad de lote.
+- **Portal 2 no requiere autenticación:** es un formulario público, protegido únicamente por el widget anti-bot ALTCHA (ver business-rules.md §5) — no exige login ni credenciales institucionales.
 
 ---
 
@@ -152,3 +155,9 @@ El desarrollo de LuxMed se gestiona de forma estricta mediante el aislamiento de
 - **Contexto:** El bot requiere capturar las actas PDF emitidas por los tres portales de salud de forma masiva. Confiar en la descarga tradicional del navegador de Windows genera bloqueos intermitentes en las interfaces de usuario de escritorio y requiere lidiar de forma compleja con rutas variables de descargas locales de los operadores.
 - **Decisión:** Forzar a Playwright a utilizar la intercepción de eventos de red y capturar los flujos binarios de los PDFs directamente en la memoria RAM en formato de variables de bytes.
 - **Consecuencias:** Eliminación absoluta de errores causados por ventanas emergentes de descarga de Windows, reducción drástica del espacio en disco duro durante la fase de procesamiento activo y facilidad total para fusionar los reportes de los portales en caliente antes de escribir el archivo único indexado definitivo.
+
+### ADR 003: Abstracción de Entidades Previsionales y Portales en la Documentación
+
+- **Contexto:** LuxMed no es un proyecto formalmente aprobado por las instituciones gubernamentales cuyos portales consulta. Nombrar esas entidades específicas (o sus URLs) en la documentación de arquitectura y de negocio expone innecesariamente esa relación no oficial.
+- **Decisión:** La documentación (`ARCHITECTURE.md`, `business-rules.md`, `docs/BDD/*.feature`) se refiere a las entidades previsionales únicamente como **IESS** (nombre genérico del régimen general, no considerado sensible) y **Entidad Previsional Especial** (agrupa el resto de regímenes especiales), y a los portales solo por su rol funcional (Portal de Coberturas / Portal de Validación Secundaria / Portal de Destino Técnico), sin URLs ni nombres de ministerios u organismos. El nombre real de cada entidad y portal puede seguir existiendo en el código (selectores, configuración), donde no constituye documentación pública del proyecto.
+- **Consecuencias:** La documentación queda desacoplada de los nombres reales de terceros no vinculados formalmente al proyecto. Como contrapartida, cualquier persona que solo lea la documentación (sin el código) no puede saber a qué organismo específico corresponde cada portal — es una decisión consciente de este ADR, no un vacío de información.
