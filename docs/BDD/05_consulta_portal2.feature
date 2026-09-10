@@ -1,8 +1,9 @@
 # Fuente: Requisitos.MD — Feature "Consulta Portal 2 (solo Rama A) — titular del seguro"
-# Estado: los 2 primeros escenarios (espera ALTCHA, consulta exitosa) están validados (v1.0).
-# El resto de escenarios de este archivo son BORRADOR — reescritos en sesión BDD 2026-08-12
-# a partir de un modelo más preciso del comportamiento real del Portal 2, que reemplaza al
-# escenario original "No se puede extraer la cédula del titular" de Requisitos.MD v1.0:
+# Estado: validado con el propietario. Los 2 primeros escenarios (espera ALTCHA, consulta
+# exitosa) ya estaban validados en v1.0; el resto fue reescrito en sesión BDD 2026-08-12 a
+# partir de un modelo más preciso del comportamiento real del Portal 2 — reemplaza al escenario
+# original "No se puede extraer la cédula del titular" de Requisitos.MD v1.0 — y confirmado
+# explícitamente por el propietario el 2026-08-15:
 #
 #   - El Portal 2 tiene 3 desenlaces posibles, no uno solo genérico de "extracción fallida":
 #     1) Responde con un PDF válido del titular (caso normal).
@@ -13,15 +14,14 @@
 #     problemas de naturaleza distinta (automatización de navegador vs. dato ilegible) y cada
 #     uno tiene su propio ciclo de reintento + intervención humana.
 #   - "Headless = false" (navegador visible) todo el tiempo es el modo normal de operación, no
-#     algo exclusivo de la intervención humana — coherente con Apéndice A de Requisitos.MD.
+#     algo exclusivo de la intervención humana — coherente con el Apéndice A de stack (ver
+#     CLAUDE.md).
 #
-# Falta trasladar esta revisión a Requisitos.MD para que quede como fuente de verdad única.
-#
-# Punto abierto (resuelto por inferencia, pendiente de confirmación explícita): en todos los
-# casos donde el paciente termina sin cédula del titular (ERROR_PORTAL_2, SIN_COBERTURA_PORTAL_2,
-# PDF_CORRUPTO_PORTAL_2), se asume que el Portal 3 se omite para ese paciente — ver
-# 06_consulta_portal3.feature. No se ha vuelto a confirmar explícitamente tras introducir estos
-# 3 estados nuevos (antes solo existía el genérico ERROR_PORTAL_2).
+# Punto abierto (todavía sin confirmación explícita, fuera del alcance de este cierre): en
+# todos los casos donde el paciente termina sin cédula del titular (ERROR_PORTAL_2,
+# SIN_COBERTURA_PORTAL_2, PDF_CORRUPTO_PORTAL_2), se asume que el Portal 3 se omite para ese
+# paciente — ver el escenario @pendiente correspondiente en 06_consulta_portal3.feature. Depende
+# de que se confirme el comportamiento real de Portal 3, no se puede cerrar por conversación.
 
 Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
 
@@ -38,14 +38,12 @@ Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
     Then el sistema espera a que la verificación se complete antes de enviar el formulario
     # Sincronización con el widget legítimo del portal, no evasión del control.
 
-  @borrador
   Scenario: Fallo de ALTCHA — reintentos automáticos y luego intervención humana
     Given el formulario del Portal 2 está cargado con cédula del paciente, fecha de atención y motivo "Enfermedad"
     When el widget ALTCHA no logra completar la verificación tras 3 intentos automáticos vía Playwright
     Then el sistema pausa el navegador visible y le pide al médico resolver el ALTCHA manualmente
     And al resolverse manualmente, el sistema retoma el envío del formulario de forma automática
 
-  @borrador
   Scenario: Fallo persistente de ALTCHA tras intervención humana — decide el médico
     Given la intervención humana en el ALTCHA tampoco logró completar la verificación
     When el sistema consulta al médico cómo proceder
@@ -58,7 +56,6 @@ Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
     Then el sistema descarga el PDF #2 del titular del seguro
     And el sistema verifica la integridad del PDF #2
 
-  @borrador
   Scenario: El Portal 2 responde "SIN COBERTURA" — no hay PDF que descargar
     Given el formulario del Portal 2 fue enviado con la verificación completada
     When el Portal 2 responde "SIN COBERTURA" directamente en el HTML de la página, sin generar ningún PDF
@@ -74,7 +71,6 @@ Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
     # cobertura, así que el formato es consistente y la extracción no debería fallar por datos
     # ausentes — el único fallo esperable en este punto es que el archivo esté corrupto (ver abajo).
 
-  @borrador
   Scenario: El PDF del titular está corrupto — reintento y luego intervención humana
     Given el PDF #2 fue descargado pero no se puede leer o falla su verificación de integridad
     When el sistema reintenta la descarga hasta 3 veces
@@ -82,7 +78,6 @@ Feature: Consulta Portal 2 (solo Rama A) — titular del seguro
     Then el sistema pausa y le pide al médico revisar el documento en el navegador y escribir manualmente la cédula del titular en un campo de texto
     # Solo un humano puede juzgar si el PDF realmente está corrupto o no.
 
-  @borrador
   Scenario: El médico tampoco puede resolver el PDF corrupto del titular
     Given el médico revisó el PDF del titular y no puede proporcionar su cédula
     When el médico marca el paciente como fallo
