@@ -16,16 +16,22 @@ class EntidadSeguro(str, Enum):
 
 @dataclass
 class Paciente:
-    nombre_y_apellidos: str     
-    cedula: str                  
-    fecha_nacimiento: date       
-    aporta: str                  
-    fecha_atencion: date         
-    nom_establecimiento: str     
+    nombre_y_apellidos: str
+    cedula: str
+    fecha_nacimiento: date
+    aporta: str
+    fecha_atencion: date
+    nom_establecimiento: str
     
     estado: EstadoValidacion = EstadoValidacion.PENDIENTE
     entidad_detectada: EntidadSeguro = EntidadSeguro.NINGUNA
-    pdf_p1_bytes: bytes | None = None
+    seguro_derivado: bool = False
+    
+    pdf_p1_propio_bytes: bytes | None = None
+    cedula_acreditador: str | None = None
+    pdf_p1_acreditador_bytes: bytes | None = None
+    pdf_p3_bytes: bytes | None = None
+    
     es_auditoria_rojo: bool = False
 
     @property
@@ -33,7 +39,7 @@ class Paciente:
         hoy = date.today()
         return hoy.year - self.fecha_nacimiento.year - (
             (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
-            )
+        )
 
     @property
     def es_menor_de_edad(self) -> bool:

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import date
 from abc import ABC, abstractmethod
 from app.domain.entities import Paciente
 
@@ -32,5 +33,9 @@ class IExcelHandler(ABC):
 
 class IScraperService(ABC):
     @abstractmethod
-    def procesar_portal_1(self, paciente: Paciente) -> tuple[str, bytes | None]:
+    def procesar_portal_1(self, cedula: str, fecha_atencion: date) -> tuple[str, str, str, bytes | None]:
+        pass
+
+    @abstractmethod
+    def extraer_acreditador_portal_2(self, paciente: Paciente) -> str | None:
         pass
