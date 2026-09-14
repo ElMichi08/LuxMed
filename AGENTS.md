@@ -139,10 +139,13 @@ distintos (mayúsculas, espacios, íconos sin texto), ajustar esos locators.
 - **`HEADLESS`**: es variable de entorno como se pidió, pero durante el
   login debe ser `false` porque el login es asistido (el usuario necesita
   ver la ventana). El resto del flujo funciona igual en headless o no.
-- **`DATE_FORMAT`**: se asumió `%d/%m/%Y` (formato común en Ecuador) para
-  los campos de fecha. Es un env var precisamente porque no se pudo
-  confirmar el formato real que espera el input — ajustar si el sitio
-  rechaza las fechas.
+- **`DATE_FORMAT`**: `%d-%m-%Y` (con guiones). **Verificado en vivo**: los
+  inputs `paciente_fecha_desde`/`_hasta` tienen `data-date-format="dd-mm-yyyy"`
+  y son un `date-picker` de jQuery — con guiones el datepicker resuelve el
+  día correcto (confirmado abriendo el calendario del sitio real); con
+  barras (`%d/%m/%Y`, el valor inicial asumido) el campo aceptaba el texto
+  sin quejarse pero la búsqueda no filtraba por fecha correctamente y
+  devolvía "sin resultados" siempre.
 - **Selección de entidad**: `select_option_by_text` normaliza (quita
   tildes, mayúsculas) y compara primero por igualdad exacta y luego por
   coincidencia parcial, para tolerar pequeñas diferencias de formato entre
@@ -166,7 +169,6 @@ distintos (mayúsculas, espacios, íconos sin texto), ajustar esos locators.
 
 - Correr un dry-run real con `HEADLESS=false` y confirmar los tres
   selectores heurísticos.
-- Confirmar el formato de fecha real de `paciente_fecha_desde`/`_hasta`.
 - Si el flujo debe reintentar ante fallos por paciente (en vez de abortar
   todo el batch), agregar manejo de errores por paciente en el `for` de
   `run()` — hoy una excepción en un paciente detiene el resto del batch.
