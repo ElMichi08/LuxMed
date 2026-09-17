@@ -92,6 +92,10 @@ class Portal2IessAdapter:
         resuelto = self._altcha.esperar_y_resolver(page)
         print(f"[DEBUG Portal2] ALTCHA resuelto: {resuelto}")
         if not resuelto:
+            logger.error("ALTCHA no resuelto — abortando Portal 2")
+            return None
+        
+        print(f"[DEBUG Portal2] ALTCHA resuelto, buscando tabla de resultados...")
         page.wait_for_timeout(1000)
         
         return self._detectar_y_extraer(page, paciente)
@@ -193,7 +197,7 @@ class Portal2IessAdapter:
                 page.wait_for_load_state("domcontentloaded", timeout=5000)
             except PlaywrightTimeoutError:
                 pass
-            page.wait_for_timeout(500)  # Brief wait for JS to settle
+            page.wait_for_timeout(500) 
             
             existe = page.evaluate("""() => {
                 const el = document.getElementById('formConsulta:table_data');
@@ -258,6 +262,3 @@ class Portal2IessAdapter:
         
         print(f"[DEBUG Portal2] Ninguna celda contiene cedula valida (10 digitos)")
         return None
-
-    def _extraer_cedula_gridcell(self, page: Page) -> str | None:
-        return self._extraer_celda_gridcell(page)

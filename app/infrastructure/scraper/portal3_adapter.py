@@ -1,31 +1,20 @@
 from __future__ import annotations
-import calendar
 import logging
 import os
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 from urllib.parse import urljoin
 from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright, Page, Locator, BrowserContext, Browser, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import sync_playwright, Page, Locator, BrowserContext, TimeoutError as PlaywrightTimeoutError
 from app.domain.entities import Paciente
-from app.infrastructure.scraper.portal3_urls import (
-    LOGIN_URL,
-    VALIDATION_URL,
-    HOME_SELECTOR,
-    REPORTES_CARD_SELECTOR,
-    HISTORIAL_URL_SEGMENT,
-)
+from app.infrastructure.scraper.portal3_urls import LOGIN_URL
 
-# Cargar variables del .env
 _env_path = Path(__file__).resolve().parents[3] / ".env"
 load_dotenv(_env_path)
 PORTAL3_USUARIO = os.getenv("usuario", "")
 PORTAL3_CONTRASENA = os.getenv("contraseña", "")
 DEFAULT_ENTIDAD = os.getenv("DEFAULT_ENTIDAD", "27 DE OCTUBRE")
 PERFIL_ENTIDAD = os.getenv("PERFIL_ENTIDAD", "DIRECCION DISTRITAL 14D01")
-SEARCH_FECHA_DESDE = os.getenv("SEARCH_FECHA_DESDE", "").strip() or None
-SEARCH_FECHA_HASTA = os.getenv("SEARCH_FECHA_HASTA", "").strip() or None
-DATE_FORMAT = os.getenv("DATE_FORMAT", "%d/%m/%Y")
 
 logger = logging.getLogger(__name__)
 
@@ -45,28 +34,18 @@ class Portal3Adapter:
         self._headless = headless
         self._timeout_ms = timeout_ms
 
-    def existe_autenticacion_portal_3(self) -> bool:
-        return False
-
-    def cerrar_sesion(self) -> None:
-        """No-op: cada paciente abre/cierra su propio browser."""
-        pass
-
-    # Timeouts adaptativos: 30s → 45s → 60s → retry completo
     ADAPTIVE_TIMEOUTS_MS = [30000, 45000, 60000]
-    MAX_FULL_RETRIES = 1  # Reintentar todo el proceso 1 vez adicional
+    MAX_FULL_RETRIES = 1  
 
     def procesar_portal_3(self, paciente: Paciente) -> bytes | None:
         if not PORTAL3_USUARIO or not PORTAL3_CONTRASENA:
             logger.error("Credenciales Portal 3 no encontradas en .env")
             return None
 
-        # Primer intento con timeouts adaptativos
         pdf_bytes = self._try_portal_3(paciente, retry_count=0)
         if pdf_bytes is not None:
             return pdf_bytes
 
-        # Si falló, reintentar todo el proceso una vez más
         for full_retry in range(1, self.MAX_FULL_RETRIES + 1):
             logger.warning("Portal 3 retry completo %d/%d para CI=%s", 
                           full_retry, self.MAX_FULL_RETRIES, paciente.cedula)
@@ -95,7 +74,6 @@ class Portal3Adapter:
             page = context.new_page()
             page.set_default_timeout(30000)
 
-            # Login con timeout adaptativo
             login_ok = False
             for timeout_ms in self.ADAPTIVE_TIMEOUTS_MS:
                 try:
@@ -110,7 +88,6 @@ class Portal3Adapter:
                 logger.error("Login fallo tras todos los timeouts adaptativos")
                 return None
 
-            # Setup: Reportes -> Role -> Historial
             self._open_reportes_card(page)
             self._select_role_and_save(page, DEFAULT_ENTIDAD)
             self._open_historial_atenciones(page)
@@ -142,7 +119,6 @@ class Portal3Adapter:
             except Exception:
                 pass
 
-    # -- Login --
 
     def _login(self, page: Page, context: BrowserContext, network_timeout_ms: int = 30000) -> bool:
         logger.info("Iniciando sesion Portal 3 (timeout: %ds)...", network_timeout_ms // 1000)
@@ -176,14 +152,13 @@ class Portal3Adapter:
         page.wait_for_load_state("networkidle", timeout=network_timeout_ms)
         page.wait_for_timeout(1000)
 
-        if password_field.count() > 0 and password_field.first.is_visible():
+        if pass_field.count() > 0 and pass_field.first.is_visible():
             logger.error("Login fallo -- campo de password aun visible")
             return False
 
         logger.info("Login exitoso")
         return True
 
-    # -- Helpers de UI --
 
     def _scroll_page(self, page: Page, pixels: int = 700) -> None:
         page.mouse.wheel(0, pixels)
@@ -271,7 +246,6 @@ class Portal3Adapter:
         )
         logger.info("Datepicker %s -> %s", selector, result)
 
-    # -- Setup (una vez por paciente) --
 
     def _open_reportes_card(self, page: Page) -> None:
         self._scroll_page(page)
@@ -345,10 +319,9 @@ class Portal3Adapter:
         modal.get_by_role("button", name="Aceptar").click()
         self._close_modal_if_open(page)
 
-    # -- Por paciente --
 
     def _search_patient(self, page: Page, paciente: Paciente, entidad: str) -> None:
-        # TODO: restore dynamic date calculation after test
+
         fecha_desde = date(2026, 4, 1)
         fecha_hasta = date(2026, 4, 30)
 

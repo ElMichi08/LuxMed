@@ -1,5 +1,1 @@
 LOGIN_URL = "https://sgrdacaa.msp.gob.ec/"
-VALIDATION_URL = "https://sgrdacaa.msp.gob.ec/atencionmedica/"
-HOME_SELECTOR = "div.dropdown-modal"
-REPORTES_CARD_SELECTOR = "div:has-text('Reportes')"
-HISTORIAL_URL_SEGMENT = "historialatencion"
