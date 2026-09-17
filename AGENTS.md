@@ -101,5 +101,3 @@ El agente debe estructurar la comunicación entre el adaptador visual de PyQt6 y
 
 - **Comunicación Unidireccional por Señales:**  
   El hilo de procesamiento pasivo interactuará con la ventana gráfica enviando exclusivamente datos tipados e inmutables de actualización mediante señales nativas (`pyqtSignal(str)`). Esto garantiza el determinismo de la UI de Stitch mientras Playwright extrae los PDFs en memoria de forma transparente de fondo.
-
-  lsqraa & ElMichi.
