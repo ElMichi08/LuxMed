@@ -6,4 +6,8 @@
 .vscode
 .codegraph
 backup_historico
->>>>>>> project-scaffolding
+backup_historico
+.env
+openspec
+__pycache__
+.pytest_cache
