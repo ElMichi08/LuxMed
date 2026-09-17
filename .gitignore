@@ -1,59 +1,9 @@
-# Contenido instalado de skills de Claude Code (reproducible vía skills-lock.json)
-.agents/
-.claude/
-<<<<<<< HEAD
-
-# Python: bytecode y caches de ejecución
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Entornos virtuales
-.venv/
-venv/
-env/
-ENV/
-
-# Caches de testing, linting y tipos
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# Invariante de privacidad y datos locales: CERO retención de datos médicos
-# Evitar commitear accidentalmente excels, PDFs o bases de datos de prueba con datos sensibles
-*.xlsx
-*.xls
-*.pdf
-*.db
-*.sqlite
-*.sqlite3
-temp/
-output/
-downloads/
-
-# Empaquetado y distribución
-build/
-dist/
-*.egg-info/
-*.egg
-*.spec
-*.exe
-
-# Sistema operativo y entornos de desarrollo
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-*.swo
-=======
+__pycache__
 .atl
+.codegraph
+.pytest_cache
 .venv
 .vscode
-.codegraph
-backup_historico
->>>>>>> project-scaffolding
+openspec
+.env
+.agents
