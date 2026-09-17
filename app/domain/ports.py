@@ -19,6 +19,15 @@ class IExcelHandler(ABC):
     @abstractmethod
     def exportar_excel_auditoria(self, ruta_origen: str, ruta_destino: str, pacientes: list[Paciente]) -> None: pass
 
+class IPdfConsolidator(ABC):
+    @abstractmethod
+    def consolidar(self, paciente: Paciente) -> bytes | None:
+        pass
+
+    @abstractmethod
+    def guardar(self, paciente: Paciente) -> object:
+        pass
+
 class IScraperService(ABC):
     @abstractmethod
     def existe_autenticacion_portal_3(self) -> bool:

@@ -31,6 +31,7 @@ class Paciente:
     cedula_acreditador: str | None = None
     pdf_p1_acreditador_bytes: bytes | None = None
     pdf_p3_bytes: bytes | None = None
+    pdf_consolidado: bytes | None = None
     
     es_auditoria_rojo: bool = False
 

@@ -28,6 +28,7 @@ class SQLiteAdapter(IPacienteRepository):
                     cedula_acreditador TEXT,
                     pdf_p1_acreditador_bytes BLOB,
                     pdf_p3_bytes BLOB,
+                    pdf_consolidado BLOB,
                     es_auditoria_rojo INTEGER NOT NULL DEFAULT 0
                 );
             """)
@@ -44,8 +45,8 @@ class SQLiteAdapter(IPacienteRepository):
                             fecha_atencion, nom_establecimiento, estado, 
                             entidad_detectada, seguro_derivado, pdf_p1_propio_bytes, 
                             cedula_acreditador, pdf_p1_acreditador_bytes, pdf_p3_bytes, 
-                            es_auditoria_rojo
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            pdf_consolidado, es_auditoria_rojo
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, (
                         p.nombre_y_apellidos,
                         p.cedula,
@@ -60,6 +61,7 @@ class SQLiteAdapter(IPacienteRepository):
                         p.cedula_acreditador,
                         sqlite3.Binary(p.pdf_p1_acreditador_bytes) if p.pdf_p1_acreditador_bytes else None,
                         sqlite3.Binary(p.pdf_p3_bytes) if p.pdf_p3_bytes else None,
+                        sqlite3.Binary(p.pdf_consolidado) if p.pdf_consolidado else None,
                         1 if p.es_auditoria_rojo else 0
                     ))
                 except sqlite3.IntegrityError:
@@ -88,6 +90,7 @@ class SQLiteAdapter(IPacienteRepository):
                     cedula_acreditador=fila["cedula_acreditador"],
                     pdf_p1_acreditador_bytes=fila["pdf_p1_acreditador_bytes"],
                     pdf_p3_bytes=fila["pdf_p3_bytes"],
+                    pdf_consolidado=fila["pdf_consolidado"],
                     es_auditoria_rojo=bool(fila["es_auditoria_rojo"])
                 ))
         return pacientes
@@ -105,6 +108,7 @@ class SQLiteAdapter(IPacienteRepository):
                     cedula_acreditador = ?, 
                     pdf_p1_acreditador_bytes = ?, 
                     pdf_p3_bytes = ?, 
+                    pdf_consolidado = ?,
                     es_auditoria_rojo = ? 
                 WHERE cedula = ?
             """, (
@@ -116,6 +120,7 @@ class SQLiteAdapter(IPacienteRepository):
                 paciente.cedula_acreditador,
                 sqlite3.Binary(paciente.pdf_p1_acreditador_bytes) if paciente.pdf_p1_acreditador_bytes else None,
                 sqlite3.Binary(paciente.pdf_p3_bytes) if paciente.pdf_p3_bytes else None,
+                sqlite3.Binary(paciente.pdf_consolidado) if paciente.pdf_consolidado else None,
                 1 if paciente.es_auditoria_rojo else 0,
                 paciente.cedula
             ))

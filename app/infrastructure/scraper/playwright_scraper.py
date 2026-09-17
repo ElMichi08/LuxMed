@@ -1,134 +1,194 @@
 from __future__ import annotations
-import os
-import json
+import re
 from datetime import date
-from playwright.sync_api import sync_playwright
-from app.domain.entities import Paciente
 from app.domain.ports import IScraperService
+from app.domain.entities import Paciente
+from app.infrastructure.scraper.portal_1_scrapper import scrape_cobertura, URL
 
-class PlaywrightScraper(IScraperService):
-    def __init__(self, ruta_auth: str = "data/auth_portal3.json", headless: bool = True) -> None:
-        self._ruta_auth = ruta_auth
+# Entidades conocidas del portal de cobertura
+ENTIDADES_CONOCIDAS = ["IESS", "ISSFA", "ISSPOL"]
+
+
+class Portal1Adapter(IScraperService):
+    def __init__(
+        self,
+        portal_url: str = URL,
+        headless: bool = True,
+        portal2_adapter: object | None = None,
+    ) -> None:
+        self._portal_url = portal_url
         self._headless = headless
-        self._url_p1 = "https://coberturasalud.msp.gob.ec/"
-        self._url_p2 = "https://app.iess.gob.ec/gestion-calificacion-derecho-web/public/formulariosContacto.jsf"
-        self._url_p3 = "https://sgrdacaa.msp.gob.ec/"
+        self._portal2 = portal2_adapter
+
+    def procesar_portal_1(
+        self, cedula: str, fecha_atencion: date
+    ) -> tuple[str, str, str, bytes | None]:
+        fecha_str = fecha_atencion.strftime("%d-%m-%Y")
+        texto, pdf_bytes = scrape_cobertura(
+            self._portal_url, cedula, fecha_str, headless=self._headless
+        )
+
+        # 1. Parsear RSC (formato estructurado: Institucion : ...)
+        entidad_rsc, tipo_rsc, registro_rsc = self._parsear_texto_cobertura(texto)
+        print(f"[DEBUG] RSC parseado: entidad='{entidad_rsc}', registro='{registro_rsc}'")
+
+        # 2. Parsear PDF (formato tabla: buscar "si/no registra cobertura" como texto libre)
+        entidad_pdf, tipo_pdf, reg_pdf = self._parsear_pdf_cobertura(pdf_bytes)
+
+        # 3. REGLA: si el PDF tiene "si registra cobertura" → el PDF es source of truth
+        if reg_pdf and "si registra cobertura" in reg_pdf.lower():
+            entidad_final = entidad_pdf or entidad_rsc
+            tipo_final = tipo_pdf or tipo_rsc
+            print(f"[DEBUG] PDF ganó: entidad='{entidad_final}', tipo='{tipo_final}', registro='si registra cobertura'")
+            return entidad_final, tipo_final, "si registra cobertura", pdf_bytes
+
+        # 4. Si el PDF no dice "si", usar el resultado del RSC
+        print(f"[DEBUG] Usando RSC: entidad='{entidad_rsc}', registro='{registro_rsc}'")
+        return entidad_rsc, tipo_rsc, registro_rsc, pdf_bytes
 
     def existe_autenticacion_portal_3(self) -> bool:
-        return os.path.exists(self._ruta_auth)
+        return False
 
     def vincular_sesion_portal_3(self) -> bool:
-        os.makedirs(os.path.dirname(self._ruta_auth), exist_ok=True)
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=False)
-            context = browser.new_context()
-            page = context.new_page()
-            page.goto(self._url_p3)
-            try:
-                page.wait_for_url("**/dashboard", timeout=120000)
-                context.storage_state(path=self._ruta_auth)
-                return True
-            except Exception:
-                return False
-            finally:
-                browser.close()
-
-    def procesar_portal_1(self, cedula: str, fecha_atencion: date) -> tuple[str, str, str, bytes | None]:
-        rsc_responses = []
-        fecha_str = fecha_atencion.strftime("%d-%m-%Y")
-        
-        with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=self._headless,
-                args=["--disable-blink-features=AutomationControlled"]
-            )
-            context = browser.new_context(
-                viewport={"width": 1366, "height": 768},
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-                locale="es-EC",
-                timezone_id="America/Guayaquil"
-            )
-            page = context.new_page()
-            
-            def on_response(response):
-                ct = response.headers.get("content-type", "")
-                if "text/x-component" in ct:
-                    try:
-                        rsc_responses.append(response.body().decode("utf-8"))
-                    except Exception:
-                        pass
-
-            page.on("response", on_response)
-            page.goto(self._url_p1, wait_until="networkidle")
-            page.locator("input#cedula").fill(cedula)
-            
-            todos_inputs = page.locator("input")
-            if todos_inputs.count() >= 2:
-                todos_inputs.nth(1).fill(fecha_str)
-                
-            page.locator("button:has-text('Consultar')").wait_for(state="visible", timeout=10000)
-            page.locator("button:has-text('Consultar')").click()
-            
-            pdf_bytes = None
-            with context.expect_page(timeout=10000) as new_page_info:
-                pass
-            if new_page_info.value:
-                pdf_bytes = new_page_info.value.pdf()
-
-            entidad = "NINGUNA"
-            tipo_seguro = "no registra cobertura"
-            registro_cobertura = "no registra cobertura"
-            
-            for rsc in rsc_responses:
-                if "coberturaSalud" in rsc:
-                    for linea in rsc.split("\n"):
-                        if linea.strip().startswith("1:"):
-                            try:
-                                data = json.loads(linea.strip()[2:])
-                                if data.get("success") == "success":
-                                    aseguradoras = data["data"]["coberturaSalud"]["CoberturaSeguros"]["aseguradora"]
-                                    for asp in aseguradoras:
-                                        reg_cob = str(asp.get("EstadoCobertura", "")).strip()
-                                        if "no registra" not in reg_cob.lower():
-                                            entidad = str(asp.get("NombreInstitucion", "")).strip()
-                                            tipo_seguro = str(asp.get("TipoSeguro", "")).strip()
-                                            registro_cobertura = reg_cob
-                                            break
-                            except Exception:
-                                continue
-            
-            return (entidad, tipo_seguro, registro_cobertura, pdf_bytes)
+        return False
 
     def extraer_acreditador_portal_2(self, paciente: Paciente) -> str | None:
-        fecha_str = paciente.fecha_atencion.strftime("%d/%m/%Y")
+        if self._portal2 is None:
+            return None
+        return self._portal2.extraer_acreditador(
+            paciente.cedula, paciente.fecha_atencion, paciente
+        )
+
+    # ──────────────────────────────────────────
+    # PARSER DEL PDF (texto libre, NO formato RSC)
+    # ──────────────────────────────────────────
+    @staticmethod
+    def _parsear_pdf_cobertura(pdf_bytes: bytes | None) -> tuple[str, str, str]:
+        if pdf_bytes is None:
+            return "", "", ""
+
+        try:
+            from pypdf import PdfReader
+            import io
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            texto = ""
+            for page in reader.pages:
+                texto += page.extract_text() or ""
+        except Exception as e:
+            print(f"[DEBUG] Error extrayendo texto del PDF: {e}")
+            return "", "", ""
+
+        if not texto.strip():
+            print(f"[DEBUG] PDF: texto extraído vacío")
+            return "", "", ""
+
+        print(f"[DEBUG] PDF texto extraído ({len(texto)} chars):")
+        print(f"[DEBUG] --- INICIO PDF ---")
+        # Imprimir primeros 2000 chars para debug
+        for i, linea in enumerate(texto[:2000].split("\n")):
+            print(f"[DEBUG] PDF línea {i}: '{linea.strip()}'")
+        print(f"[DEBUG] --- FIN PDF ---")
+
+        lineas = texto.split("\n")
         
-        with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=self._headless,
-                args=["--disable-blink-features=AutomationControlled"]
-            )
-            context = browser.new_context()
-            page = context.new_page()
-            page.goto(self._url_p2)
+        # Estrategia 1: buscar "si registra cobertura" en cada línea
+        for i, linea in enumerate(lineas):
+            linea_lower = linea.lower().strip()
+            if not linea_lower:
+                continue
             
-            page.locator('input[name="identificacion"]').fill(paciente.cedula)
-            page.evaluate(f"document.getElementById('formConsulta:fecha_input').value = '{fecha_str}'")
-            page.locator("#formConsulta\:contingencia_select_label").click()
-            page.locator("li:has-text('Enfermedad')").click()
-            
-            try:
-                page.wait_for_selector('altcha-widget[state="verified"]', timeout=30000)
-            except Exception:
-                pass
-                
-            page.locator('button:has-text("Aceptar")').click()
-            page.wait_for_load_state("networkidle")
-            
-            tabla_azul = page.query_selector("#formConsulta\:table")
-            cedula_acreditador = None
-            if tabla_azul:
-                celda_ci = tabla_azul.locator("td").nth(1)
-                if celda_ci.count() > 0:
-                    cedula_acreditador = celda_ci.text_content().strip()
-                    
-            return cedula_acreditador
+            if "si registra cobertura" in linea_lower:
+                # Buscar entidad conocida en esta línea o en las cercanas
+                entidad = _buscar_entidad_en_lineas(lineas, max(0, i - 3), min(len(lineas), i + 3))
+                tipo = _buscar_tipo_seguro_en_lineas(lineas, max(0, i - 3), min(len(lineas), i + 3))
+                print(f"[DEBUG] PDF: encontrado 'si registra cobertura' en línea {i}, entidad='{entidad}', tipo='{tipo}'")
+                return entidad, tipo, "si registra cobertura"
+        
+        # Estrategia 2: buscar "no registra cobertura" para al menos parsear la primera fila
+        for i, linea in enumerate(lineas):
+            linea_lower = linea.lower().strip()
+            if "no registra cobertura" in linea_lower:
+                entidad = _buscar_entidad_en_lineas(lineas, max(0, i - 3), min(len(lineas), i + 3))
+                tipo = _buscar_tipo_seguro_en_lineas(lineas, max(0, i - 3), min(len(lineas), i + 3))
+                print(f"[DEBUG] PDF: encontrado 'no registra cobertura' en línea {i}, entidad='{entidad}'")
+                return entidad, tipo, "no registra cobertura"
+        
+        print(f"[DEBUG] PDF: no se encontró 'registra cobertura' en el texto")
+        return "", "", ""
+
+    # ──────────────────────────────────────────
+    # PARSER DEL RSC (formato estructurado)
+    # ──────────────────────────────────────────
+    @staticmethod
+    def _parsear_texto_cobertura(texto: str) -> tuple[str, str, str]:
+        entidades = re.findall(r"Institucion\s*:\s*(.+)", texto)
+        tipos = re.findall(r"Tipo Seguro\s*:\s*(.+)", texto)
+        coberturas = re.findall(r"Cobertura\s*:\s*(.+)", texto)
+        
+        if not coberturas:
+            return "", "", ""
+        
+        # Buscar la primera fila que tenga "si registra cobertura"
+        for i, cob in enumerate(coberturas):
+            if "si registra cobertura" in cob.strip().lower():
+                entidad = entidades[i].strip() if i < len(entidades) else ""
+                tipo_seguro = tipos[i].strip() if i < len(tipos) else ""
+                registro = cob.strip()
+                return entidad, tipo_seguro, registro
+        
+        # Ninguna fila tiene "si registra cobertura" — devolver la primera
+        entidad = entidades[0].strip() if entidades else ""
+        tipo_seguro = tipos[0].strip() if tipos else ""
+        registro = coberturas[0].strip()
+        return entidad, tipo_seguro, registro
+
+
+# ──────────────────────────────────────────
+# FUNCIONES AUXILIARES PARA PARSING DEL PDF
+# ──────────────────────────────────────────
+def _buscar_entidad_en_lineas(lineas: list[str], inicio: int, fin: int) -> str:
+    centro = (inicio + fin) // 2
+    
+    # Primero: buscar en la línea central (la que contiene el match)
+    if 0 <= centro < len(lineas):
+        linea = lineas[centro].upper()
+        for entidad in ENTIDADES_CONOCIDAS:
+            if entidad in linea:
+                return entidad
+    
+    # Segundo: buscar en líneas anteriores (de centro hacia inicio)
+    for i in range(centro - 1, inicio - 1, -1):
+        if i < 0 or i >= len(lineas):
+            continue
+        linea = lineas[i].upper()
+        for entidad in ENTIDADES_CONOCIDAS:
+            if entidad in linea:
+                return entidad
+    
+    # Tercero: buscar en líneas posteriores
+    for i in range(centro + 1, fin):
+        if i < 0 or i >= len(lineas):
+            continue
+        linea = lineas[i].upper()
+        for entidad in ENTIDADES_CONOCIDAS:
+            if entidad in linea:
+                return entidad
+    
+    return ""
+
+
+def _buscar_tipo_seguro_en_lineas(lineas: list[str], inicio: int, fin: int) -> str:
+    for i in range(inicio, fin):
+        if i < 0 or i >= len(lineas):
+            continue
+        linea = lineas[i].strip()
+        # Buscar patrones comunes de tipo de seguro
+        if any(kw in linea.lower() for kw in [
+            "afiliado", "dependiente", "pensión", "beneficiario",
+            "tiempo completo", "medio tiempo", "hijo", "cónyuge",
+            "general", "especial", "seguro"
+        ]):
+            # Evitar líneas que sean solo entidad o cabecera
+            if not any(e in linea.upper() for e in ENTIDADES_CONOCIDAS):
+                return linea[:100]
+    return ""

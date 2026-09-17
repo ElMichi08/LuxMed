@@ -1,8 +1,9 @@
-# Contenido instalado de skills de Claude Code (reproducible vía skills-lock.json)
-.agents/
-.claude/
+__pycache__
 .atl
+.codegraph
+.pytest_cache
 .venv
 .vscode
-.codegraph
-backup_historico
+openspec
+.env
+.agents
