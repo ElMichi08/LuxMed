@@ -180,7 +180,7 @@ class Portal2IessAdapter:
             if aceptar.count() > 0:
                 aceptar.first.click()
                 print(f"[DEBUG Portal2] Botón Aceptar clickeado")
-                page.wait_for_timeout(1000)  # Wait for form submission
+                page.wait_for_timeout(1000)  
                 
         except PlaywrightTimeoutError:
             logger.warning("No se pudo seleccionar contingencia — usando valor por defecto")

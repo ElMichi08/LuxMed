@@ -7,9 +7,6 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 from pypdf import PdfReader
 
 
-# ══════════════════════════════════════════════
-# 0. EXCEPCIONES
-# ══════════════════════════════════════════════
 class ScraperError(Exception):
     pass
 
@@ -26,9 +23,6 @@ class RSCDataNotFoundError(ScraperError):
     pass
 
 
-# ══════════════════════════════════════════════
-# 1. CONFIGURACIÓN (solo para test manual)
-# ══════════════════════════════════════════════
 URL = "https://coberturasalud.msp.gob.ec/"
 CEDULA = "1401349020"
 FECHA = "07-04-2026"
@@ -168,9 +162,6 @@ def _es_pdf_valido(data: bytes) -> bool:
     return data[:5] == b'%PDF-'
 
 
-# ══════════════════════════════════════════════
-# 2. FUNCIONES DE EQUIPO (SIN CAMBIOS)
-# ══════════════════════════════════════════════
 def fix_mojibake(text: str) -> str:
     try:
         return text.encode("latin-1", errors="replace").decode("utf-8", errors="replace")
@@ -223,9 +214,6 @@ def formatear_resultados(data: dict) -> list[dict]:
     return resultados
 
 
-# ══════════════════════════════════════════════
-# 3. UTILIDADES DE ESPERA
-# ══════════════════════════════════════════════
 def wait_for_page_ready(page, locator_str: str, timeout_sec: int = 300) -> None:
     try:
         page.locator(locator_str).wait_for(state="visible", timeout=timeout_sec * 1000)
@@ -254,9 +242,6 @@ def wait_for_button_enabled(page, locator_str: str, timeout_sec: int = 180) -> N
     )
 
 
-# ══════════════════════════════════════════════
-# 4. FUNCIÓN PRINCIPAL REUTILIZABLE
-# ══════════════════════════════════════════════
 def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -> tuple[str, bytes | None]:
     rsc_responses = []
     datos_consulta_rsc = None
@@ -296,10 +281,10 @@ def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -
         page.wait_for_timeout(2000)
         
         fecha_selectors = [
-            "input:not(#cedula):not([type='hidden'])",  # cualquier input que no sea cédula ni hidden
-            "input[type='text']:nth-of-type(2)",        # segundo input text
-            "input[name*='fecha']",                      # input con 'fecha' en el nombre
-            "input[placeholder*='fecha']",               # input con 'fecha' en placeholder
+            "input:not(#cedula):not([type='hidden'])",  
+            "input[type='text']:nth-of-type(2)",        
+            "input[name*='fecha']",                      
+            "input[placeholder*='fecha']",               
         ]
         
         campo_fecha = None
@@ -375,7 +360,7 @@ def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -
         print(f"[DEBUG] Click realizado, entrando en loop de 5 minutos...")
 
         tiempo_inicio = time.time()
-        tiempo_maximo = 5 * 60  # 5 minutos
+        tiempo_maximo = 5 * 60  
         rsc_found = False
         
         while True:
@@ -388,7 +373,6 @@ def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -
                         print(f"[DEBUG] RSC data encontrada a los {elapsed:.1f}s")
                         break
             
-            # ── ESTRATEGIA 1: Blob page capturada ──
             if blob_page_capturada[0] is not None and blob_pdf_bytes is None:
                 bp = blob_page_capturada[0]
                 try:
@@ -399,8 +383,7 @@ def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -
                         print(f"[DEBUG] *** PDF EXTRAIDO (blob page): {len(blob_pdf_bytes)} bytes a los {elapsed:.1f}s ***")
                 except Exception as e:
                     pass
-            
-            # ── ESTRATEGIA 2: Buscar en TODAS las pages del context ──
+
             if blob_pdf_bytes is None:
                 for p in context.pages:
                     if p.url.startswith("blob:"):
@@ -413,14 +396,12 @@ def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -
                                 break
                         except Exception:
                             pass
-            
-            # ── ESTRATEGIA 3: Buscar en iframes ──
+
             if blob_pdf_bytes is None:
                 blob_pdf_bytes = _extract_pdf_from_iframe(page)
                 if blob_pdf_bytes and _es_pdf_valido(blob_pdf_bytes):
                     print(f"[DEBUG] *** PDF EXTRAIDO (iframe): {len(blob_pdf_bytes)} bytes a los {elapsed:.1f}s ***")
-            
-            # ── ESTRATEGIA 4: Buscar en DOM (embed/object/data URLs) ──
+
             if blob_pdf_bytes is None:
                 blob_pdf_bytes = _extract_pdf_from_page_dom(page)
                 if blob_pdf_bytes and _es_pdf_valido(blob_pdf_bytes):
@@ -429,8 +410,7 @@ def scrape_cobertura(url: str, cedula: str, fecha: str, headless: bool = True) -
                     embed_count = page.locator("embed").count()
                     iframe_count = page.locator("iframe").count()
                     print(f"[DEBUG] DOM check a los {elapsed:.0f}s — embeds: {embed_count}, iframes: {iframe_count}")
-            
-            # ── ESTRATEGIA 5: Procesar descargas ──
+
             if blob_pdf_bytes is None and downloads_capturados:
                 for download in downloads_capturados:
                     try:

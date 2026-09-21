@@ -12,7 +12,6 @@ class TestBuscarEntidadEnLineas:
             "ISSFA beneficiario montepio ok si registra cobertura",
             "ISSPOL no registra cobertura. ciudadano no encontrado",
         ]
-        # Search around line 1 (where "si registra cobertura" is)
         result = _buscar_entidad_en_lineas(lineas, 0, 3)
         assert result == "ISSFA"
 
@@ -22,7 +21,6 @@ class TestBuscarEntidadEnLineas:
             "si registra cobertura",
             "ISSFA no registra cobertura",
         ]
-        # Search around line 1
         result = _buscar_entidad_en_lineas(lineas, 0, 3)
         assert result == "IESS"
 
@@ -31,7 +29,6 @@ class TestBuscarEntidadEnLineas:
             "no registra cobertura",
             "ISSFA beneficiario montepio ok si registra cobertura",
         ]
-        # Search around line 0
         result = _buscar_entidad_en_lineas(lineas, 0, 2)
         assert result == "ISSFA"
 
@@ -65,9 +62,7 @@ class TestBuscarEntidadEnLineas:
             "IESS afiliado no registra cobertura",
             "ISSFA beneficiario si registra cobertura",
         ]
-        # Center is line 0, but match is on line 1
         result = _buscar_entidad_en_lineas(lineas, 0, 2)
-        # Should find ISSFA on line 1 (center) before IESS on line 0
         assert result == "ISSFA"
 
     def test_all_known_entities(self):

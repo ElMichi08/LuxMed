@@ -85,7 +85,6 @@ def crear_excel_entrada() -> Path:
 
 def ejecutar_flujo():
 
-    # ── Imports del proyecto ──
     from app.infrastructure.excel.excel_handler import ExcelHandler
     from app.infrastructure.scraper.playwright_scraper import Portal1Adapter
     from app.infrastructure.scraper.portal3_adapter import Portal3Adapter
@@ -94,13 +93,11 @@ def ejecutar_flujo():
     from app.application.orchestrator import OrchestratorService
     from app.application.validator import ValidatorService
 
-    # ── Paso 1: Crear Excel de entrada ──
     print("\n" + "=" * 60)
     print("  PASO 1: CREAR EXCEL DE ENTRADA")
     print("=" * 60)
     ruta_input = crear_excel_entrada()
 
-    # ── Paso 2: Leer pacientes del Excel ──
     print("\n" + "=" * 60)
     print("  PASO 2: LEER PACIENTES DEL EXCEL")
     print("=" * 60)
@@ -110,7 +107,6 @@ def ejecutar_flujo():
     for i, p in enumerate(pacientes, 1):
         print(f"   {i}. {p.nombre_y_apellidos} ({p.cedula}) - {p.aporta}")
 
-    # ── Paso 3: Higienizar y clasificar ──
     print("\n" + "=" * 60)
     print("  PASO 3: HIGIENIZAR Y CLASIFICAR")
     print("=" * 60)
@@ -119,7 +115,6 @@ def ejecutar_flujo():
         validator.higienizar_y_clasificar(p)
     print("[OK] Pacientes higienizados y clasificados")
 
-    # ── Paso 4: Guardar en SQLite ──
     print("\n" + "=" * 60)
     print("  PASO 4: GUARDAR EN SQLite")
     print("=" * 60)
@@ -128,7 +123,6 @@ def ejecutar_flujo():
     repo.guardar_lote(pacientes)
     print(f"[OK] {len(pacientes)} pacientes guardados en {db_path}")
 
-    # ── Paso 5: Configurar Scraper (headless=False, ventanas off-screen) ──
     print("\n" + "=" * 60)
     print("  PASO 5: CONFIGURAR SCRAPER")
     print("=" * 60)
@@ -139,15 +133,12 @@ def ejecutar_flujo():
     print("[OK] Scraper configurado con headless=False (ventanas off-screen)")
     print("[OK] Portal 2 (IESS) conectado al scraper")
 
-    # ── Paso 6: Configurar Portal 3 (login automático por cada paciente) ──
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     portal3 = Portal3Adapter(headless=False)
 
-    # ── Paso 7: Configurar consolidador de PDFs ──
     PDF_DIR.mkdir(parents=True, exist_ok=True)
     pdf_consolidator = PdfConsolidatorAdapter(str(PDF_DIR))
 
-    # ── Paso 8: Crear orquestador ──
     print("\n" + "=" * 60)
     print("  PASO 6: CREAR ORQUESTADOR")
     print("=" * 60)
@@ -160,7 +151,6 @@ def ejecutar_flujo():
     )
     print("[OK] Orquestador creado con todas las dependencias")
 
-    # ── Paso 9: Procesar cola ──
     print("\n" + "=" * 60)
     print("  PASO 7: PROCESAR COLA DE PACIENTES")
     print("=" * 60)
@@ -175,7 +165,6 @@ def ejecutar_flujo():
 
     print(f"\n[OK] Procesamiento completado en {duracion:.1f} segundos")
 
-    # ── Paso 10: Guardar PDFs consolidados ──
     print("\n" + "=" * 60)
     print("  PASO 8: GUARDAR PDFs CONSOLIDADOS")
     print("=" * 60)
@@ -188,7 +177,6 @@ def ejecutar_flujo():
 
     print(f"\n[OK] {pdfs_guardados} PDFs guardados en {PDF_DIR}")
 
-    # ── Paso 11: Generar Excels de salida ──
     print("\n" + "=" * 60)
     print("  PASO 9: GENERAR EXCELS DE SALIDA")
     print("=" * 60)
@@ -204,7 +192,6 @@ def ejecutar_flujo():
     print(f"[OK] Excel limpio: {ruta_limpio}")
     print(f"[OK] Excel auditoria: {ruta_auditoria}")
 
-    # ── Paso 12: Resumen final ──
     print("\n" + "=" * 60)
     print("  RESUMEN FINAL")
     print("=" * 60)
@@ -219,7 +206,6 @@ def ejecutar_flujo():
     print("   +-- cookies_portal3.json")
     print()
 
-    # ── Detalle por paciente ──
     print("DETALLE POR PACIENTE:")
     for p in pacientes_procesados:
         status = "[VALIDO]" if p.estado.value == "VALIDO" else "[INVALIDO]"

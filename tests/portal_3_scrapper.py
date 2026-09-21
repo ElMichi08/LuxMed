@@ -45,10 +45,6 @@ log = logging.getLogger("luxmed_automation")
 MODAL_SELECTOR = ".modal.show, .modal.in"
 
 
-# --------------------------------------------------------------------------
-# Configuracion
-# --------------------------------------------------------------------------
-
 @dataclass
 class Settings:
     login_url: str
@@ -102,9 +98,6 @@ class Patient:
     entidad: str
 
 
-# --------------------------------------------------------------------------
-# Datos de prueba (fake) - nunca datos reales de pacientes
-# --------------------------------------------------------------------------
 
 _FAKE_NOMBRES = ["MARIA", "JOSE", "LUIS", "ANA", "CARLOS", "PAOLA", "DIEGO", "ELENA"]
 _FAKE_APELLIDOS = ["PEREZ", "GOMEZ", "TORRES", "VEGA", "MOLINA", "ROJAS", "SOTO", "CEVALLOS"]
@@ -203,7 +196,6 @@ def load_patients(path: Path, default_entidad: str) -> list[Patient]:
         if not row or row[0] in (None, ""):
             continue
         ci = str(row[0]).strip()
-        # Columna M = indice 12 (0-based)
         entidad = str(row[12]).strip() if len(row) > 12 and row[12] else default_entidad
         patients.append(Patient(row=row_idx, ci=ci, entidad=entidad))
 
@@ -214,9 +206,6 @@ def load_patients(path: Path, default_entidad: str) -> list[Patient]:
     return patients
 
 
-# --------------------------------------------------------------------------
-# Helpers de UI
-# --------------------------------------------------------------------------
 
 def scroll_page(page: Page, pixels: int = 700) -> None:
     page.mouse.wheel(0, pixels)
@@ -330,15 +319,9 @@ def select_entidad_chosen(page: Page, select_locator: Locator, target_text: str)
     result.click()
 
 
-# --------------------------------------------------------------------------
-# Pasos del flujo
-# --------------------------------------------------------------------------
 
 def assisted_login(page: Page, settings: Settings) -> None:
     log.info("Abriendo %s - inicia sesion manualmente en la ventana de Chromium...", settings.login_url)
-    # "domcontentloaded" en vez de "load": algunos sitios nunca disparan el
-    # evento load completo (conexiones persistentes, analytics, etc.) y el
-    # goto expiraria sin motivo real.
     page.goto(settings.login_url, wait_until="domcontentloaded", timeout=settings.navigation_timeout_ms)
 
     initial_url = page.url
@@ -348,9 +331,6 @@ def assisted_login(page: Page, settings: Settings) -> None:
         settings.login_timeout_ms // 60000,
     )
 
-    # Deteccion de login por cambio de URL en vez de un selector del home
-    # (no se pudo inspeccionar el sitio real de antemano). Tras un login
-    # exitoso el portal redirige a otra URL/ruta.
     try:
         page.wait_for_url(lambda url: url != initial_url, timeout=settings.login_timeout_ms)
     except Exception as exc:
@@ -363,10 +343,6 @@ def assisted_login(page: Page, settings: Settings) -> None:
 
     page.wait_for_load_state("domcontentloaded", timeout=settings.navigation_timeout_ms)
 
-    # El cambio de URL por si solo no confirma el login (podria ser un
-    # redirect de error, o quedarse en una pantalla intermedia). Como
-    # verificacion generica adicional, confirmamos que ya no hay un campo
-    # de contraseña visible en pantalla.
     password_field = page.locator('input[type="password"]')
     if password_field.count() > 0 and password_field.first.is_visible():
         raise RuntimeError(
@@ -376,9 +352,6 @@ def assisted_login(page: Page, settings: Settings) -> None:
 
     log.info("Login confirmado (URL: %s, sin campo de contraseña visible).", page.url)
 
-    # Pequeña pausa fija para dejar asentar el contenido dinamico del
-    # dashboard antes de inspeccionar la vista con locators (ver
-    # open_reportes_card).
     page.wait_for_timeout(2000)
 
 
@@ -400,31 +373,21 @@ def open_mis_perfiles_menu(page: Page, settings: Settings) -> None:
 def open_reportes_card(page: Page, settings: Settings) -> None:
     scroll_page(page)
     page.wait_for_timeout(1000)
-
-    # Deteccion de vista por locators (sin esperar excepciones de timeout):
-    # tras el login, el dashboard puede estar en tres estados distintos.
     modal = page.locator(MODAL_SELECTOR).last
     if modal.count() > 0 and modal.is_visible():
-        # 1) El modal "Mis Perfiles" ya estaba abierto solo.
         log.info("El modal de seleccion de perfil ya estaba abierto, se omite el click en Acceder.")
         return
 
-    # [HEURISTICO] boton "Acceder" dentro de la tarjeta "Reportes"
     reportes_card = page.locator("div", has_text="Reportes").filter(
         has=page.get_by_role("button", name="Acceder")
     ).last
     if reportes_card.count() > 0 and reportes_card.is_visible():
-        # 2) Vista normal: hay que clickear "Acceder" para abrir el modal.
         acceder_btn = reportes_card.get_by_role("button", name="Acceder")
         acceder_btn.click()
         page.wait_for_timeout(1000)
         wait_for_modal(page, settings.modal_timeout_ms)
         return
 
-    # 3) Ni modal ni tarjeta "Reportes": la cuenta ya tiene un rol activo de
-    # una sesion anterior y el sitio aterrizo directo en el dashboard de ese
-    # rol (puede no ser el que necesita este script). Se fuerza el modal via
-    # el menu de usuario -> "Mis Perfiles".
     log.warning(
         "No aparecio la tarjeta 'Reportes' ni el modal (probable rol ya "
         "activo de una sesion anterior de la misma cuenta). Forzando el "
@@ -436,18 +399,8 @@ def open_reportes_card(page: Page, settings: Settings) -> None:
 def select_role_and_save(page: Page, settings: Settings) -> None:
     modal = wait_for_modal(page, settings.modal_timeout_ms)
 
-    # [EXACTO por texto de usuario] click en columna "Nombre" (encabezado de tabla)
     modal.get_by_text("Nombre", exact=True).first.click()
 
-    # [VERIFICADO EN VIVO] radio button de la fila con este rol + entidad.
-    # El rol solo puede repetirse bajo mas de una entidad (ej. 14D01 y
-    # 14D02 en el sitio real); se filtra tambien por PERFIL_ENTIDAD para no
-    # depender de cual aparezca primero en la tabla.
-    # force=True: plantilla ACE Admin dibuja un <span class="lbl"> encima
-    # del <input> real para el estilo, lo que hace que Playwright reporte
-    # "intercepts pointer events" en un click normal. force=True dispara el
-    # click directo sobre el input (verificado equivalente al click manual
-    # sobre el circulo visible).
     fila = modal.locator(
         "tr", has_text="ESPECIALISTA DISTRITAL CALIDAD DE LOS SERVICIOS DE SALUD"
     ).filter(has_text=settings.perfil_entidad).first
@@ -455,34 +408,25 @@ def select_role_and_save(page: Page, settings: Settings) -> None:
 
     scroll_page(page, 400)
 
-    # [EXACTO] boton Guardar del modal
     modal.get_by_role("button", name="Guardar").click()
 
     close_modal_if_open(page, settings.modal_timeout_ms)
 
 
 def open_historial_atenciones(page: Page, settings: Settings) -> None:
-    # [VERIFICADO EN VIVO] "Reportes Administrativos" es un <a class="dropdown-toggle">,
-    # no un <button>.
     nav_btn = page.get_by_role("link", name="Reportes Administrativos")
     nav_btn.click()
-
-    # [VERIFICADO EN VIVO] el texto real del item es "Historial Atenciones"
-    # (sin "de"), unica opcion por ahora.
     page.get_by_text("Historial Atenciones", exact=True).click()
 
     modal = wait_for_modal(page, settings.modal_timeout_ms)
     scroll_page(page, 300)
 
-    # [EXACTO] boton Aceptar del modal
     modal.get_by_role("button", name="Aceptar").click()
     close_modal_if_open(page, settings.modal_timeout_ms)
 
 
 def search_patient(page: Page, patient: Patient, settings: Settings) -> None:
-    # SEARCH_FECHA_DESDE/HASTA (.env) tienen prioridad: permiten fijar el
-    # mes de la atencion a buscar (ej. abril 2026) en vez del mes actual.
-    # Si no estan definidas, se usa el mes en curso.
+
     if settings.search_fecha_desde and settings.search_fecha_hasta:
         fecha_desde = datetime.strptime(settings.search_fecha_desde, settings.date_format).date()
         fecha_hasta = datetime.strptime(settings.search_fecha_hasta, settings.date_format).date()
@@ -491,45 +435,24 @@ def search_patient(page: Page, patient: Patient, settings: Settings) -> None:
         fecha_desde = today.replace(day=1)
         fecha_hasta = today.replace(day=calendar.monthrange(today.year, today.month)[1])
 
-    # [VERIFICADO EN VIVO] select name="select-entidad" (jQuery Chosen).
-    # Se hace PRIMERO: interactuar con este widget dispara un redibujado
-    # del resto del panel de busqueda que resetea cualquier campo llenado
-    # antes (se observo en vivo con el campo de CI). Fecha y CI se llenan
-    # despues, verificando su valor final para no fallar en silencio si el
-    # sitio los vuelve a resetear.
     entidad_select = page.locator('select[name="select-entidad"]')
     select_entidad_chosen(page, entidad_select, patient.entidad)
 
-    # [EXACTO] input name="paciente_fecha_desde"
     set_date_picker_field(page, 'input[name="paciente_fecha_desde"]', fecha_desde, settings, "Desde")
 
-    # [EXACTO] input name="paciente_fecha_hasta"
     set_date_picker_field(page, 'input[name="paciente_fecha_hasta"]', fecha_hasta, settings, "Hasta")
 
-    # [VERIFICADO EN VIVO] hay DOS inputs con placeholder "Número
-    # Identificación": el campo real del formulario
-    # (id="paciente_numeroidentificacion") y un filtro de columna de la
-    # tabla de resultados (id="historial_atencion_datatable-sg-filter-9")
-    # que Playwright tambien matchea por placeholder (strict mode
-    # violation). Se usa el id exacto para no ambiguar.
     fill_and_verify(
         page.locator("#paciente_numeroidentificacion"), patient.ci, "Número Identificación"
     )
 
-    # [EXACTO] boton id=searchpacientedatatble-button
     page.locator("#searchpacientedatatble-button").click()
 
     scroll_page(page, 500)
 
 
 def select_result_row(page: Page, settings: Settings, patient: Patient) -> None:
-    # [EXACTO] <td tabindex="0"> de la fila resultante (contenido variable).
-    # tabindex="0" en <td> es la firma tipica de jQuery DataTables (coincide
-    # con el id "searchpacientedatatble-button" del boton Buscar), asi que
-    # la fila "sin resultados" que genera esa misma libreria trae la clase
-    # td.dataTables_empty independientemente del idioma. Se espera
-    # cualquiera de las dos para no confundir "sin resultados" con "sigue
-    # cargando".
+
     row_cell = page.locator('td[tabindex="0"]').first
     empty_state = page.locator("td.dataTables_empty").first
 
@@ -551,15 +474,6 @@ def select_result_row(page: Page, settings: Settings, patient: Patient) -> None:
 
     row_cell.click()
 
-    # [VERIFICADO EN VIVO] el sitio usa la extension "Responsive" de
-    # DataTables: cada fila tiene su propio <tr class="child"> con el
-    # detalle (Fecha Atencion, Acciones, etc.), pero solo el de la fila
-    # expandida esta visible; los de las demas filas siguen en el DOM
-    # ocultos. Buscar el icono pdf por CSS global (page.locator(...).first)
-    # podia matchear el <tr class="child"> oculto de OTRA fila en vez de la
-    # que se acaba de clickear, dejando el wait_for(visible) esperando para
-    # siempre. Se escopea al <tr class="child"> que sigue inmediatamente a
-    # la fila clickeada.
     child_row = row_cell.locator(
         "xpath=ancestor::tr[1]/following-sibling::tr[contains(@class,'child')][1]"
     )
@@ -571,28 +485,20 @@ def select_result_row(page: Page, settings: Settings, patient: Patient) -> None:
 def fill_motivo_and_save(page: Page, settings: Settings) -> None:
     modal = wait_for_modal(page, settings.modal_timeout_ms)
 
-    # [EXACTO] select id=impresatencionmedica_ctmotivo -> option value=3088 (Otros)
     modal.locator("#impresatencionmedica_ctmotivo").select_option(value="3088")
 
-    # [EXACTO] textarea id=impresatencionmedica_observacion
     modal.locator("#impresatencionmedica_observacion").fill("RCPROVINCIAL")
 
-    # [EXACTO] boton "Guardar" (btn btn-sm btn-primary, icono ace-icon fa fa-check)
     modal.get_by_role("button", name="Guardar").click()
 
-    # [VERIFICADO EN VIVO] tras Guardar se abre el modal "Impresiones" (lista
-    # Atencion/Receta/Tratamiento no farmacologico), no un modal generico.
     wait_for_named_modal(page, "Impresiones", settings.modal_timeout_ms)
 
 
 def print_atencion_and_extract_pdf(
     page: Page, settings: Settings, patient: Patient
 ) -> Path:
-    # [EXACTO] boton con onclick="printatencionAction()" title="Atencion"
     page.locator('button[onclick="printatencionAction()"]').click()
 
-    # [VERIFICADO EN VIVO] el modal final con el iframe del PDF se llama
-    # "Visualizar archivo".
     modal = wait_for_named_modal(page, "Visualizar archivo", settings.modal_timeout_ms)
 
     pdf_bytes = _extract_pdf_bytes_from_modal(page, modal)
@@ -626,12 +532,6 @@ def _extract_pdf_bytes_from_modal(page: Page, modal: Locator) -> bytes:
 
         return base64.b64decode(src.split(",", 1)[1])
 
-    # [VERIFICADO EN VIVO] el src real es una ruta absoluta de sitio (ej.
-    # "/atencionmedica/historialatencion/atencionprint/251088130"), no
-    # relativa al directorio de la pagina actual. Cortar el ultimo segmento
-    # de page.url y concatenar duplicaba el path
-    # (".../index/atencionmedica/historialatencion/..."). urljoin resuelve
-    # correctamente rutas absolutas, relativas y URLs completas.
     absolute_url = urljoin(page.url, src)
     response = page.context.request.get(absolute_url)
     if not response.ok:
@@ -646,10 +546,6 @@ def _extract_text_from_pdf_bytes(pdf_bytes: bytes) -> str:
             text_parts.append(page_obj.extract_text() or "")
     return "\n".join(text_parts).strip()
 
-
-# --------------------------------------------------------------------------
-# Orquestacion
-# --------------------------------------------------------------------------
 
 def ensure_chromium_installed(chromium: BrowserType) -> None:
     """Verifica el binario de Chromium de Playwright y lo instala si falta.
@@ -688,8 +584,7 @@ def run(settings: Settings) -> None:
     patients = load_patients(settings.patients_file, settings.default_entidad)
 
     with sync_playwright() as pw:
-        # Instancia propia y aislada de Chromium (modo test), no el navegador
-        # personal del usuario.
+
         ensure_chromium_installed(pw.chromium)
         browser = pw.chromium.launch(headless=settings.headless)
         context = browser.new_context()
@@ -714,10 +609,6 @@ def run(settings: Settings) -> None:
             context.close()
             browser.close()
 
-
-# --------------------------------------------------------------------------
-# CLI
-# --------------------------------------------------------------------------
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)

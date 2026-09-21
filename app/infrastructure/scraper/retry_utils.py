@@ -35,4 +35,4 @@ def retry_with_backoff(
                     attempt + 1, max_retries, description, delay, e,
                 )
                 time.sleep(delay)
-    raise last_error  # type ignore[misc]
+    raise last_error  

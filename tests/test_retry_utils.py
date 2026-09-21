@@ -49,7 +49,7 @@ class TestRetryWithBackoff:
         with patch("app.infrastructure.scraper.retry_utils.time.sleep"):
             with pytest.raises(PlaywrightTimeoutError, match="final"):
                 retry_with_backoff(action, max_retries=3, base_delay=5.0)
-        assert action.call_count == 4  # 1 initial + 3 retries
+        assert action.call_count == 4 
 
     def test_delay_schedule_exponential(self):
         action = MagicMock(side_effect=[
@@ -78,7 +78,6 @@ class TestRetryWithBackoff:
             )
         assert result == "ok"
         delays = [c.args[0] for c in mock_sleep.call_args_list]
-        # 5, 10, 12(cap), 12(cap)
         assert delays == [5.0, 10.0, 12.0, 12.0]
 
     def test_max_retries_zero_no_retry(self):
@@ -130,8 +129,6 @@ class TestRetryWithBackoff:
                     description="custom op",
                 )
         mock_log.warning.assert_called_once()
-        # The logger.warning call uses (fmt, *args) — check that
-        # 'description' appears as one of the positional substitution args
         pos_args = mock_log.warning.call_args[0]
         assert any("custom op" == str(a) for a in pos_args)
 
