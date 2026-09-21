@@ -1,4 +1,7 @@
 __pycache__
+# Contenido instalado de skills de Claude Code (reproducible vía skills-lock.json)
+.agents/
+.claude/
 .atl
 .codegraph
 .pytest_cache
@@ -7,3 +10,8 @@ __pycache__
 openspec
 .env
 .agents
+.codegraph
+backup_historico
+__pycache__/
+*.py[cod]
+*$py.class
