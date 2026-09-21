@@ -1,80 +1,53 @@
-# Fuente: NO estaba en Requisitos.MD v1.0 (Apéndice C la mencionaba como "formato del entregable
-# consolidado del lote", sin especificar) — especificada en sesión BDD 2026-08-12.
-# Estado: validado con el propietario (confirmación explícita 2026-08-15), con una excepción —
-# ver nota sobre ERROR_PORTAL_3 abajo.
+# Fuente: business-rules.md §7 "Consolidación y Entregables del Lote" (Entregable Dual de Excel).
+# Estado: reescrito en sesión SDD 2026-09-10 — reemplaza la versión anterior (BORRADOR) que
+# proponía un único Excel con una columna "ESTADO" en texto. El propietario confirmó que el
+# entregable real es el ENTREGABLE DUAL ya descrito en ARCHITECTURE.md/business-rules.md v1.0:
+# un Excel Limpio + un Excel Auditado ("Espejo") con celdas pintadas de rojo — no una columna de
+# texto.
 #
-# Mapeo de estados internos a la columna ESTADO (confirmado en sesión BDD 2026-08-12, ratificado
-# explícitamente por el propietario el 2026-08-15):
-#   COMPLETADO            -> "Correcto"
-#   NO_ENCONTRADO          -> "Desactualizado"  (Portal 1 dice que no hay cobertura)
-#   SIN_COBERTURA_PORTAL_2  -> "Desactualizado"  (Portal 2 dice que no hay cobertura del titular)
-#   CEDULA_INVALIDA          -> "CI no válida"
-#   ERROR_PORTAL_1            -> "Error Portal 1"  (técnico: timeout/fallo persistente del portal)
-#   ERROR_PORTAL_2             -> "Error Portal 2"  (técnico: ALTCHA no resuelto ni con intervención humana)
-#   PDF_CORRUPTO_PORTAL_2       -> "Error Portal 2"  (técnico: PDF del titular ilegible, sin poder resolverlo)
-#   ERROR_PORTAL_3                -> "Error Portal 3"  (técnico: timeout/fallo persistente del portal)
+# Resuelto (color, confirmado por el propietario 2026-09-10): el color es ROJO UNIFORME para
+# cualquier paciente cuyo estado final sea distinto de COMPLETADO, sin distinguir visualmente el
+# motivo (CI inválida, sin cobertura, error técnico de portal, etc.). El color solo señala
+# "requiere revisión" — el detalle del motivo vive en la base de datos/checkpoint interno, no en el
+# color de la celda. Los 6 estados finales posibles (COMPLETADO, CEDULA_INVALIDA, NO_ENCONTRADO,
+# ERROR_PORTAL_1, ERROR_PORTAL_2, ERROR_PORTAL_3) se siguen usando internamente y se exponen en el
+# Resumen Numérico del Lote (ver 13_resumen_numerico_lote.feature), pero no como columna de texto en
+# el Excel.
 #
-# "Error Portal 2" agrupa ERROR_PORTAL_2 y PDF_CORRUPTO_PORTAL_2 porque ambos son fallos técnicos
-# del Portal 2 que un humano no pudo resolver — a diferencia de SIN_COBERTURA_PORTAL_2, que es un
-# resultado de negocio válido (no es un fallo, es información real del portal). Agrupamiento
-# confirmado explícitamente por el propietario el 2026-08-15.
-#
-# Excepción — fila ERROR_PORTAL_3: el texto "Error Portal 3" queda confirmado *condicionalmente*
-# a que el estado ERROR_PORTAL_3 llegue a existir. El propio estado sigue @pendiente en
-# 06_consulta_portal3.feature (comportamiento de Portal 3 no explorado todavía) — no se puede
-# cerrar por conversación, requiere revisar el portal real en otra sesión.
-#
-# Punto abierto: PAUSADO es un estado de LOTE, no de paciente — el Excel solo se genera cuando el
-# lote ya terminó (sin pendientes), así que PAUSADO nunca debería aparecer en esta columna. Se deja
-# fuera del mapeo a propósito.
+# CORREGIDO (sesión SDD 2026-09-10, segunda ronda): se eliminaron los estados
+# SIN_COBERTURA_PORTAL_2 y PDF_CORRUPTO_PORTAL_2 — el Portal 2 no genera documentos (ver
+# 05_consulta_portal2.feature), así que "sin cobertura" en realidad era el desenlace normal
+# "seguro_derivado = False" (no un rechazo), y no existe ningún PDF de Portal 2 que pueda corromperse.
 
-Feature: Exportación de Excel de resultados del lote
+Feature: Exportación del entregable dual de Excel del lote
 
   Como departamento de origen del listado de pacientes
-  Quiero recibir el Excel original con el resultado de cada paciente
-  Para saber qué registros están correctos y cuáles requieren corrección en su fuente
+  Quiero recibir el Excel original limpio, y una copia auditada que resalte los registros que requieren revisión
+  Para saber qué registros están correctos y cuáles requieren corrección en su fuente, sin perder el archivo original intacto
 
   Background:
     Given un lote que terminó de procesar todos sus pacientes
 
-  Scenario: Generación del Excel de resultados al completar el lote
+  Scenario: Generación del entregable dual al completar el lote
     When el sistema genera el entregable consolidado del lote
-    Then produce un nuevo Excel con todas las columnas y filas del Excel original sin modificar
-    And agrega una columna "ESTADO" al final de todas las columnas originales
+    Then produce un "Excel Limpio" idéntico al original, sin ninguna modificación visual
+    And produce un "Excel Auditado" (Espejo) con las mismas columnas y filas del original
 
-  Scenario: Estado "Correcto"
+  Scenario: Fila sin pintar — paciente completado con éxito
     Given un paciente que terminó con estado interno "COMPLETADO"
-    When se genera el Excel de resultados
-    Then su columna ESTADO se llena con "Correcto"
+    When se genera el Excel Auditado
+    Then su fila conserva el color original, sin pintarse
 
-  Scenario: Estado "Desactualizado" — Portal 1 no encuentra cobertura
-    Given un paciente cuyo registro en el Excel original asumía cobertura de seguro vigente
-    And el Portal 1 respondió "no encontrado" (estado interno "NO_ENCONTRADO")
-    When se genera el Excel de resultados
-    Then su columna ESTADO se llena con "Desactualizado"
-    # Señala que el departamento de origen no actualizó su fuente de datos respecto al Portal 1.
-
-  Scenario: Estado "Desactualizado" — Portal 2 no encuentra cobertura del titular
-    Given un paciente de "Rama A" cuyo registro en el Excel original asumía cobertura de seguro vigente
-    And el Portal 2 respondió "SIN COBERTURA" (estado interno "SIN_COBERTURA_PORTAL_2")
-    When se genera el Excel de resultados
-    Then su columna ESTADO se llena con "Desactualizado"
-
-  Scenario: Estado "CI no válida"
-    Given un registro descartado en la normalización previa con estado "CEDULA_INVALIDA"
-    When se genera el Excel de resultados
-    Then su columna ESTADO se llena con "CI no válida"
-
-  Scenario Outline: Estados de error técnico por portal
+  Scenario Outline: Fila pintada en rojo — cualquier estado distinto de COMPLETADO
     Given un paciente que terminó con estado interno "<estado_interno>"
-    When se genera el Excel de resultados
-    Then su columna ESTADO se llena con "<estado_excel>"
-    # La fila ERROR_PORTAL_3 queda condicionada a que ese estado llegue a existir — sigue
-    # @pendiente en 06_consulta_portal3.feature hasta explorar el portal real.
+    When se genera el Excel Auditado
+    Then su fila se pinta de rojo (`PatternFill`) para señalar que requiere revisión
+    # El color no distingue el motivo específico del fallo; ver 13_resumen_numerico_lote.feature para el desglose por estado.
 
     Examples:
-      | estado_interno         | estado_excel    |
-      | ERROR_PORTAL_1         | Error Portal 1  |
-      | ERROR_PORTAL_2         | Error Portal 2  |
-      | PDF_CORRUPTO_PORTAL_2  | Error Portal 2  |
-      | ERROR_PORTAL_3         | Error Portal 3  |
+      | estado_interno   |
+      | CEDULA_INVALIDA  |
+      | NO_ENCONTRADO    |
+      | ERROR_PORTAL_1   |
+      | ERROR_PORTAL_2   |
+      | ERROR_PORTAL_3   |

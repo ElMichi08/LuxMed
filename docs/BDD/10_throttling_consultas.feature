@@ -1,5 +1,6 @@
 # Fuente: Requisitos.MD — Feature "Ritmo de consultas y comportamiento respetuoso"
-# Estado: validado con el propietario (v1.0)
+# Estado: validado con el propietario (v1.0). Promovido a business-rules.md §6 en sesión SDD
+# 2026-09-10 como fuente de verdad formal (antes solo vivía en este BDD).
 
 Feature: Ritmo de consultas y comportamiento respetuoso
 
