@@ -3,6 +3,7 @@ name: tests
 # Config transversal: vive en main.
 # Politica gradual: las fronteras hexagonales y los tests que hoy pasan BLOQUEAN;
 # lint y tipos son INFORMATIVOS hasta limpiar la deuda.
+# Los tests corren solo en Windows: la aplicacion es de escritorio para Windows.
 # El disparador 'ci/**' permite validar este workflow antes de llegar a main;
 # quitarlo cuando ya no haga falta.
 
@@ -67,18 +68,9 @@ jobs:
         run: mypy app --ignore-missing-imports
 
   pytest:
-    name: Pytest (${{ matrix.os }})
+    name: Pytest (Windows)
     needs: architecture
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            experimental: false
-          - os: ubuntu-latest
-            experimental: true
+    runs-on: windows-latest
     defaults:
       run:
         shell: bash
@@ -94,12 +86,6 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: requirements*.txt
-
-      - name: Instalar librerias del sistema para Qt
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libfontconfig1
 
       - name: Instalar dependencias
         run: pip install -r requirements-dev.txt
