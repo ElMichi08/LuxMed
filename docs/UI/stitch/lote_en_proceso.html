@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>LuxMed Auditoría Clínica</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,500;0,600;0,700;1,500&amp;family=Archivo:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;user-select:none;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}*{box-shadow:none!important;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'on-primary-container': '#bbade8', 'on-tertiary-fixed-variant': '#643f00', 'primary-fixed-dim': '#cdbefa', 'surface-variant': '#e5e2de', 'secondary-fixed-dim': '#8cd6ad', 'on-error': '#ffffff', 'on-tertiary': '#ffffff', 'on-background': '#1c1c1a', 'on-tertiary-container': '#eba84a', 'surface-container-lowest': '#ffffff', 'secondary-fixed': '#a8f3c8', 'background': '#fcf9f5', 'on-error-container': '#93000a', 'primary': '#34285a', 'tertiary': '#462b00', 'tertiary-container': '#643f00', 'on-secondary-fixed-variant': '#005234', 'surface-dim': '#dcdad6', 'on-secondary-container': '#267150', 'secondary-container': '#a8f3c8', 'tertiary-fixed': '#ffddb5', 'surface-container-low': '#f6f3ef', 'surface-tint': '#63568b', 'on-primary': '#ffffff', 'surface': '#fcf9f5', 'surface-container-high': '#ebe8e4', 'surface-container-highest': '#e5e2de', 'inverse-primary': '#cdbefa', 'inverse-surface': '#31302e', 'error-container': '#ffdad6', 'on-secondary': '#ffffff', 'on-tertiary-fixed': '#2a1800', 'inverse-on-surface': '#f3f0ec', 'outline': '#797580', 'primary-fixed': '#e8deff', 'tertiary-fixed-dim': '#feb95a', 'secondary': '#1f6b4a', 'on-surface': '#1c1c1a', 'on-secondary-fixed': '#002113', 'outline-variant': '#cac4d0', 'on-primary-fixed-variant': '#4b3f72', 'surface-container': '#f0edea', 'surface-bright': '#fcf9f5', 'primary-container': '#4b3f72', 'on-surface-variant': '#48454f', 'on-primary-fixed': '#1f1244', 'error': '#ba1a1a' }, borderRadius: { DEFAULT: '0.125rem', lg: '0.25rem', xl: '0.5rem', full: '0.75rem' }, spacing: { 'space-12': '12px', 'space-24': '24px', 'layout-statusbar-height': '32px', 'space-8': '8px', 'space-16': '16px', 'layout-control-height': '32px', 'layout-row-height': '40px', 'layout-rail-width': '64px', 'space-2': '2px', 'layout-topbar-height': '56px', 'space-32': '32px', 'space-4': '4px', 'layout-btn-primary-height': '36px' }, fontFamily: { 'table-header': ['Archivo Narrow'], 'code-dense': ['IBM Plex Mono'], 'body-md': ['Archivo'], 'headline-md': ['Archivo'], 'label-compact': ['Archivo Narrow'], 'headline-lg': ['Archivo'], 'headline-sm': ['Archivo'], 'status-badge': ['Archivo Narrow'], 'body-sm': ['Archivo'], 'code-tabular': ['IBM Plex Mono'] }, fontSize: { 'table-header': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '600' }], 'code-dense': ['12px', { lineHeight: '16px', letterSpacing: '0em', fontWeight: '500' }], 'body-md': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '400' }], 'headline-md': ['16px', { lineHeight: '22px', letterSpacing: '-0.005em', fontWeight: '600' }], 'label-compact': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '600' }], 'headline-lg': ['20px', { lineHeight: '26px', letterSpacing: '-0.01em', fontWeight: '600' }], 'headline-sm': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '600' }], 'status-badge': ['11px', { lineHeight: '12px', letterSpacing: '0.04em', fontWeight: '600' }], 'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.01em', fontWeight: '400' }], 'code-tabular': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '600' }] } } } };</script></head><body class="bg-surface-variant font-body-md text-on-surface antialiased overflow-hidden select-none m-0 p-0"><header class="fixed top-0 left-0 right-0 h-layout-topbar-height bg-surface-container-lowest border-b border-outline-variant z-50 flex items-center justify-between px-space-16"><div class="flex items-center gap-space-12"><div class="flex items-center gap-space-8"><div class="w-6 h-6 bg-on-surface flex items-center justify-center rounded-DEFAULT"><span class="text-surface-container-lowest font-headline-sm text-body-md leading-none font-semibold">L</span></div><span class="font-headline-md text-[17px] font-semibold text-on-surface tracking-tight">LuxMed</span></div><div class="w-[1px] h-5 bg-outline-variant"></div><div class="flex flex-col justify-center leading-tight"><span class="font-headline-sm text-body-md text-on-surface font-medium">cartera_septiembre.xlsx</span><span class="font-code-dense text-label-compact text-outline">Lote 2026-09-08-01 · 428 pacientes</span></div></div><div class="flex items-center gap-space-12"><button class="h-layout-control-height px-space-12 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex items-center gap-space-8 text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[16px] text-on-surface">pause</span><span class="font-body-sm text-body-sm font-medium">Pausar campaña</span></button><button class="w-layout-control-height h-layout-control-height bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[18px] text-on-surface">settings</span></button><div class="flex items-center gap-space-8 pl-space-4"><span class="font-body-md text-body-md text-on-surface font-medium">admision.01</span><div class="w-6 h-6 bg-surface-dim rounded-DEFAULT flex items-center justify-center border border-outline-variant"><span class="font-code-dense text-[11px] leading-none text-on-surface font-medium">AO</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-layout-topbar-height bottom-layout-statusbar-height w-layout-rail-width bg-surface-variant border-r border-outline-variant z-40 flex flex-col justify-between items-center py-space-4"><nav class="w-full flex flex-col items-center" data-active-classes="bg-surface-container-lowest text-primary-container border-l-[3px] border-primary-container"><a aria-current="page" class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative transition-colors bg-surface-container-lowest text-primary-container border-l-[3px] border-primary-container" data-path="lote" href="#"><span class="material-symbols-outlined text-[20px]">folder_open</span><span class="font-label-compact text-[10px] leading-none">Lote</span></a><a class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative text-outline hover:text-on-surface border-l-[3px] border-transparent transition-colors" data-path="errores" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">report_problem</span><span class="absolute -top-1 -right-3 h-[14px] px-1 bg-error text-on-error rounded-DEFAULT font-code-dense text-[9px] font-semibold flex items-center justify-center leading-none">4</span></div><span class="font-label-compact text-[10px] leading-none">Errores</span></a><a class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative text-outline hover:text-on-surface border-l-[3px] border-transparent transition-colors" data-path="historial" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span class="font-label-compact text-[10px] leading-none">Historial</span></a><a class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative text-outline hover:text-on-surface border-l-[3px] border-transparent transition-colors" data-path="ajustes" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span class="font-label-compact text-[10px] leading-none">Ajustes</span></a></nav></aside><div class="pl-layout-rail-width pt-layout-topbar-height pb-layout-statusbar-height min-h-screen bg-surface-variant flex flex-col"><main class="flex-1 w-full bg-surface-variant p-space-16 overflow-y-auto"><div class="flex flex-col w-full bg-[#E6E6E2] text-[#1A1A18] font-body-md select-none">
+<!-- BANDA 1: TIRA DE MÉTRICAS (92px) -->
+<section class="w-full h-[92px] bg-[#FAFAF8] border-b border-[#C9C9C3] flex flex-row items-stretch p-0 m-0">
+<!-- Bloque 1: Ingestados -->
+<div class="flex-1 flex flex-col justify-center px-space-16 border-r border-[#C9C9C3] relative">
+<span class="font-code-dense text-[30px] leading-[32px] font-medium text-[#1A1A18] tracking-tight">428</span>
+<span class="font-body-sm text-[12px] leading-4 text-[#5C5C57] mt-space-4">Ingestados</span>
+</div>
+<!-- Bloque 2: Válidos -->
+<div class="flex-1 flex flex-col justify-center px-space-16 border-r border-[#C9C9C3] relative">
+<span class="font-code-dense text-[30px] leading-[32px] font-medium text-[#1F6B4A] tracking-tight">311</span>
+<span class="font-body-sm text-[12px] leading-4 text-[#5C5C57] mt-space-4">Válidos</span>
+</div>
+<!-- Bloque 3: Inválidos -->
+<div class="flex-1 flex flex-col justify-center px-space-16 border-r border-[#C9C9C3] relative">
+<span class="font-code-dense text-[30px] leading-[32px] font-medium text-[#A3231D] tracking-tight">94</span>
+<span class="font-body-sm text-[12px] leading-4 text-[#5C5C57] mt-space-4">Inválidos</span>
+</div>
+<!-- Bloque 4: En cola (con barra de progreso 3px) -->
+<div class="flex-1 flex flex-col justify-center px-space-16 border-r border-[#C9C9C3] relative overflow-hidden">
+<span class="font-code-dense text-[30px] leading-[32px] font-medium text-[#4B3F72] tracking-tight">19</span>
+<span class="font-body-sm text-[12px] leading-4 text-[#5C5C57] mt-space-4">En cola</span>
+<div class="absolute bottom-0 left-0 right-0 h-[3px] bg-[#DEDEDA]">
+<div class="h-full bg-[#4B3F72] w-[69%]"></div>
+</div>
+</div>
+<!-- Bloque 5: Con error -->
+<div class="flex-1 flex flex-col justify-center px-space-16 relative">
+<span class="font-code-dense text-[30px] leading-[32px] font-medium text-[#4A5560] tracking-tight">4</span>
+<span class="font-body-sm text-[12px] leading-4 text-[#5C5C57] mt-space-4">Con error</span>
+</div>
+</section>
+<!-- BANDA 2: BARRA DE HERRAMIENTAS (48px) -->
+<section class="w-full h-[48px] bg-[#E6E6E2] border-b border-[#C9C9C3] px-space-16 flex items-center justify-between">
+<div class="flex items-center gap-space-12">
+<!-- Campo de búsqueda -->
+<div class="relative w-[260px] h-[32px] flex items-center bg-[#FFFFFF] border border-[#C9C9C3] rounded-[3px] px-space-8">
+<span class="material-symbols-outlined text-[16px] text-[#8E8E88] mr-space-4">search</span>
+<input class="w-full bg-transparent border-none outline-none font-body-sm text-[12px] text-[#1A1A18] placeholder-[#8E8E88] p-0 m-0" placeholder="Buscar por cédula o nombre" type="text"/>
+</div>
+<!-- Filtros conmutables -->
+<div class="flex items-center gap-space-4" id="table-filter-group">
+<button class="h-[28px] px-space-8 bg-[#EDEAF3] border border-[#4B3F72] rounded-[2px] font-body-sm text-[12px] text-[#4B3F72] font-medium flex items-center justify-center">
+          Todos
+        </button>
+<button class="h-[28px] px-space-8 bg-[#FAFAF8] border border-[#C9C9C3] rounded-[2px] font-body-sm text-[12px] text-[#5C5C57] hover:bg-[#F2F1EE] flex items-center justify-center">
+          Válidos
+        </button>
+<button class="h-[28px] px-space-8 bg-[#FAFAF8] border border-[#C9C9C3] rounded-[2px] font-body-sm text-[12px] text-[#5C5C57] hover:bg-[#F2F1EE] flex items-center justify-center">
+          Inválidos
+        </button>
+<button class="h-[28px] px-space-8 bg-[#FAFAF8] border border-[#C9C9C3] rounded-[2px] font-body-sm text-[12px] text-[#5C5C57] hover:bg-[#F2F1EE] flex items-center justify-center">
+          En cola
+        </button>
+<button class="h-[28px] px-space-8 bg-[#FAFAF8] border border-[#C9C9C3] rounded-[2px] font-body-sm text-[12px] text-[#5C5C57] hover:bg-[#F2F1EE] flex items-center justify-center">
+          Con error
+        </button>
+</div>
+</div>
+<!-- Botones de acción derecha -->
+<div class="flex items-center gap-space-8">
+<button class="h-[32px] px-space-12 bg-[#DEDEDA] text-[#8E8E88] border border-[#C9C9C3] rounded-[3px] font-body-sm text-[12px] cursor-not-allowed flex items-center justify-center font-medium" disabled="">
+        Reprocesar selección
+      </button>
+<button class="h-[36px] px-space-16 bg-[#1A1A18] text-[#FFFFFF] rounded-[3px] font-body-sm text-[13px] font-medium hover:bg-[#31302E] active:bg-[#000000] flex items-center justify-center">
+        Generar entregables
+      </button>
+</div>
+</section>
+<!-- BANDA 3: TABLA DE DATOS (QTableView Desktop Style) -->
+<section class="w-full flex-1 bg-[#FAFAF8] overflow-x-auto">
+<table class="w-full border-collapse text-left table-fixed">
+<!-- Encabezado de 34px -->
+<thead>
+<tr class="h-[34px] bg-[#DEDEDA] border-b border-[#C9C9C3] text-[#5C5C57] font-table-header text-[12px] uppercase tracking-wider">
+<th class="w-[40px] px-space-4 text-center border-r border-[#DCDCD7]">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</th>
+<th class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-semibold">Paciente</th>
+<th class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-semibold">Cédula</th>
+<th class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-semibold">Edad</th>
+<th class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-semibold">Seguro en Excel</th>
+<th class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-semibold">Cobertura detectada</th>
+<th class="w-[110px] px-space-8 text-center border-r border-[#DCDCD7] font-semibold">Ruta de portales</th>
+<th class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-semibold">Estado</th>
+<th class="w-[90px] px-space-12 text-right font-semibold">Hora</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#DCDCD7] bg-[#FFFFFF]">
+<!-- Fila 1: Alcivar Moreta -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Alcivar Moreta, Beatriz E.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            1799999991
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            42
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS (activa)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#1F6B4A" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#1F6B4A" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 check -->
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 check -->
+<circle cx="44" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M42 7 L43.5 8.5 L46 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P3 check -->
+<circle cx="78" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M76 7 L77.5 8.5 L80 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E4EFE9] text-[#1F6B4A] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#1F6B4A] inline-block"></span>
+              Procesado valido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:19:04
+          </td>
+</tr>
+<!-- Fila 2: Chuquimarca Vela -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Chuquimarca Vela, Dario A.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            0599999992
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            67
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            ISSFA
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            ISSFA (activa)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#8E8E88" stroke-dasharray="2 2" stroke-width="1.5" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#8E8E88" stroke-dasharray="2 2" stroke-width="1.5" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 check -->
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 omitido punteado -->
+<circle cx="44" cy="7" fill="none" r="3.5" stroke="#8E8E88" stroke-dasharray="1.5 1.5" stroke-width="1.5"></circle>
+<!-- P3 check -->
+<circle cx="78" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M76 7 L77.5 8.5 L80 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E4EFE9] text-[#1F6B4A] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#1F6B4A] inline-block"></span>
+              Procesado valido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:20:11
+          </td>
+</tr>
+<!-- Fila 3: Naranjo Pilataxi -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Naranjo Pilataxi, Kevin S.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            1899999993
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            14
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            Ninguno
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            Sin cobertura
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#C9C9C3" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#C9C9C3" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 aspa roja -->
+<circle cx="10" cy="7" fill="#A3231D" r="4"></circle>
+<path d="M8 5 L12 9 M12 5 L8 9" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 gris -->
+<circle cx="44" cy="7" fill="none" r="3.5" stroke="#C9C9C3" stroke-width="1.5"></circle>
+<!-- P3 gris -->
+<circle cx="78" cy="7" fill="none" r="3.5" stroke="#C9C9C3" stroke-width="1.5"></circle>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#F6E4E3] text-[#A3231D] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#A3231D] inline-block"></span>
+              Rechazado invalido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:20:45
+          </td>
+</tr>
+<!-- Fila 4: Tayupanta Guaman -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Tayupanta Guaman, Rosa M.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            17999999
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            55
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            Validacion estructural
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#C9C9C3" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#C9C9C3" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<circle cx="10" cy="7" fill="none" r="3.5" stroke="#C9C9C3" stroke-width="1.5"></circle>
+<circle cx="44" cy="7" fill="none" r="3.5" stroke="#C9C9C3" stroke-width="1.5"></circle>
+<circle cx="78" cy="7" fill="none" r="3.5" stroke="#C9C9C3" stroke-width="1.5"></circle>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#F6E4E3] text-[#A3231D] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#A3231D] inline-block"></span>
+              Rechazado invalido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:21:02
+          </td>
+</tr>
+<!-- Fila 5: Zambrano Lucero -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Zambrano Lucero, Hipatia V.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            1399999994
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            38
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS (activa)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#4B3F72" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#C9C9C3" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 check -->
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 indigo con anillo exterior -->
+<circle cx="44" cy="7" fill="#4B3F72" fill-opacity="0.2" r="6"></circle>
+<circle cx="44" cy="7" fill="#4B3F72" r="4"></circle>
+<!-- P3 gris pendiente -->
+<circle cx="78" cy="7" fill="none" r="3.5" stroke="#C9C9C3" stroke-width="1.5"></circle>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#EDEAF3] text-[#4B3F72] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#4B3F72] inline-block"></span>
+              En proceso
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:21:30
+          </td>
+</tr>
+<!-- Fila 6: Espinoza Cadena -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Espinoza Cadena, Ruben D.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            0999999995
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            71
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS (timeout P3)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#1F6B4A" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#4A5560" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 check -->
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 check -->
+<circle cx="44" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M42 7 L43.5 8.5 L46 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P3 pizarra error -->
+<circle cx="78" cy="7" fill="#4A5560" r="4"></circle>
+<path d="M76 5 L80 9 M80 5 L76 9" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E9ECEF] text-[#4A5560] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#4A5560] inline-block"></span>
+              Pendiente por error
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:21:48
+          </td>
+</tr>
+<!-- Fila 7: Quishpe Andrade (FILA SELECCIONADA + DISCREPANCIA) -->
+<tr class="h-[40px] bg-[#EDEAF3] transition-none relative">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4 relative">
+<!-- Marcador vertical de 2px índigo pegado al borde izquierdo -->
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#4B3F72]"></div>
+<input checked="" class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Quishpe Andrade, Maria F.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            1099999996
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            29
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<!-- Celda con discrepancia: fondo #F7EEDD, texto #B0761A -->
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] bg-[#F7EEDD] text-[#B0761A] font-body-sm text-[13px] font-medium truncate">
+            ISSPOL (doble afil.)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#8E8E88" stroke-dasharray="2 2" stroke-width="1.5" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#8E8E88" stroke-dasharray="2 2" stroke-width="1.5" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 check -->
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 omitido -->
+<circle cx="44" cy="7" fill="none" r="3.5" stroke="#8E8E88" stroke-dasharray="1.5 1.5" stroke-width="1.5"></circle>
+<!-- P3 check -->
+<circle cx="78" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M76 7 L77.5 8.5 L80 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E4EFE9] text-[#1F6B4A] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#1F6B4A] inline-block"></span>
+              Procesado valido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:22:05
+          </td>
+</tr>
+<!-- Fila 8: Morales Cardenas -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Morales Cardenas, Galo R.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            1799999997
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            51
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS (activa)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#1F6B4A" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#1F6B4A" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<circle cx="44" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M42 7 L43.5 8.5 L46 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<circle cx="78" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M76 7 L77.5 8.5 L80 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E4EFE9] text-[#1F6B4A] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#1F6B4A] inline-block"></span>
+              Procesado valido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:22:15
+          </td>
+</tr>
+<!-- Fila 9: Toapanta Sisa -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Toapanta Sisa, Carmen J.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            0599999998
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            63
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            IESS (activa)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#1F6B4A" stroke-width="2" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#1F6B4A" stroke-width="2" x1="44" x2="78" y1="7" y2="7"></line>
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<circle cx="44" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M42 7 L43.5 8.5 L46 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<circle cx="78" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M76 7 L77.5 8.5 L80 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E4EFE9] text-[#1F6B4A] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#1F6B4A] inline-block"></span>
+              Procesado valido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:22:28
+          </td>
+</tr>
+<!-- Fila 10: Viteri Gomez -->
+<tr class="h-[40px] hover:bg-[#F2F1EE] transition-none">
+<td class="w-[40px] text-center border-r border-[#DCDCD7] px-space-4">
+<input class="w-4 h-4 rounded-[2px] accent-[#4B3F72] cursor-pointer align-middle" type="checkbox"/>
+</td>
+<td class="w-[260px] px-space-12 border-r border-[#DCDCD7] font-body-md font-medium text-[14px] text-[#1A1A18] truncate">
+            Viteri Gomez, Marcelo T.
+          </td>
+<td class="w-[130px] px-space-12 border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            1899999999
+          </td>
+<td class="w-[60px] px-space-12 text-right border-r border-[#DCDCD7] font-code-dense text-[13px] text-[#1A1A18]">
+            49
+          </td>
+<td class="w-[120px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            ISSFA
+          </td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7] font-body-sm text-[13px] text-[#1A1A18] truncate">
+            ISSFA (activa)
+          </td>
+<td class="w-[110px] px-space-8 border-r border-[#DCDCD7] align-middle">
+<div class="flex items-center justify-center">
+<svg class="block" height="14" viewbox="0 0 88 14" width="88">
+<line stroke="#8E8E88" stroke-dasharray="2 2" stroke-width="1.5" x1="10" x2="44" y1="7" y2="7"></line>
+<line stroke="#8E8E88" stroke-dasharray="2 2" stroke-width="1.5" x1="44" x2="78" y1="7" y2="7"></line>
+<!-- P1 check -->
+<circle cx="10" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M8 7 L9.5 8.5 L12 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+<!-- P2 omitido -->
+<circle cx="44" cy="7" fill="none" r="3.5" stroke="#8E8E88" stroke-dasharray="1.5 1.5" stroke-width="1.5"></circle>
+<!-- P3 check -->
+<circle cx="78" cy="7" fill="#1F6B4A" r="4"></circle>
+<path d="M76 7 L77.5 8.5 L80 5.5" fill="none" stroke="#FFFFFF" stroke-width="1.2"></path>
+</svg>
+</div>
+</td>
+<td class="w-[150px] px-space-12 border-r border-[#DCDCD7]">
+<span class="inline-flex items-center h-[22px] px-[6px] rounded-[2px] bg-[#E4EFE9] text-[#1F6B4A] font-status-badge text-[12px] font-semibold gap-[6px]">
+<span class="w-[6px] h-[6px] rounded-full bg-[#1F6B4A] inline-block"></span>
+              Procesado valido
+            </span>
+</td>
+<td class="w-[90px] px-space-12 text-right font-code-dense text-[13px] text-[#1A1A18]">
+            14:22:40
+          </td>
+</tr>
+</tbody>
+</table>
+</section>
+<!-- PESTAÑA COLAPSADA DE BITÁCORA AL PIE (28px) -->
+<section class="w-full h-[28px] bg-[#DEDEDA] border-t border-[#C9C9C3] px-space-12 flex items-center justify-between cursor-pointer hover:bg-[#D4D4D0] transition-colors">
+<div class="flex items-center gap-space-4 text-[#1A1A18]">
+<span class="material-symbols-outlined text-[14px] leading-none text-[#1A1A18]">expand_less</span>
+<span class="font-body-sm text-[12px] font-medium leading-none">Bitacora</span>
+</div>
+<div class="font-code-dense text-[11px] text-[#5C5C57] leading-none tracking-tight">
+      14:22:07 P1 lote 296 evidencia capturada 214 KB
+    </div>
+</section>
+</div>
+<script>
+  // Micro-interacción ligera para selector de filtros de cabecera
+  document.querySelectorAll('#table-filter-group button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#table-filter-group button').forEach(b => {
+        b.className = 'h-[28px] px-space-8 bg-[#FAFAF8] border border-[#C9C9C3] rounded-[2px] font-body-sm text-[12px] text-[#5C5C57] hover:bg-[#F2F1EE] flex items-center justify-center';
+      });
+      btn.className = 'h-[28px] px-space-8 bg-[#EDEAF3] border border-[#4B3F72] rounded-[2px] font-body-sm text-[12px] text-[#4B3F72] font-medium flex items-center justify-center';
+    });
+  });
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-layout-statusbar-height bg-surface-dim border-t border-outline-variant z-50 flex items-center justify-between px-space-12 text-on-surface"><div class="flex items-center h-full gap-space-8"><div class="flex items-center gap-space-4 font-code-dense text-code-dense"><span class="w-[7px] h-[7px] rounded-full bg-secondary inline-block"></span><span class="text-on-surface">P1</span></div><div class="w-[1px] h-4 bg-outline-variant"></div><div class="flex items-center gap-space-4 font-code-dense text-code-dense"><span class="w-[7px] h-[7px] rounded-full bg-secondary inline-block"></span><span class="text-on-surface">P2</span></div><div class="w-[1px] h-4 bg-outline-variant"></div><div class="flex items-center gap-space-4 font-code-dense text-code-dense"><span class="w-[7px] h-[7px] rounded-full bg-tertiary-container inline-block"></span><span class="text-on-surface">P3</span></div></div><div class="font-code-dense text-code-dense text-on-surface font-medium">Procesados 296 de 428</div><div class="flex items-center gap-space-8 h-full"><span class="font-code-dense text-code-dense text-on-surface-variant">Tiempo restante estimado 00:41:20</span><div class="w-[1px] h-4 bg-outline-variant"></div><div class="flex items-center gap-space-4 font-code-dense text-code-dense text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">hard_drive</span><span>D:\LuxMed\salidas\2026-09</span></div></div></footer></body></html>

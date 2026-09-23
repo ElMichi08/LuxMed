@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuxMed - Carga del listado v3</title>
+  <!-- Google Fonts: Archivo, Archivo Narrow, IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* PyQt6 / QSS Desktop Windows Flat Style: strictly zero shadows, 0-3px radius */
+    * {
+      box-shadow: none !important;
+      text-shadow: none !important;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    /* Scrollbars nativos planos Qt */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAFAF8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C9C9C3;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8E8E88;
+    }
+  </style>
+</head>
+<body class="h-full w-full m-0 p-0 overflow-hidden bg-[#E6E6E2] text-[#1A1A18] font-['Archivo',sans-serif] flex flex-col justify-between" style="min-width: 1280px; min-height: 800px; height: 100vh;">
+
+  <!-- ================= 1. BARRA SUPERIOR WINDOWS (48px) ================= -->
+  <header class="h-[48px] bg-[#FAFAF8] border-b border-[#C9C9C3] flex items-center justify-between px-3 shrink-0 box-border select-none">
+    <!-- Brand & Estado general -->
+    <div class="flex items-center gap-3">
+      <!-- Monograma 'L' en caja cuadrada #1A1A18 -->
+      <div class="w-6 h-6 bg-[#1A1A18] text-[#FAFAF8] flex items-center justify-center font-bold text-xs">
+        L
+      </div>
+      <span class="font-semibold text-sm tracking-tight text-[#1A1A18]">LuxMed</span>
+      <!-- Separador vertical 1px -->
+      <div class="w-[1px] h-4 bg-[#C9C9C3] mx-1"></div>
+      <span class="text-xs text-[#555550] font-sans">Sin lote activo</span>
+    </div>
+
+    <!-- Controles derechos (SIN botón de pausa) -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono text-[#555550]">admision.01</span>
+        <div class="w-7 h-7 bg-[#DCDCD7] border border-[#C9C9C3] flex items-center justify-center text-[10px] font-mono font-bold text-[#1A1A18]">
+          A0
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENEDOR PRINCIPAL (RIEL + ÁREA DE CONTENIDO) ================= -->
+  <div class="flex flex-1 w-full overflow-hidden">
+    <!-- ================= RIEL LATERAL (64px) ================= -->
+    <aside class="w-[64px] bg-[#E6E6E2] border-r border-[#C9C9C3] flex flex-col justify-between shrink-0 box-border select-none">
+      <div class="flex flex-col w-full">
+        <!-- Item 1: Lote (Activo con barra índigo de 3px) -->
+        <div class="relative w-full h-[60px] flex flex-col items-center justify-center bg-[#DEDEDA] text-[#4B3F72] cursor-pointer">
+          <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-[#4B3F72]"></div>
+          <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">dataset</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1 text-[#4B3F72]">Lote</span>
+        </div>
+
+        <!-- Item 2: Errores (Con badge rojo #A3231D de 4) -->
+        <div class="relative w-full h-[60px] flex flex-col items-center justify-center text-[#555550] hover:bg-[#DCDCD7] cursor-pointer">
+          <div class="relative flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">warning</span>
+            <span class="absolute -top-1.5 -right-2.5 bg-[#A3231D] text-white text-[9px] font-mono font-bold px-1 py-0 leading-none min-w-[14px] h-[14px] flex items-center justify-center">
+              4
+            </span>
+          </div>
+          <span class="text-[10px] font-medium tracking-tight mt-1">Errores</span>
+        </div>
+
+        <!-- Item 3: Historial (DESHABILITADO: gris claro #8E8E88, sin hover, nunca activo) -->
+        <div class="w-full h-[60px] flex flex-col items-center justify-center text-[#8E8E88] cursor-not-allowed opacity-75 select-none" title="Historial deshabilitado">
+          <span class="material-symbols-outlined text-[20px] text-[#8E8E88]">history</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1 text-[#8E8E88]">Historial</span>
+        </div>
+
+        <!-- Item 4: Ajustes -->
+        <div class="w-full h-[60px] flex flex-col items-center justify-center text-[#555550] hover:bg-[#DCDCD7] cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">settings</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1">Ajustes</span>
+        </div>
+      </div>
+
+      <!-- Versión del cliente desktop -->
+      <div class="p-2 text-center text-[9px] font-mono text-[#8E8E88] border-t border-[#DCDCD7]">
+        v2.4
+      </div>
+    </aside>
+
+    <!-- ================= ÁREA CENTRAL CENTRADA (PANEL DE 720px) ================= -->
+    <main class="flex-1 flex flex-col items-center justify-center p-8 bg-[#E6E6E2] overflow-auto box-border">
+      
+      <div class="w-[720px] flex flex-col gap-6">
+        
+        <!-- Zona de carga (Dropzone) con borde punteado de 2px en #C9C9C3, fondo panel #FAFAF8 -->
+        <div class="w-full bg-[#FAFAF8] border-2 border-dashed border-[#C9C9C3] rounded-[3px] py-12 px-8 flex flex-col items-center justify-center text-center">
+          
+          <!-- Icono de hoja de cálculo / tabla -->
+          <div class="text-[#555550] mb-4">
+            <span class="material-symbols-outlined text-[48px] text-[#555550]">table_view</span>
+          </div>
+
+          <!-- Título -->
+          <h1 class="text-[20px] font-semibold text-[#1A1A18] mb-1">
+            Arrastra aquí el listado de pacientes
+          </h1>
+
+          <!-- Texto descriptivo del tipo de archivo -->
+          <p class="text-[13px] text-[#555550] mb-6 font-mono">
+            Archivos .xlsx
+          </p>
+
+          <!-- Botón secundario "Elegir archivo" (estilo QSS QPushButton #EAEAE6 con borde #C9C9C3) -->
+          <button class="h-[32px] px-5 bg-[#EAEAE6] hover:bg-[#DCDCD7] active:bg-[#C9C9C3] border border-[#C9C9C3] text-[#1A1A18] text-xs font-medium rounded-[3px] flex items-center gap-2 cursor-pointer transition-colors duration-75">
+            <span class="material-symbols-outlined text-[16px] text-[#555550]">upload_file</span>
+            <span>Elegir archivo</span>
+          </button>
+        </div>
+
+        <!-- Panel pequeño inferior "Qué se lee del archivo" -->
+        <div class="w-full bg-[#FAFAF8] border border-[#C9C9C3] rounded-[3px] p-6">
+          <h2 class="text-[11px] font-semibold text-[#555550] uppercase tracking-wider font-['Archivo_Narrow',sans-serif] mb-3">
+            Qué se lee del archivo
+          </h2>
+          <ul class="space-y-2 text-[13px] text-[#1A1A18] leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-[#555550] select-none">•</span>
+              <span>Columnas leídas: nombre, cédula, fecha de nacimiento, tipo de seguro, código de clínica y establecimiento.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-[#555550] select-none">•</span>
+              <span>Cédula válida: exactamente 10 dígitos numéricos. Las demás se descartan y no se consultan.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-[#555550] select-none">•</span>
+              <span>La edad se calcula con la fecha de nacimiento al cargar el archivo.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- SIN BARRA DE ESTADO INFERIOR SEGÚN ESPECIFICACIÓN -->
+
+</body>
+</html>

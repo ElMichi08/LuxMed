@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html class="h-full" lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxMed - Detalle de paciente v3</title>
+<!-- Fuentes nativas del Design System: Archivo, Archivo Narrow, IBM Plex Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          lienzo: "#E6E6E2",
+          panel: "#FAFAF8",
+          blanco: "#FFFFFF",
+          tinta: "#1A1A18",
+          tintaSec: "#555550",
+          tintaTenue: "#8E8E88",
+          filete: "#C9C9C3",
+          fileteSuave: "#DCDCD7",
+          fileteHeader: "#DEDEDA",
+          indigo: "#4B3F72",
+          indigoFondo: "#EDEAF3",
+          verde: "#1F6B4A",
+          verdeFondo: "#E8F5E9",
+          rojo: "#A3231D",
+          rojoFondo: "#FDEDEC"
+        },
+        fontFamily: {
+          sans: ['Archivo', 'sans-serif'],
+          narrow: ['"Archivo Narrow"', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  /* Reglas maestras: UI de escritorio Windows 11 / PyQt6 estricta, sin sombras, bordes de 0 a 2px */
+  *, *::before, *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    line-height: 1;
+  }
+  /* Barras de scroll nativas planas QScrollBar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FAFAF8;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C9C9C3;
+    border-radius: 0px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8E8E88;
+  }
+</style>
+</head>
+<body class="h-full w-full m-0 p-0 overflow-hidden bg-panel text-tinta font-sans antialiased flex flex-col justify-between" style="min-width: 1280px; min-height: 800px; height: 100vh;">
+
+  <!-- ================= 1. BARRA SUPERIOR WINDOWS (48px) ================= -->
+  <!-- SIN botón de pausa, con chip En curso y usuario admision.01 -->
+  <header class="h-[48px] bg-panel border-b border-filete flex items-center justify-between px-3 shrink-0 box-border select-none z-10">
+    <!-- Brand & Metadatos del Lote -->
+    <div class="flex items-center gap-3">
+      <!-- Monograma 'L' cuadrado #1A1A18 -->
+      <div class="w-6 h-6 bg-tinta text-panel flex items-center justify-center font-bold text-xs rounded-none font-sans">
+        L
+      </div>
+      <span class="font-semibold text-sm tracking-tight text-tinta">LuxMed</span>
+      <div class="w-[1px] h-4 bg-filete mx-1"></div>
+      <span class="text-xs text-tintaSec font-mono tracking-tight">cartera_septiembre.xlsx · Lote 2026-09-08-01 · 428 filas</span>
+      <!-- Chip En curso -->
+      <span class="px-2 py-0.5 text-[11px] font-semibold bg-indigoFondo text-indigo border border-[#DDD8E8] ml-2">
+        En curso
+      </span>
+    </div>
+
+    <!-- Usuario & perfil (SIN botón de pausa) -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-mono text-tintaSec">admision.01</span>
+      <div class="w-7 h-7 bg-fileteSuave border border-filete flex items-center justify-center text-[10px] font-mono font-bold text-tinta">
+        A0
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENEDOR CENTRAL ================= -->
+  <div class="flex flex-1 w-full overflow-hidden">
+
+    <!-- ================= RIEL LATERAL (64px) ================= -->
+    <aside class="w-[64px] bg-lienzo border-r border-filete flex flex-col justify-between shrink-0 box-border select-none">
+      <div class="flex flex-col w-full">
+        <!-- Ítem 1: Lote (Activo con barra de 3px índigo) -->
+        <div class="relative w-full h-[60px] flex flex-col items-center justify-center bg-[#DEDEDA] text-indigo cursor-pointer">
+          <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo"></div>
+          <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">dataset</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1 text-indigo">Lote</span>
+        </div>
+
+        <!-- Ítem 2: Errores (Con badge rojo de 4) -->
+        <div class="relative w-full h-[60px] flex flex-col items-center justify-center text-tintaSec hover:bg-fileteSuave cursor-pointer">
+          <div class="relative flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">warning</span>
+            <span class="absolute -top-1.5 -right-2.5 bg-rojo text-white text-[9px] font-mono font-bold px-1 py-0 leading-none min-w-[14px] h-[14px] flex items-center justify-center">
+              4
+            </span>
+          </div>
+          <span class="text-[10px] font-medium tracking-tight mt-1">Errores</span>
+        </div>
+
+        <!-- Ítem 3: Historial (DESHABILITADO: texto e icono en gris claro #8E8E88, sin hover, nunca activo) -->
+        <div class="w-full h-[60px] flex flex-col items-center justify-center text-tintaTenue cursor-not-allowed select-none opacity-80" title="Historial deshabilitado">
+          <span class="material-symbols-outlined text-[20px] text-tintaTenue">history</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1 text-tintaTenue">Historial</span>
+        </div>
+
+        <!-- Ítem 4: Ajustes -->
+        <div class="w-full h-[60px] flex flex-col items-center justify-center text-tintaSec hover:bg-fileteSuave cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">settings</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1">Ajustes</span>
+        </div>
+      </div>
+
+      <!-- Versión técnica -->
+      <div class="p-2 text-center text-[9px] font-mono text-tintaTenue border-t border-fileteSuave">
+        v2.4
+      </div>
+    </aside>
+
+    <!-- ================= ÁREA PRINCIPAL: TABLA DEL LOTE ================= -->
+    <main class="flex-1 flex flex-col bg-white overflow-hidden box-border">
+      <!-- Sub-barra superior de información de tabla -->
+      <div class="h-9 bg-panel border-b border-fileteSuave px-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3 text-xs">
+          <span class="font-medium text-tinta">Listado de pacientes en ejecución: <span class="font-mono text-indigo font-semibold">296 / 428</span></span>
+          <span class="text-filete">|</span>
+          <span class="text-tintaSec">Seleccionado: <strong class="font-mono text-tinta">1098421045</strong></span>
+        </div>
+        <div class="text-[11px] font-mono text-tintaTenue">
+          Filtro: Todos
+        </div>
+      </div>
+
+      <!-- Tabla QTableView nativa -->
+      <div class="flex-1 overflow-auto bg-white">
+        <table class="w-full text-left border-collapse table-fixed">
+          <thead class="sticky top-0 z-10 bg-fileteHeader border-b border-filete">
+            <tr class="h-[34px] text-[12px] font-semibold text-tinta font-narrow">
+              <th class="px-4 py-0 w-[44%] border-r border-[#D0D0CA]">Paciente</th>
+              <th class="px-4 py-0 w-[22%] border-r border-[#D0D0CA]">Cédula</th>
+              <th class="px-4 py-0 w-[14%] border-r border-[#D0D0CA]">Rama</th>
+              <th class="px-4 py-0 w-[20%]">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <!-- Fila 1 -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Mendoza Zambrano, Carlos Luis</td>
+              <td class="px-4 py-0 font-mono text-tintaSec border-r border-[#F0EFEB]">1712498210</td>
+              <td class="px-4 py-0 font-mono font-semibold text-indigo border-r border-[#F0EFEB]">A</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-verdeFondo text-verde border border-[#C8E6C9]">
+                  COMPLETADO
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 2 (SELECCIONADA: Andrade Morales, Viviana Patricia con filete índigo 2px) -->
+            <tr class="h-[40px] bg-indigoFondo border-b border-[#D5D0E3] relative">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#DDD8E8] relative">
+                <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo"></div>
+                Andrade Morales, Viviana Patricia
+              </td>
+              <td class="px-4 py-0 font-mono font-semibold text-tinta border-r border-[#DDD8E8]">1098421045</td>
+              <td class="px-4 py-0 font-mono font-semibold text-indigo border-r border-[#DDD8E8]">A</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-verdeFondo text-verde border border-[#C8E6C9]">
+                  COMPLETADO
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 3 -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Chuquimarca Vela, Darío Alfonso</td>
+              <td class="px-4 py-0 font-mono text-tintaSec border-r border-[#F0EFEB]">0598712340</td>
+              <td class="px-4 py-0 font-mono font-semibold text-[#8E5A1E] border-r border-[#F0EFEB]">B</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-verdeFondo text-verde border border-[#C8E6C9]">
+                  COMPLETADO
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 4 -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Zambrano Lucero, Hipatia Valeria</td>
+              <td class="px-4 py-0 font-mono text-tintaSec border-r border-[#F0EFEB]">1394582190</td>
+              <td class="px-4 py-0 font-mono font-semibold text-indigo border-r border-[#F0EFEB]">A</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-indigoFondo text-indigo border border-[#D5D0E3]">
+                  En proceso
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 5 -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Toapanta Chimbo, Segundo Agustín</td>
+              <td class="px-4 py-0 font-mono text-tintaSec border-r border-[#F0EFEB]">1718942108</td>
+              <td class="px-4 py-0 font-mono font-semibold text-indigo border-r border-[#F0EFEB]">A</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-medium bg-[#EAEAE6] text-tintaSec border border-fileteSuave">
+                  Pendiente
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 6: CEDULA_INVALIDA (Rama: "—") -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Tayupanta Guamán, Rosa Matilde</td>
+              <td class="px-4 py-0 font-mono text-rojo font-medium border-r border-[#F0EFEB]">17999999</td>
+              <td class="px-4 py-0 font-mono text-tintaTenue border-r border-[#F0EFEB]">—</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-rojoFondo text-rojo border border-[#F5C2C0]">
+                  CEDULA_INVALIDA
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 7: NO_ENCONTRADO (Rama: "—") -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Naranjo Pilataxi, Kevin Santiago</td>
+              <td class="px-4 py-0 font-mono text-tintaSec border-r border-[#F0EFEB]">1891234567</td>
+              <td class="px-4 py-0 font-mono text-tintaTenue border-r border-[#F0EFEB]">—</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-rojoFondo text-rojo border border-[#F5C2C0]">
+                  NO_ENCONTRADO
+                </span>
+              </td>
+            </tr>
+
+            <!-- Fila 8: ERROR_PORTAL_3 -->
+            <tr class="h-[40px] bg-white border-b border-fileteSuave hover:bg-[#F7F6F7]">
+              <td class="px-4 py-0 truncate font-medium text-tinta border-r border-[#F0EFEB]">Espinoza Cadena, Rubén Darío</td>
+              <td class="px-4 py-0 font-mono text-tintaSec border-r border-[#F0EFEB]">0991287451</td>
+              <td class="px-4 py-0 font-mono font-semibold text-indigo border-r border-[#F0EFEB]">A</td>
+              <td class="px-4 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-rojoFondo text-rojo border border-[#F5C2C0]">
+                  ERROR_PORTAL_3
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ================= 2. PANEL LATERAL DERECHO: DETALLE DE PACIENTE (420px) ================= -->
+    <aside class="w-[420px] bg-panel border-l border-filete flex flex-col shrink-0 box-border select-none z-20">
+      
+      <!-- Encabezado (72px, padding 16px, filete inferior 1px) -->
+      <div class="h-[74px] px-4 py-2.5 border-b border-filete flex flex-col justify-between shrink-0 bg-panel">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-[15px] font-semibold tracking-tight text-tinta truncate" title="Andrade Morales, Viviana Patricia">
+            Andrade Morales, Viviana Patricia
+          </h2>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-verdeFondo text-verde border border-[#C8E6C9]">
+              COMPLETADO
+            </span>
+            <!-- Botón cerrar '✕' 26px plano -->
+            <button class="w-[26px] h-[26px] flex items-center justify-center text-tintaSec hover:bg-[#EAEAE6] hover:text-tinta border border-transparent hover:border-filete text-sm font-bold cursor-pointer">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Cédula en IBM Plex Mono con botón copiar -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-tintaTenue">Cédula:</span>
+          <span class="font-mono text-[13px] font-semibold text-tinta">1098421045</span>
+          <button class="w-[24px] h-[24px] flex items-center justify-center text-tintaSec hover:text-tinta hover:bg-[#EAEAE6] border border-fileteSuave cursor-pointer" title="Copiar cédula">
+            <span class="material-symbols-outlined text-[14px]">content_copy</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenedor scrolleable con el contenido detallado -->
+      <div class="flex-1 overflow-y-auto">
+        
+        <!-- Bloque 1: Datos del paciente (Rama, seguro derivado, titular, cobertura) -->
+        <div class="p-4 border-b border-filete bg-panel">
+          <div class="grid grid-cols-2 gap-y-3 gap-x-4">
+            <div>
+              <span class="block text-[11px] text-tintaTenue leading-tight font-narrow uppercase tracking-wider font-semibold">Rama</span>
+              <span class="block text-[13px] font-medium text-tinta mt-0.5">Rama A</span>
+            </div>
+            <div>
+              <span class="block text-[11px] text-tintaTenue leading-tight font-narrow uppercase tracking-wider font-semibold">Seguro derivado</span>
+              <span class="block text-[13px] font-medium text-verde mt-0.5 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-verde inline-block"></span> Sí
+              </span>
+            </div>
+            <div>
+              <span class="block text-[11px] text-tintaTenue leading-tight font-narrow uppercase tracking-wider font-semibold">Cédula del titular</span>
+              <span class="block font-mono text-[13px] font-semibold text-tinta mt-0.5">1712498210</span>
+            </div>
+            <div>
+              <span class="block text-[11px] text-tintaTenue leading-tight font-narrow uppercase tracking-wider font-semibold">Cobertura</span>
+              <span class="block text-[13px] font-medium text-tinta mt-0.5">IESS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 2: Ruta ejecutada (4 pasos hechos, check verde, hora y tamaño) -->
+        <div class="p-4 border-b border-filete bg-panel">
+          <div class="flex items-center justify-between mb-3.5">
+            <h3 class="text-[11px] font-semibold text-tintaSec uppercase tracking-wider font-narrow">
+              Ruta ejecutada
+            </h3>
+            <span class="text-[11px] font-mono text-tintaTenue">4/4 pasos resueltos</span>
+          </div>
+
+          <!-- Timeline plano nativo Qt con checks verdes #1F6B4A -->
+          <div class="relative pl-6 space-y-4">
+            <!-- Línea conectora vertical de 1px -->
+            <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-filete"></div>
+
+            <!-- Paso 1 -->
+            <div class="relative flex items-start gap-2.5">
+              <div class="absolute -left-6 top-0 w-[16px] h-[16px] rounded-full bg-verde flex items-center justify-center text-white ring-2 ring-panel z-10">
+                <span class="material-symbols-outlined text-[11px] font-bold">check</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-tinta leading-tight">Portal 1 · Coberturas</p>
+                <p class="font-mono text-[11px] text-tintaSec mt-0.5">14:19:04 · 214 KB</p>
+              </div>
+            </div>
+
+            <!-- Paso 2 -->
+            <div class="relative flex items-start gap-2.5">
+              <div class="absolute -left-6 top-0 w-[16px] h-[16px] rounded-full bg-verde flex items-center justify-center text-white ring-2 ring-panel z-10">
+                <span class="material-symbols-outlined text-[11px] font-bold">check</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-tinta leading-tight">Portal 2 · Validación</p>
+                <p class="font-mono text-[11px] text-verde mt-0.5 font-medium">14:19:18 · seguro derivado detectado</p>
+              </div>
+            </div>
+
+            <!-- Paso 3 -->
+            <div class="relative flex items-start gap-2.5">
+              <div class="absolute -left-6 top-0 w-[16px] h-[16px] rounded-full bg-verde flex items-center justify-center text-white ring-2 ring-panel z-10">
+                <span class="material-symbols-outlined text-[11px] font-bold">check</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-tinta leading-tight">Portal 1 (titular 1712498210)</p>
+                <p class="font-mono text-[11px] text-tintaSec mt-0.5">14:19:31 · 208 KB</p>
+              </div>
+            </div>
+
+            <!-- Paso 4 -->
+            <div class="relative flex items-start gap-2.5">
+              <div class="absolute -left-6 top-0 w-[16px] h-[16px] rounded-full bg-verde flex items-center justify-center text-white ring-2 ring-panel z-10">
+                <span class="material-symbols-outlined text-[11px] font-bold">check</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-tinta leading-tight">Portal 3 · Destino</p>
+                <p class="font-mono text-[11px] text-tintaSec mt-0.5">14:19:52 · 96 KB</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 3: Expediente (un solo PDF consolidado NOMBRE_CEDULA.pdf con elipsis solo al final) -->
+        <div class="p-4 border-b border-filete bg-panel">
+          <h3 class="text-[11px] font-semibold text-tintaSec uppercase tracking-wider font-narrow mb-2.5">
+            Expediente
+          </h3>
+
+          <div class="p-2.5 bg-white border border-fileteSuave flex items-center justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0 flex-1">
+              <span class="material-symbols-outlined text-rojo text-[24px] shrink-0 mt-0.5">picture_as_pdf</span>
+              <div class="min-w-0 flex-1">
+                <!-- Nombre con elipsis solo al final si desborda -->
+                <p class="font-mono text-[12px] font-semibold text-tinta truncate leading-snug" title="ANDRADE_MORALES_VIVIANA_PATRICIA_1098421045.pdf">
+                  ANDRADE_MORALES_VIVIANA_PATRICIA_1098421045.pdf
+                </p>
+                <p class="font-mono text-[11px] text-tintaTenue mt-1">
+                  3 documentos combinados · 518 KB
+                </p>
+              </div>
+            </div>
+
+            <!-- Botones secundarios "Ver" y "Abrir carpeta" -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button class="h-[28px] px-2.5 bg-[#EAEAE6] hover:bg-fileteSuave border border-filete text-tinta text-xs font-medium cursor-pointer">
+                Ver
+              </button>
+              <button class="h-[28px] px-2 bg-[#EAEAE6] hover:bg-fileteSuave border border-filete text-tintaSec hover:text-tinta flex items-center justify-center cursor-pointer" title="Abrir carpeta">
+                <span class="material-symbols-outlined text-[16px]">folder_open</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pie del panel (64px) con botón Reprocesar paciente deshabilitado -->
+      <div class="h-[68px] px-4 py-2.5 border-t border-filete bg-panel flex flex-col justify-center shrink-0">
+        <button class="w-full h-[32px] bg-[#EAEAE6] border border-filete text-tintaTenue text-xs font-medium cursor-not-allowed flex items-center justify-center gap-1.5 select-none" disabled>
+          <span class="material-symbols-outlined text-[15px]">refresh</span>
+          <span>Reprocesar paciente</span>
+        </button>
+        <p class="text-[10px] text-tintaTenue text-center mt-1 font-sans">
+          Solo disponible cuando el estado es ERROR_PORTAL_N
+        </p>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- SIN barra de estado inferior (eliminada según requerimiento) -->
+
+</body>
+</html>
