@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuxMed - Lote detenido: sesión del Portal 3 expirada</title>
+  <!-- Fuentes estándar de LuxMed: Archivo, Archivo Narrow, IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#4B3F72",
+            "lienzo": "#E6E6E2",
+            "panel": "#FAFAF8",
+            "tinta-1": "#1A1A18",
+            "tinta-2": "#5C5C57",
+            "tinta-3": "#8E8E88",
+            "filete": "#C9C9C3",
+            "filete-suave": "#DCDCD7",
+            "superficie-hundida": "#DEDEDA",
+            "alerta": "#B0761A",
+            "error-color": "#A3231D",
+            "exito": "#1F6B4A",
+          },
+          fontFamily: {
+            "sans": ["Archivo", "sans-serif"],
+            "narrow": ["Archivo Narrow", "sans-serif"],
+            "mono": ["IBM Plex Mono", "monospace"],
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    /* Estricta fidelidad nativa Windows / PyQt6: cero sombras, cero degradados, esquinas planas o 3px estándar */
+    * {
+      box-shadow: none !important;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAFAF8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C9C9C3;
+      border-radius: 0px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8E8E88;
+    }
+  </style>
+</head>
+<body class="h-full w-full m-0 p-0 overflow-hidden bg-[#FAFAF8] text-[#1A1A18] font-sans antialiased flex flex-col justify-start relative" style="width: 1280px; height: 800px; min-width: 1280px; min-height: 800px; max-width: 1280px; max-height: 800px;">
+
+  <!-- ================= 1. BARRA SUPERIOR WINDOWS (48px) ================= -->
+  <!-- SIN botón de pausa ni reanudación; chip rojo "Detenido"; usuario a la derecha -->
+  <header class="h-[48px] bg-[#FAFAF8] border-b border-[#C9C9C3] flex items-center justify-between px-3 shrink-0 box-border select-none z-10">
+    <div class="flex items-center gap-3">
+      <!-- Monograma L en caja cuadrada #1A1A18 -->
+      <div class="w-6 h-6 bg-[#1A1A18] text-[#FAFAF8] flex items-center justify-center font-bold text-xs rounded-none">L</div>
+      <span class="font-semibold text-sm tracking-tight text-[#1A1A18]">LuxMed</span>
+      <div class="w-[1px] h-4 bg-[#C9C9C3] mx-1"></div>
+      <span class="text-xs text-[#5C5C57] font-mono tracking-tight">cartera_septiembre.xlsx · Lote 2026-09-08-01 · 428 filas</span>
+      <!-- Chip rojo "Detenido" -->
+      <span class="px-2 py-0.5 text-[11px] font-semibold bg-[#FDEDEC] text-[#A3231D] border border-[#F5C2C0] ml-2 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#A3231D]"></span>Detenido
+      </span>
+    </div>
+
+    <!-- Extremo derecho: usuario y badge A0 (sin botón de pausa) -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono text-[#5C5C57]">admision.01</span>
+        <div class="w-7 h-7 bg-[#DCDCD7] border border-[#C9C9C3] flex items-center justify-center text-[10px] font-mono font-bold text-[#1A1A18]">A0</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENEDOR PRINCIPAL: RIEL + ÁREA DE TRABAJO ================= -->
+  <div class="flex flex-1 w-full overflow-hidden relative">
+
+    <!-- ================= RIEL LATERAL (64px) ================= -->
+    <aside class="w-[64px] bg-[#E6E6E2] border-r border-[#C9C9C3] flex flex-col justify-between shrink-0 box-border select-none z-10">
+      <div class="flex flex-col w-full">
+        <!-- Ítem 1: Lote (Activo con barra índigo #4B3F72) -->
+        <div class="relative w-full h-[60px] flex flex-col items-center justify-center bg-[#DEDEDA] text-[#4B3F72] cursor-pointer">
+          <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-[#4B3F72]"></div>
+          <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">dataset</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1 text-[#4B3F72]">Lote</span>
+        </div>
+        <!-- Ítem 2: Errores (Con badge 4) -->
+        <div class="relative w-full h-[60px] flex flex-col items-center justify-center text-[#5C5C57] hover:bg-[#DCDCD7] cursor-pointer">
+          <div class="relative flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">warning</span>
+            <span class="absolute -top-1.5 -right-2.5 bg-[#A3231D] text-white text-[9px] font-mono font-bold px-1 py-0 leading-none min-w-[14px] h-[14px] flex items-center justify-center">4</span>
+          </div>
+          <span class="text-[10px] font-medium tracking-tight mt-1">Errores</span>
+        </div>
+        <!-- Ítem 3: Historial (DESHABILITADO: gris claro #8E8E88, sin hover, cursor not-allowed) -->
+        <div class="w-full h-[60px] flex flex-col items-center justify-center text-[#8E8E88] cursor-not-allowed select-none">
+          <span class="material-symbols-outlined text-[20px] text-[#8E8E88]">history</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1 text-[#8E8E88]">Historial</span>
+        </div>
+        <!-- Ítem 4: Ajustes -->
+        <div class="w-full h-[60px] flex flex-col items-center justify-center text-[#5C5C57] hover:bg-[#DCDCD7] cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">settings</span>
+          <span class="text-[10px] font-medium tracking-tight mt-1">Ajustes</span>
+        </div>
+      </div>
+      <!-- Versión v2.4 -->
+      <div class="p-2 text-center text-[9px] font-mono text-[#8E8E88] border-t border-[#DCDCD7]">
+        v2.4
+      </div>
+    </aside>
+
+    <!-- ================= ÁREA DE TRABAJO FONDO: PANTALLA "LOTE EN PROCESO" DETENIDO ================= -->
+    <main class="flex-1 flex flex-col bg-white overflow-hidden box-border">
+      
+      <!-- Tira de contadores superiores (Total 428, Completados 214, Inválidos 94, Pendientes 120, Con error 0) -->
+      <div class="h-[76px] bg-[#FAFAF8] border-b border-[#C9C9C3] grid grid-cols-5 divide-x divide-[#C9C9C3] shrink-0 select-none">
+        <!-- Total lote -->
+        <div class="px-5 py-3 flex flex-col justify-center">
+          <span class="text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">TOTAL LOTE</span>
+          <span class="font-mono text-[28px] font-semibold text-[#1A1A18] leading-none mt-1">428</span>
+        </div>
+        <!-- Completados -->
+        <div class="px-5 py-3 flex flex-col justify-center">
+          <span class="text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">COMPLETADOS</span>
+          <span class="font-mono text-[28px] font-semibold text-[#1F6B4A] leading-none mt-1">214</span>
+        </div>
+        <!-- Inválidos -->
+        <div class="px-5 py-3 flex flex-col justify-center">
+          <span class="text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">INVÁLIDOS</span>
+          <span class="font-mono text-[28px] font-semibold text-[#A3231D] leading-none mt-1">94</span>
+        </div>
+        <!-- Pendientes -->
+        <div class="px-5 py-3 flex flex-col justify-center">
+          <span class="text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">PENDIENTES</span>
+          <span class="font-mono text-[28px] font-semibold text-[#4B3F72] leading-none mt-1">120</span>
+        </div>
+        <!-- Con error -->
+        <div class="px-5 py-3 flex flex-col justify-center">
+          <span class="text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">CON ERROR</span>
+          <span class="font-mono text-[28px] font-semibold text-[#5C5C57] leading-none mt-1">0</span>
+        </div>
+      </div>
+
+      <!-- Barra de controles y filtros de la tabla -->
+      <div class="h-[44px] bg-[#E6E6E2] border-b border-[#C9C9C3] px-4 flex items-center justify-between shrink-0 select-none">
+        <div class="flex items-center gap-3">
+          <!-- Campo de búsqueda -->
+          <div class="w-[260px] h-[30px] bg-white border border-[#C9C9C3] flex items-center px-2 gap-1.5 text-xs">
+            <span class="material-symbols-outlined text-[15px] text-[#8E8E88]">search</span>
+            <input type="text" placeholder="Buscar por cédula o nombre" class="w-full bg-transparent border-none p-0 text-xs text-[#1A1A18] placeholder-[#8E8E88] focus:ring-0" disabled>
+          </div>
+          <!-- Filtros pestaña -->
+          <div class="flex items-center gap-1">
+            <span class="h-[28px] px-3 bg-white text-[#1A1A18] border border-[#C9C9C3] text-[11px] font-semibold flex items-center">Todos (428)</span>
+            <span class="h-[28px] px-3 bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7] text-[11px] font-medium flex items-center">Completados (214)</span>
+            <span class="h-[28px] px-3 bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7] text-[11px] font-medium flex items-center">Pendientes (120)</span>
+            <span class="h-[28px] px-3 bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7] text-[11px] font-medium flex items-center">Inválidos (94)</span>
+          </div>
+        </div>
+
+        <!-- Botón "Generar entregables" deshabilitado -->
+        <button class="h-[30px] px-3 bg-[#DEDEDA] border border-[#C9C9C3] text-[#8E8E88] text-xs font-medium flex items-center gap-1.5 cursor-not-allowed select-none" disabled>
+          <span class="material-symbols-outlined text-[16px] text-[#8E8E88]">download</span>
+          <span>Generar entregables</span>
+        </button>
+      </div>
+
+      <!-- Tabla QTableView de pacientes con mezcla de Completado, Inválido y Pendiente -->
+      <div class="flex-1 overflow-auto bg-white">
+        <table class="w-full text-left border-collapse table-fixed">
+          <thead class="sticky top-0 z-0 bg-[#DEDEDA] border-b border-[#C9C9C3]">
+            <tr class="h-[32px] text-[11px] font-semibold text-[#1A1A18] font-narrow">
+              <th class="px-3 py-0 w-[40px] text-center border-r border-[#D0D0CA]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] text-[#4B3F72] focus:ring-0 h-3.5 w-3.5">
+              </th>
+              <th class="px-3 py-0 w-[240px] border-r border-[#D0D0CA]">Paciente</th>
+              <th class="px-3 py-0 w-[110px] border-r border-[#D0D0CA]">Cédula</th>
+              <th class="px-3 py-0 w-[50px] border-r border-[#D0D0CA] text-right">Edad</th>
+              <th class="px-3 py-0 w-[110px] border-r border-[#D0D0CA]">Seguro en Excel</th>
+              <th class="px-3 py-0 w-[110px] border-r border-[#D0D0CA]">Ruta (P1·P2·P3)</th>
+              <th class="px-3 py-0 w-[120px]">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs divide-y divide-[#DCDCD7]">
+            <!-- Fila 1: Completado -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Mendoza Zambrano, Carlos Luis</td>
+              <td class="px-3 py-0 font-mono text-[#1A1A18] border-r border-[#F0EFEB]">1712498210</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">42</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 text-[#1F6B4A] border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                  <span class="w-2.5 h-[1px] bg-[#C9C9C3]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                  <span class="w-2.5 h-[1px] bg-[#C9C9C3]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-[#E8F5E9] text-[#1F6B4A] border border-[#C8E6C9]">
+                  COMPLETADO
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 2: Completado -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Andrade Morales, Viviana Patricia</td>
+              <td class="px-3 py-0 font-mono text-[#1A1A18] border-r border-[#F0EFEB]">1098421045</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">31</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 text-[#1F6B4A] border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                  <span class="w-2.5 h-[1px] bg-[#C9C9C3]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                  <span class="w-2.5 h-[1px] bg-[#C9C9C3]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-[#E8F5E9] text-[#1F6B4A] border border-[#C8E6C9]">
+                  COMPLETADO
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 3: Completado -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Chuquimarca Vela, Darío Alfonso</td>
+              <td class="px-3 py-0 font-mono text-[#1A1A18] border-r border-[#F0EFEB]">0598712340</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">67</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS Voluntario</td>
+              <td class="px-3 py-0 border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                  <span class="w-2.5 h-[1px] bg-[#C9C9C3] border-dashed"></span>
+                  <span class="w-2 h-2 rounded-full border border-dashed border-[#8E8E88] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#C9C9C3] border-dashed"></span>
+                  <span class="w-2 h-2 rounded-full bg-[#1F6B4A]"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-[#E8F5E9] text-[#1F6B4A] border border-[#C8E6C9]">
+                  COMPLETADO
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 4: Pendiente (donde se detuvo) -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">
+                <span>Zambrano Lucero, Hipatia Valeria</span>
+              </td>
+              <td class="px-3 py-0 font-mono font-medium text-[#1A1A18] border-r border-[#F0EFEB]">1394582190</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">38</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-medium bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7]">
+                  Pendiente
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 5: Pendiente -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Toapanta Chimbo, Segundo Agustín</td>
+              <td class="px-3 py-0 font-mono text-[#5C5C57] border-r border-[#F0EFEB]">1718942108</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">53</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-medium bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7]">
+                  Pendiente
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 6: Inválido -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Tayupanta Guamán, Rosa Matilde</td>
+              <td class="px-3 py-0 font-mono text-[#A3231D] border-r border-[#F0EFEB]">17999999</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">55</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold bg-[#FDEDEC] text-[#A3231D] border border-[#F5C2C0]">
+                  Inválido
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 7: Pendiente -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Espinoza Cadena, Rubén Darío</td>
+              <td class="px-3 py-0 font-mono text-[#5C5C57] border-r border-[#F0EFEB]">0991287451</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">71</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-medium bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7]">
+                  Pendiente
+                </span>
+              </td>
+            </tr>
+            <!-- Fila 8: Pendiente -->
+            <tr class="h-[38px] bg-white">
+              <td class="px-3 py-0 text-center border-r border-[#F0EFEB]">
+                <input type="checkbox" disabled class="rounded-none border-[#C9C9C3] h-3.5 w-3.5">
+              </td>
+              <td class="px-3 py-0 truncate font-medium text-[#1A1A18] border-r border-[#F0EFEB]">Quishpe Andrade, María Fernanda</td>
+              <td class="px-3 py-0 font-mono text-[#5C5C57] border-r border-[#F0EFEB]">1092384756</td>
+              <td class="px-3 py-0 font-mono text-right text-[#5C5C57] border-r border-[#F0EFEB]">29</td>
+              <td class="px-3 py-0 text-[#5C5C57] border-r border-[#F0EFEB]">IESS General</td>
+              <td class="px-3 py-0 border-r border-[#F0EFEB]">
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                  <span class="w-2.5 h-[1px] bg-[#E6E6E2]"></span>
+                  <span class="w-2 h-2 rounded-full border border-[#C9C9C3] bg-transparent"></span>
+                </div>
+              </td>
+              <td class="px-3 py-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-medium bg-[#EAEAE6] text-[#5C5C57] border border-[#DCDCD7]">
+                  Pendiente
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+
+    <!-- ================= DIÁLOGO MODAL CENTRADO: LA SESIÓN DEL PORTAL 3 EXPIRÓ ================= -->
+    <!-- Diálogo modal centrado de 480px, plano, filete 1px #C9C9C3, SIN fondo oscurecido (overlay transparente con pointer-events-none exterior) -->
+    <div class="absolute inset-0 z-30 flex items-center justify-center pointer-events-none p-4">
+      <div class="w-[480px] bg-[#FAFAF8] border border-[#C9C9C3] rounded-none pointer-events-auto flex flex-col box-border">
+        
+        <!-- Cabecera del diálogo (48px) -->
+        <div class="h-[48px] px-6 border-b border-[#C9C9C3] flex items-center justify-between bg-[#FAFAF8]">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-[20px] text-[#A3231D]">error_outline</span>
+            <h2 class="text-[15px] font-semibold text-[#1A1A18] tracking-tight">La sesión del Portal 3 expiró</h2>
+          </div>
+          <span class="text-[11px] font-mono text-[#8E8E88] bg-[#EAEAE6] px-1.5 py-0.5 border border-[#DCDCD7]">QDialog</span>
+        </div>
+
+        <!-- Cuerpo del diálogo -->
+        <div class="p-6 flex flex-col gap-4 bg-[#FAFAF8]">
+          <p class="text-[13px] text-[#1A1A18] leading-relaxed">
+            El lote se detuvo. Los 308 pacientes ya procesados se conservan. Para continuar con los 120 pendientes, inicia un lote nuevo con el listado.
+          </p>
+
+          <!-- Resumen métrico visual del estado detenido -->
+          <div class="p-3.5 bg-[#E6E6E2] border border-[#C9C9C3] flex flex-col gap-2">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <span class="block text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">PROCESADOS Y CONSERVADOS</span>
+                <span class="block font-mono text-[20px] font-semibold text-[#1F6B4A] mt-0.5">308</span>
+              </div>
+              <div>
+                <span class="block text-[11px] font-semibold text-[#5C5C57] uppercase tracking-wider font-narrow">PENDIENTES RESTANTES</span>
+                <span class="block font-mono text-[20px] font-semibold text-[#4B3F72] mt-0.5">120</span>
+              </div>
+            </div>
+            <div class="border-t border-[#DCDCD7] pt-2 mt-0.5 flex items-center gap-1.5 text-[11px] text-[#5C5C57]">
+              <span class="material-symbols-outlined text-[14px] text-[#5C5C57]">info</span>
+              <span>Los archivos de salida generados hasta el momento permanecen intactos en disco.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pie del diálogo con botón primario "Entendido" -->
+        <div class="h-[56px] px-6 py-3 border-t border-[#C9C9C3] bg-[#FAFAF8] flex items-center justify-end">
+          <button class="h-[32px] px-5 bg-[#1A1A18] hover:bg-[#2E2E2A] active:bg-[#000000] text-white text-xs font-semibold rounded-none cursor-pointer flex items-center justify-center transition-none">
+            Entendido
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

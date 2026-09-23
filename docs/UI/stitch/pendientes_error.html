@@ -1,0 +1,339 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>LuxMed Auditoría Clínica</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,500;0,600;0,700;1,500&amp;family=Archivo:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;user-select:none;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}*{box-shadow:none!important;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'on-primary-container': '#bbade8', 'on-tertiary-fixed-variant': '#643f00', 'primary-fixed-dim': '#cdbefa', 'surface-variant': '#e5e2de', 'secondary-fixed-dim': '#8cd6ad', 'on-error': '#ffffff', 'on-tertiary': '#ffffff', 'on-background': '#1c1c1a', 'on-tertiary-container': '#eba84a', 'surface-container-lowest': '#ffffff', 'secondary-fixed': '#a8f3c8', 'background': '#fcf9f5', 'on-error-container': '#93000a', 'primary': '#34285a', 'tertiary': '#462b00', 'tertiary-container': '#643f00', 'on-secondary-fixed-variant': '#005234', 'surface-dim': '#dcdad6', 'on-secondary-container': '#267150', 'secondary-container': '#a8f3c8', 'tertiary-fixed': '#ffddb5', 'surface-container-low': '#f6f3ef', 'surface-tint': '#63568b', 'on-primary': '#ffffff', 'surface': '#fcf9f5', 'surface-container-high': '#ebe8e4', 'surface-container-highest': '#e5e2de', 'inverse-primary': '#cdbefa', 'inverse-surface': '#31302e', 'error-container': '#ffdad6', 'on-secondary': '#ffffff', 'on-tertiary-fixed': '#2a1800', 'inverse-on-surface': '#f3f0ec', 'outline': '#797580', 'primary-fixed': '#e8deff', 'tertiary-fixed-dim': '#feb95a', 'secondary': '#1f6b4a', 'on-surface': '#1c1c1a', 'on-secondary-fixed': '#002113', 'outline-variant': '#cac4d0', 'on-primary-fixed-variant': '#4b3f72', 'surface-container': '#f0edea', 'surface-bright': '#fcf9f5', 'primary-container': '#4b3f72', 'on-surface-variant': '#48454f', 'on-primary-fixed': '#1f1244', 'error': '#ba1a1a' }, borderRadius: { DEFAULT: '0.125rem', lg: '0.25rem', xl: '0.5rem', full: '0.75rem' }, spacing: { 'space-12': '12px', 'space-24': '24px', 'layout-statusbar-height': '32px', 'space-8': '8px', 'space-16': '16px', 'layout-control-height': '32px', 'layout-row-height': '40px', 'layout-rail-width': '64px', 'space-2': '2px', 'layout-topbar-height': '56px', 'space-32': '32px', 'space-4': '4px', 'layout-btn-primary-height': '36px' }, fontFamily: { 'table-header': ['Archivo Narrow'], 'code-dense': ['IBM Plex Mono'], 'body-md': ['Archivo'], 'headline-md': ['Archivo'], 'label-compact': ['Archivo Narrow'], 'headline-lg': ['Archivo'], 'headline-sm': ['Archivo'], 'status-badge': ['Archivo Narrow'], 'body-sm': ['Archivo'], 'code-tabular': ['IBM Plex Mono'] }, fontSize: { 'table-header': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '600' }], 'code-dense': ['12px', { lineHeight: '16px', letterSpacing: '0em', fontWeight: '500' }], 'body-md': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '400' }], 'headline-md': ['16px', { lineHeight: '22px', letterSpacing: '-0.005em', fontWeight: '600' }], 'label-compact': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '600' }], 'headline-lg': ['20px', { lineHeight: '26px', letterSpacing: '-0.01em', fontWeight: '600' }], 'headline-sm': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '600' }], 'status-badge': ['11px', { lineHeight: '12px', letterSpacing: '0.04em', fontWeight: '600' }], 'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.01em', fontWeight: '400' }], 'code-tabular': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '600' }] } } } };</script></head><body class="bg-surface-variant font-body-md text-on-surface antialiased overflow-hidden select-none m-0 p-0"><header class="fixed top-0 left-0 right-0 h-layout-topbar-height bg-surface-container-lowest border-b border-outline-variant z-50 flex items-center justify-between px-space-16"><div class="flex items-center gap-space-12"><div class="flex items-center gap-space-8"><div class="w-6 h-6 bg-on-surface flex items-center justify-center rounded-DEFAULT"><span class="text-surface-container-lowest font-headline-sm text-body-md leading-none font-semibold">L</span></div><span class="font-headline-md text-[17px] font-semibold text-on-surface tracking-tight">LuxMed</span></div><div class="w-[1px] h-5 bg-outline-variant"></div><div class="flex flex-col justify-center leading-tight"><span class="font-headline-sm text-body-md text-on-surface font-medium">cartera_septiembre.xlsx</span><span class="font-code-dense text-label-compact text-outline">Lote 2026-09-08-01 · 428 pacientes</span></div></div><div class="flex items-center gap-space-12"><button class="h-layout-control-height px-space-12 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex items-center gap-space-8 text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[16px] text-on-surface">pause</span><span class="font-body-sm text-body-sm font-medium">Pausar campaña</span></button><button class="w-layout-control-height h-layout-control-height bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[18px] text-on-surface">settings</span></button><div class="flex items-center gap-space-8 pl-space-4"><span class="font-body-md text-body-md text-on-surface font-medium">admision.01</span><div class="w-6 h-6 bg-surface-dim rounded-DEFAULT flex items-center justify-center border border-outline-variant"><span class="font-code-dense text-[11px] leading-none text-on-surface font-medium">AO</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-layout-topbar-height bottom-layout-statusbar-height w-layout-rail-width bg-surface-variant border-r border-outline-variant z-40 flex flex-col justify-between items-center py-space-4"><nav class="w-full flex flex-col items-center" data-active-classes="bg-surface-container-lowest text-primary-container border-l-[3px] border-primary-container"><a class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative text-outline hover:text-on-surface border-l-[3px] border-transparent transition-colors" data-path="lote" href="#"><span class="material-symbols-outlined text-[20px]">folder_open</span><span class="font-label-compact text-[10px] leading-none">Lote</span></a><a aria-current="page" class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative transition-colors bg-surface-container-lowest text-primary-container border-l-[3px] border-primary-container" data-path="errores" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">report_problem</span><span class="absolute -top-1 -right-3 h-[14px] px-1 bg-error text-on-error rounded-DEFAULT font-code-dense text-[9px] font-semibold flex items-center justify-center leading-none">4</span></div><span class="font-label-compact text-[10px] leading-none">Errores</span></a><a class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative text-outline hover:text-on-surface border-l-[3px] border-transparent transition-colors" data-path="historial" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span class="font-label-compact text-[10px] leading-none">Historial</span></a><a class="w-full h-14 flex flex-col items-center justify-center gap-space-2 relative text-outline hover:text-on-surface border-l-[3px] border-transparent transition-colors" data-path="ajustes" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span class="font-label-compact text-[10px] leading-none">Ajustes</span></a></nav></aside><div class="pl-layout-rail-width pt-layout-topbar-height pb-layout-statusbar-height min-h-screen bg-surface-variant flex flex-col"><main class="flex-1 w-full bg-surface-variant p-space-16 overflow-y-auto"><div class="flex flex-col w-full">
+<div class="flex flex-row items-start gap-space-16 w-full">
+<!-- Contenedor Operativo Central -->
+<div class="flex-1 flex flex-col bg-surface-container-lowest border border-outline-variant rounded-[5px] overflow-hidden">
+<!-- Encabezado de 72px -->
+<div class="h-[72px] bg-[#FAFAF8] border-b border-outline-variant px-space-24 flex items-center justify-between">
+<div class="flex flex-col justify-center">
+<h1 class="font-headline-lg text-headline-lg font-semibold text-on-surface leading-tight tracking-tight">
+            Pendientes por error
+          </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-none mt-space-2">
+            Cuatro pacientes quedaron sin completar su ruta. Reintentar no vuelve a consultar los portales ya resueltos.
+          </p>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-space-8 py-0.5 rounded-[2px] bg-[#E9ECEF] text-[#4A5560] font-status-badge text-status-badge border border-outline-variant">
+            4 registros observados
+          </span>
+</div>
+</div>
+<!-- Franja de notificación técnica de 60px -->
+<div class="h-[60px] bg-[#E9ECEF] border-b border-outline-variant border-l-[3px] border-l-[#4A5560] px-space-16 flex items-center justify-between">
+<div class="flex items-center gap-space-12">
+<span class="material-symbols-outlined text-[#4A5560] text-[20px] select-none">public_off</span>
+<span class="font-body-md text-body-md text-on-surface">
+            El Portal 3 presentó intermitencia entre las 14:18 y las 14:31. Los reintentos automáticos se agotaron a los 3 intentos.
+          </span>
+</div>
+<div class="font-code-dense text-code-dense text-[#4A5560] tracking-tight bg-surface-container-lowest/80 px-space-8 py-1 rounded-[2px] border border-outline-variant">
+          Error HTTP 504 Gateway Timeout
+        </div>
+</div>
+<!-- Tabla Operativa -->
+<div class="w-full overflow-x-auto">
+<table class="w-full border-collapse text-left">
+<!-- Cabecera de 34px -->
+<thead>
+<tr class="h-[34px] bg-[#DEDEDA] border-b border-outline-variant select-none">
+<th class="w-[40px] px-space-12 text-center align-middle">
+<input class="w-4 h-4 rounded-[3px] border border-outline-variant accent-primary-container cursor-pointer align-middle" id="th-master-chk" type="checkbox">
+</th>
+<th class="w-[300px] px-space-12 font-table-header text-table-header text-on-surface-variant font-semibold">
+                Paciente
+              </th>
+<th class="w-[140px] px-space-12 font-table-header text-table-header text-on-surface-variant font-semibold">
+                Portal que falló
+              </th>
+<th class="w-[320px] px-space-12 font-table-header text-table-header text-on-surface-variant font-semibold">
+                Motivo
+              </th>
+<th class="w-[90px] px-space-12 font-table-header text-table-header text-on-surface-variant font-semibold text-right">
+                Intentos
+              </th>
+<th class="w-[120px] px-space-12 font-table-header text-table-header text-on-surface-variant font-semibold text-center">
+                Acción
+              </th>
+</tr>
+</thead>
+<!-- Filas de datos de 56px -->
+<tbody class="divide-y divide-[#DCDCD7] bg-surface-container-lowest" id="audit-error-tbody">
+<!-- Fila 1 -->
+<tr class="h-[56px] hover:bg-surface-container-low transition-colors group">
+<td class="px-space-12 text-center align-middle">
+<input checked="" class="patient-row-chk w-4 h-4 rounded-[3px] border border-outline-variant accent-primary-container cursor-pointer align-middle" type="checkbox">
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-headline-sm text-[14px] font-medium text-on-surface">Espinoza Cadena, Ruben D.</span>
+<span class="font-code-dense text-code-dense text-[#8E8E88] mt-0.5">0999999995</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-body-md text-body-md font-medium text-on-surface">Portal 3</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88] mt-0.5">Último intento 14:26:02</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<span class="font-body-md text-body-md text-on-surface">Timeout 45s en validación de derechos</span>
+</td>
+<td class="px-space-12 align-middle text-right">
+<span class="font-code-tabular text-code-tabular text-error">3 de 3</span>
+</td>
+<td class="px-space-12 align-middle text-center">
+<button class="h-[28px] px-space-12 bg-surface-container-lowest border border-outline-variant rounded-[3px] font-body-sm text-body-sm text-on-surface font-medium hover:bg-surface-container-high transition-colors" type="button">
+                  Reintentar
+                </button>
+</td>
+</tr>
+<!-- Fila 2 -->
+<tr class="h-[56px] hover:bg-surface-container-low transition-colors group">
+<td class="px-space-12 text-center align-middle">
+<input checked="" class="patient-row-chk w-4 h-4 rounded-[3px] border border-outline-variant accent-primary-container cursor-pointer align-middle" type="checkbox">
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-headline-sm text-[14px] font-medium text-on-surface">Yánez Morales, Silvia P.</span>
+<span class="font-code-dense text-code-dense text-[#8E8E88] mt-0.5">1799999987</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-body-md text-body-md font-medium text-on-surface">Portal 3</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88] mt-0.5">Último intento 14:28:15</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<span class="font-body-md text-body-md text-on-surface">Socket hang up al transferir PDF</span>
+</td>
+<td class="px-space-12 align-middle text-right">
+<span class="font-code-tabular text-code-tabular text-error">3 de 3</span>
+</td>
+<td class="px-space-12 align-middle text-center">
+<button class="h-[28px] px-space-12 bg-surface-container-lowest border border-outline-variant rounded-[3px] font-body-sm text-body-sm text-on-surface font-medium hover:bg-surface-container-high transition-colors" type="button">
+                  Reintentar
+                </button>
+</td>
+</tr>
+<!-- Fila 3 -->
+<tr class="h-[56px] hover:bg-surface-container-low transition-colors group">
+<td class="px-space-12 text-center align-middle">
+<input class="patient-row-chk w-4 h-4 rounded-[3px] border border-outline-variant accent-primary-container cursor-pointer align-middle" type="checkbox">
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-headline-sm text-[14px] font-medium text-on-surface">Guamán Cedeño, Jorge L.</span>
+<span class="font-code-dense text-code-dense text-[#8E8E88] mt-0.5">0899999988</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-body-md text-body-md font-medium text-on-surface">Portal 3</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88] mt-0.5">Último intento 14:29:40</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<span class="font-body-md text-body-md text-on-surface">Respuesta JSON truncada por corte de red</span>
+</td>
+<td class="px-space-12 align-middle text-right">
+<span class="font-code-tabular text-code-tabular text-error">3 de 3</span>
+</td>
+<td class="px-space-12 align-middle text-center">
+<button class="h-[28px] px-space-12 bg-surface-container-lowest border border-outline-variant rounded-[3px] font-body-sm text-body-sm text-on-surface font-medium hover:bg-surface-container-high transition-colors" type="button">
+                  Reintentar
+                </button>
+</td>
+</tr>
+<!-- Fila 4 -->
+<tr class="h-[56px] hover:bg-surface-container-low transition-colors group">
+<td class="px-space-12 text-center align-middle">
+<input class="patient-row-chk w-4 h-4 rounded-[3px] border border-outline-variant accent-primary-container cursor-pointer align-middle" type="checkbox">
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-headline-sm text-[14px] font-medium text-on-surface">Barrezueta Ortiz, Carmen T.</span>
+<span class="font-code-dense text-code-dense text-[#8E8E88] mt-0.5">1199999989</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<div class="flex flex-col justify-center leading-tight">
+<span class="font-body-md text-body-md font-medium text-on-surface">Portal 3</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88] mt-0.5">Último intento 14:30:55</span>
+</div>
+</td>
+<td class="px-space-12 align-middle">
+<span class="font-body-md text-body-md text-on-surface">Conexión rechazada por firewall del portal</span>
+</td>
+<td class="px-space-12 align-middle text-right">
+<span class="font-code-tabular text-code-tabular text-error">3 de 3</span>
+</td>
+<td class="px-space-12 align-middle text-center">
+<button class="h-[28px] px-space-12 bg-surface-container-lowest border border-outline-variant rounded-[3px] font-body-sm text-body-sm text-on-surface font-medium hover:bg-surface-container-high transition-colors" type="button">
+                  Reintentar
+                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Barra de Acción al Pie de 64px -->
+<div class="h-[64px] bg-[#FAFAF8] border-t border-outline-variant px-space-24 flex items-center justify-between">
+<div class="flex items-center gap-space-8">
+<span class="font-headline-sm text-body-md font-medium text-on-surface" id="selection-counter-text">Seleccionados 2 de 4 pacientes para reproceso prioritario</span>
+</div>
+<div class="flex items-center gap-space-8">
+<button class="h-layout-control-height px-space-12 bg-surface-container-lowest border border-outline-variant rounded-[3px] font-body-sm text-body-sm text-on-surface font-medium hover:bg-surface-container-high transition-colors" type="button">
+            Marcar como no recuperables
+          </button>
+<button class="h-layout-btn-primary-height px-space-16 bg-[#1A1A18] text-surface-container-lowest rounded-[3px] font-headline-sm text-body-md font-semibold hover:bg-on-surface-variant transition-colors flex items-center gap-space-8" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span class="">Reintentar seleccionados</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Panel Lateral de Auditoría (280px) -->
+<aside class="w-[280px] shrink-0 bg-surface-container-lowest border border-outline-variant rounded-[5px] overflow-hidden flex flex-col">
+<!-- Encabezado del Panel Lateral -->
+<div class="h-[36px] bg-[#E6E6E2] border-b border-outline-variant px-space-12 flex items-center justify-between">
+<span class="font-table-header text-table-header text-on-surface font-semibold">Checklist de aceptación</span>
+<span class="font-code-dense text-code-dense font-semibold text-secondary">10/10 OK</span>
+</div>
+<!-- Métricas Compactas de Control -->
+<div class="p-space-12 border-b border-outline-variant bg-[#FAFAF8] flex flex-col gap-space-8">
+<div class="flex items-center justify-between">
+<span class="font-label-compact text-label-compact text-on-surface-variant uppercase">Estatus del nodo</span>
+<span class="inline-flex items-center px-space-4 py-0.5 rounded-[2px] bg-secondary-container text-on-secondary-fixed-variant font-status-badge text-status-badge">
+            Activo
+          </span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-compact text-label-compact text-on-surface-variant uppercase">Política reintentos</span>
+<span class="font-code-dense text-code-dense text-on-surface">Exp. Backoff 3x</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-compact text-label-compact text-on-surface-variant uppercase">Aislamiento portal</span>
+<span class="font-code-dense text-code-dense text-on-surface">P1, P2 preservados</span>
+</div>
+</div>
+<!-- Lista de Reglas Validadas (10/10) -->
+<div class="p-space-12 flex flex-col gap-space-8 divide-y divide-surface-variant">
+<div class="pt-space-4 first:pt-0 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Validación de cédula MSP</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Dígito verificador 100% OK</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Preservación P1 (Admisión)</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Tokens intactos en SQLite</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Preservación P2 (Auditoría)</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Validación clínica no tocada</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Identificador único correlativo</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">UUIDv5 derivado del folio</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Límite de reintentos síncronos</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Tope 3 por protocolo IESS</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Bloqueo de colisión en lote</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Semáforo concurrente activo</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Integridad del búfer de salida</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Directorio D:\ montado RW</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Cifrado de payload médico</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">AES-256 en reposo temporal</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Rastreo de traza HTTP 504</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Cabeceras de red guardadas</span>
+</div>
+</div>
+<div class="pt-space-4 flex items-start gap-space-8">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Sincronización con catálogo tarifario</span>
+<span class="font-code-dense text-[11px] text-[#8E8E88]">Tarifario Nacional 2026</span>
+</div>
+</div>
+</div>
+<!-- Resumen Inferior del Panel Lateral -->
+<div class="p-space-12 mt-auto bg-surface-container-high border-t border-outline-variant flex items-center justify-between">
+<span class="font-code-dense text-[11px] text-on-surface-variant">Lote: 2026-09-08-01</span>
+<span class="font-code-dense text-[11px] text-on-surface font-semibold">4 errores / 428</span>
+</div>
+</aside>
+</div>
+</div>
+<script>
+  (function() {
+    const masterChk = document.getElementById('th-master-chk');
+    const rowCheckboxes = document.querySelectorAll('.patient-row-chk');
+    const counterText = document.getElementById('selection-counter-text');
+
+    function updateCounter() {
+      let count = 0;
+      rowCheckboxes.forEach(chk => {
+        if (chk.checked) count++;
+      });
+      if (counterText) {
+        counterText.textContent = `Seleccionados ${count} de 4 pacientes para reproceso prioritario`;
+      }
+      if (masterChk) {
+        masterChk.checked = count === rowCheckboxes.length;
+        masterChk.indeterminate = count > 0 && count < rowCheckboxes.length;
+      }
+    }
+
+    if (masterChk) {
+      masterChk.addEventListener('change', () => {
+        rowCheckboxes.forEach(chk => {
+          chk.checked = masterChk.checked;
+        });
+        updateCounter();
+      });
+    }
+
+    rowCheckboxes.forEach(chk => {
+      chk.addEventListener('change', updateCounter);
+    });
+
+    updateCounter();
+  })();
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-layout-statusbar-height bg-surface-dim border-t border-outline-variant z-50 flex items-center justify-between px-space-12 text-on-surface"><div class="flex items-center h-full gap-space-8"><div class="flex items-center gap-space-4 font-code-dense text-code-dense"><span class="w-[7px] h-[7px] rounded-full bg-secondary inline-block"></span><span class="text-on-surface">P1</span></div><div class="w-[1px] h-4 bg-outline-variant"></div><div class="flex items-center gap-space-4 font-code-dense text-code-dense"><span class="w-[7px] h-[7px] rounded-full bg-secondary inline-block"></span><span class="text-on-surface">P2</span></div><div class="w-[1px] h-4 bg-outline-variant"></div><div class="flex items-center gap-space-4 font-code-dense text-code-dense"><span class="w-[7px] h-[7px] rounded-full bg-tertiary-container inline-block"></span><span class="text-on-surface">P3</span></div></div><div class="font-code-dense text-code-dense text-on-surface font-medium">Procesados 296 de 428</div><div class="flex items-center gap-space-8 h-full"><span class="font-code-dense text-code-dense text-on-surface-variant">Tiempo restante estimado 00:41:20</span><div class="w-[1px] h-4 bg-outline-variant"></div><div class="flex items-center gap-space-4 font-code-dense text-code-dense text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">hard_drive</span><span class="">D:\LuxMed\salidas\2026-09</span></div></div></footer>
+
+</body></html>
