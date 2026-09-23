@@ -1,7 +1,7 @@
 # Spec de contrato de la capa de UI (Fase 0)
 
-> **Estado:** borrador para aprobación. No existe código de la UI todavía.
-> **Rama:** `UI`. **Fecha:** 2026-09-21.
+> **Estado:** decisiones de arquitectura cerradas (ronda SDD 2026-09-22, ver §2). Autoriza empezar las Fases 1 a 3 de la sección 10. Las preguntas menores de la sección 12 (todas de la Fase 4 en adelante) siguen abiertas y no bloquean. No existe código de la UI todavía.
+> **Rama:** `UI`. **Fecha:** 2026-09-21, actualizado 2026-09-22.
 > **Fuentes:** `AGENTS.md`, `docs/ARCHITECTURE.md` (ADR 001–003), `docs/business-rules.md`, `docs/UI/propuesta-cambios-spec-sin-pausa.md` (decisiones de la ronda SDD) y las 12 pantallas de `docs/UI/stitch/v2/`.
 > **Alcance:** define qué datos consume la UI, qué puertos usa, qué señales emite el hilo de procesamiento, cómo se navega entre pantallas y qué archivos se crean en cada fase. La aprobación de este documento autoriza la lista de archivos de la sección 10.
 
@@ -11,19 +11,22 @@
 
 1. **La UI es un adaptador de infraestructura** (ADR 001). Vive en `app/infrastructure/ui/`. Solo ese paquete importa PyQt6. No importa Playwright, SQLite ni Pandas ni otro adaptador.
 2. **`main.py`, en la raíz, es la raíz de composición.** Construye los adaptadores, los inyecta en los casos de uso y estos en los presenters.
-3. **Hilos** (`AGENTS.md` §4). La UI corre solo en el hilo principal. Toda lectura con Pandas, escritura en SQLite o exportación de archivos se ejecuta en un hilo de trabajo. El bucle de procesamiento corre en una subclase de `QThread`.
-4. **Señales.** Los eventos del hilo a la UI son DTOs inmutables definidos en `domain` y se emiten con `pyqtSignal(object)`. El camino UI → hilo usa el puerto `OperatorGate`.
+3. **Hilos** (`AGENTS.md` §4). La UI corre solo en el hilo principal. Toda escritura en SQLite, lectura con Pandas o exportación de archivos se ejecuta en un hilo de trabajo. El bucle de procesamiento corre en una subclase de `QThread`. Se permiten lecturas acotadas de SQLite en el hilo principal (detalle de paciente, lista de errores, cabecera del lote actual), siempre que `sqlite_adapter.py` use modo WAL (`PRAGMA journal_mode=WAL`) y un `timeout` en la conexión, para no bloquearse contra las escrituras del hilo de procesamiento. Cualquier otra consulta va en `TaskThread`.
+4. **Señales.** Los eventos del hilo a la UI son DTOs inmutables definidos en `app/application/dto.py` (ver §2) y se emiten con `pyqtSignal(object)`. El camino UI → hilo usa el puerto `IOperatorGate`.
 5. **Código.** Tipado estático estricto, nombres descriptivos y cero comentarios (`AGENTS.md` §1).
 6. **Estados y textos.** Solo los nombres de estado de `business-rules.md` §4 (con `PENDIENTE` en lugar de `HIGIENIZADO`) y los de lote de la propuesta §2. Sin nombres reales de entidades o portales (ADR 003): la UI dice "Portal 1", "Portal 2" y "Portal 3".
 7. **Versión de Qt:** 6.7.2. No se usan APIs de 6.8 o posteriores.
+8. **Versión de Python:** 3.12, dentro del entorno virtual del proyecto (no el Python global), igual que el CI ya mergeado en `main`. `Pipfile` queda pendiente de actualizarse a `python_version = "3.12"` en un cambio aparte.
 
 ---
 
-## 2. Convención de nombres (a confirmar)
+## 2. Convención de nombres y ubicación (cerrado 2026-09-22)
 
-- Enums y DTOs de dominio en **español**, tomados del vocabulario de `business-rules.md` (`EstadoPaciente`, `seguro_derivado`, `es_auditoria_rojo`).
-- Puertos y clases técnicas en **inglés**, por rol (`OperatorGate`, `ProgressReporter`).
-- Los valores de los enums coinciden con los nombres del negocio (`COMPLETADO`, `ERROR_PORTAL_3`).
+Decisiones de la ronda SDD del 2026-09-22, sobre el dominio real ya mergeado en `main` (`app/domain/entities.py` con `Paciente` y `EstadoValidacion`; `app/domain/ports.py` con `IPacienteRepository`, `IExcelHandler`, `IPdfConsolidator`, `IScraperService`, todos `ABC` con prefijo `I`).
+
+- **Ubicación:** los enums, DTOs y puertos de las secciones 3 a 5 se definen en `app/application/`, no en `app/domain/`. Concretamente `app/application/dto.py` (enums y DTOs) y `app/application/ui_ports.py` (puertos). Así no colisionan con el modelo ya mergeado (`Paciente`, `EstadoValidacion`) ni mezclan puertos de entrada (los que usa la UI) con los de salida que ya existen (`I*` hacia SQLite, Excel, PDF y scraper). Migrar estos enums a `domain` es una decisión futura, coordinada con quien mantenga esa capa.
+- **Puertos:** clases abstractas (`ABC`) con prefijo `I`, rol en inglés, igual que los puertos existentes. `OperatorGate` de las secciones 5 a 8 se llama `IOperatorGate`; ídem para los demás (ver la lista renombrada en §5).
+- **Enums y DTOs:** en **español**, tomados del vocabulario de `business-rules.md` (`EstadoPaciente`, `seguro_derivado`, `es_auditoria_rojo`). Los valores de los enums coinciden con los nombres del negocio (`COMPLETADO`, `ERROR_PORTAL_3`).
 
 ---
 
@@ -97,7 +100,7 @@ class DecisionOperador(StrEnum):
 
 ---
 
-## 4. DTOs inmutables (en `domain`)
+## 4. DTOs inmutables (en `app/application/dto.py`)
 
 Todos son `@dataclass(frozen=True, slots=True)`.
 
@@ -289,80 +292,100 @@ class ResultadoEntregables:
 
 ---
 
-## 5. Puertos que consume la UI (en `domain/ports.py`)
+## 5. Puertos que consume la UI (en `app/application/ui_ports.py`)
 
-Puertos delgados, uno por responsabilidad (ISP).
+Puertos delgados, uno por responsabilidad (ISP). Clases abstractas (`ABC`) con prefijo `I`, igual que los puertos ya mergeados en `app/domain/ports.py` (`IPacienteRepository`, `IExcelHandler`, `IPdfConsolidator`, `IScraperService`).
 
 ```python
-class LocalAuthenticator(Protocol):
-    def autenticar(self, usuario: str, contrasena: str) -> SesionUsuario | None: ...
+class ILocalAuthenticator(ABC):
+    @abstractmethod
+    def autenticar(self, usuario: str, contrasena: str) -> SesionUsuario | None: pass
 
 
-class BatchIntake(Protocol):
-    def leer_listado(self, ruta: Path) -> PreviewLote: ...
+class IBatchIntake(ABC):
+    @abstractmethod
+    def leer_listado(self, ruta: Path) -> PreviewLote: pass
 
 
-class ProgressReporter(Protocol):
-    def paciente_actualizado(self, fila: FilaPaciente) -> None: ...
-    def linea_bitacora(self, linea: LineaBitacora) -> None: ...
-    def progreso_lote(self, progreso: ProgresoLote) -> None: ...
+class IProgressReporter(ABC):
+    @abstractmethod
+    def paciente_actualizado(self, fila: FilaPaciente) -> None: pass
+    @abstractmethod
+    def linea_bitacora(self, linea: LineaBitacora) -> None: pass
+    @abstractmethod
+    def progreso_lote(self, progreso: ProgresoLote) -> None: pass
 
 
-class OperatorGate(Protocol):
-    def solicitar(self, solicitud: SolicitudOperador) -> None: ...
+class IOperatorGate(ABC):
+    @abstractmethod
+    def solicitar(self, solicitud: SolicitudOperador) -> None: pass
+
+    @abstractmethod
     def esperar(
         self,
         accion: AccionOperador,
         resuelto: Callable[[], bool],
-    ) -> DecisionOperador | None: ...
-    def cerrar(self, accion: AccionOperador) -> None: ...
+    ) -> DecisionOperador | None: pass
+
+    @abstractmethod
+    def cerrar(self, accion: AccionOperador) -> None: pass
 
 
-class BatchExecution(Protocol):
+class IBatchExecution(ABC):
+    @abstractmethod
     def ejecutar(
         self,
-        progreso: ProgressReporter,
-        compuerta: OperatorGate,
-    ) -> ResultadoEjecucion: ...
+        progreso: IProgressReporter,
+        compuerta: IOperatorGate,
+    ) -> ResultadoEjecucion: pass
 
 
-class BatchExecutionFactory(Protocol):
-    def ejecucion_de_lote(self, lote_id: str) -> BatchExecution: ...
+class IBatchExecutionFactory(ABC):
+    @abstractmethod
+    def ejecucion_de_lote(self, lote_id: str) -> IBatchExecution: pass
 
 
-class ReprocessExecutionFactory(Protocol):
+class IReprocessExecutionFactory(ABC):
+    @abstractmethod
     def ejecucion_de_reproceso(
         self,
         paciente_ids: tuple[str, ...],
-    ) -> BatchExecution: ...
+    ) -> IBatchExecution: pass
 
 
-class CurrentBatchQuery(Protocol):
-    def cabecera_actual(self) -> CabeceraLote | None: ...
+class ICurrentBatchQuery(ABC):
+    @abstractmethod
+    def cabecera_actual(self) -> CabeceraLote | None: pass
 
 
-class BatchSummaryQuery(Protocol):
-    def resumen_actual(self) -> ResumenLote: ...
+class IBatchSummaryQuery(ABC):
+    @abstractmethod
+    def resumen_actual(self) -> ResumenLote: pass
 
 
-class PatientDetailQuery(Protocol):
-    def detalle(self, paciente_id: str) -> DetallePaciente: ...
+class IPatientDetailQuery(ABC):
+    @abstractmethod
+    def detalle(self, paciente_id: str) -> DetallePaciente: pass
 
 
-class ErrorListQuery(Protocol):
-    def errores_pendientes(self) -> tuple[FilaError, ...]: ...
+class IErrorListQuery(ABC):
+    @abstractmethod
+    def errores_pendientes(self) -> tuple[FilaError, ...]: pass
 
 
-class DeliverablesExporter(Protocol):
-    def exportar(self, seleccion: SeleccionEntregables) -> ResultadoEntregables: ...
+class IDeliverablesExporter(ABC):
+    @abstractmethod
+    def exportar(self, seleccion: SeleccionEntregables) -> ResultadoEntregables: pass
 
 
-class OutputFolderSettings(Protocol):
-    def obtener(self) -> Path: ...
-    def guardar(self, carpeta: Path) -> None: ...
+class IOutputFolderSettings(ABC):
+    @abstractmethod
+    def obtener(self) -> Path: pass
+    @abstractmethod
+    def guardar(self, carpeta: Path) -> None: pass
 ```
 
-**Contrato de `OperatorGate`**
+**Contrato de `IOperatorGate`**
 - `solicitar` no bloquea: hace que la UI muestre el diálogo correspondiente.
 - `esperar` bloquea el hilo de procesamiento hasta que ocurra una de tres cosas: la UI entrega una decisión, `resuelto()` devuelve `True` (el scraper detectó el login o el captcha resuelto) o se pidió la interrupción del hilo. En los dos últimos casos devuelve `None`.
 - `cerrar` hace que la UI cierre el diálogo de esa acción.
@@ -374,7 +397,7 @@ class OutputFolderSettings(Protocol):
 
 ## 6. Señales del hilo de procesamiento
 
-`BatchRunnerThread` (subclase de `QThread`) implementa `ProgressReporter` y `OperatorGate`. Todas las señales viajan del hilo secundario al hilo principal y llegan a un presenter (`QObject` creado en el hilo principal).
+`BatchRunnerThread` (subclase de `QThread`) implementa `IProgressReporter` e `IOperatorGate`. Todas las señales viajan del hilo secundario al hilo principal y llegan a un presenter (`QObject` creado en el hilo principal).
 
 | Señal | Carga | Cuándo se emite |
 |---|---|---|
@@ -394,7 +417,7 @@ Todas se declaran como `pyqtSignal(object)`, salvo `batch_failed`, que es `pyqtS
 
 **Coalescencia.** El presenter acumula `patient_updated` en un diccionario por `paciente_id` y lo vuelca al modelo con un `QTimer` de 150 ms, para evitar repintados por cada evento.
 
-**Hilos auxiliares.** `TaskThread` ejecuta una tarea única fuera del hilo principal y emite `succeeded(object)` o `failed(str)`. Se usa para `BatchIntake.leer_listado` y `DeliverablesExporter.exportar`.
+**Hilos auxiliares.** `TaskThread` ejecuta una tarea única fuera del hilo principal y emite `succeeded(object)` o `failed(str)`. Se usa para `IBatchIntake.leer_listado` y `IDeliverablesExporter.exportar`.
 
 ---
 
@@ -402,9 +425,9 @@ Todas se declaran como `pyqtSignal(object)`, salvo `batch_failed`, que es `pyqtS
 
 | Estado de la UI | Pantalla | Entra por | Sale por |
 |---|---|---|---|
-| `SIN_SESION` | 01 Login | Arranque; no hay sesión de usuario | `LocalAuthenticator.autenticar` devuelve una sesión → `SIN_LOTE` |
+| `SIN_SESION` | 01 Login | Arranque; no hay sesión de usuario | `ILocalAuthenticator.autenticar` devuelve una sesión → `SIN_LOTE` |
 | `SIN_LOTE` | 02 Carga | Sesión iniciada; "Descartar lote" | Soltar o elegir `.xlsx` → `LEYENDO` |
-| `LEYENDO` | 02 Carga con estado de lectura | `BatchIntake.leer_listado` en un `TaskThread` | `succeeded` → `REVISION`; `failed` → `SIN_LOTE` con aviso |
+| `LEYENDO` | 02 Carga con estado de lectura | `IBatchIntake.leer_listado` en un `TaskThread` | `succeeded` → `REVISION`; `failed` → `SIN_LOTE` con aviso |
 | `REVISION` | 03 Revisión previa (`SIN_INICIAR`) | Vista previa lista | "Descartar lote" → `SIN_LOTE`; "Iniciar campaña" → `ESPERANDO_LOGIN` |
 | `ESPERANDO_LOGIN` | 03 con diálogo 04 | `operator_action_requested` con `LOGIN_PORTAL_3` | "Cancelar" (decisión `CANCELAR_LOGIN`) → `REVISION`; `operator_action_closed` → `EN_CURSO` |
 | `EN_CURSO` | 05 Lote en proceso (+ panel 08) | Login resuelto | `batch_ended` |
@@ -415,10 +438,10 @@ Todas se declaran como `pyqtSignal(object)`, salvo `batch_failed`, que es `pyqtS
 
 **Elementos siempre disponibles (desde `SIN_LOTE`)**
 - **Errores:** se puede abrir en cualquier momento. Su badge refleja `ErrorListQuery.errores_pendientes()` al arrancar y tras cada `batch_ended`.
-- **Ajustes:** carpeta de salida (`OutputFolderSettings`).
+- **Ajustes:** carpeta de salida (`IOutputFolderSettings`).
 - **Historial:** deshabilitado, sin acción.
 
-**Reproceso** (pantalla 11): "Reintentar seleccionados" → `ESPERANDO_LOGIN` (diálogo 04 con texto adaptado) → `EN_CURSO` con la ejecución de `ReprocessExecutionFactory`. Al terminar vuelve a mostrar Errores actualizado.
+**Reproceso** (pantalla 11): "Reintentar seleccionados" → `ESPERANDO_LOGIN` (diálogo 04 con texto adaptado) → `EN_CURSO` con la ejecución de `IReprocessExecutionFactory`. Al terminar vuelve a mostrar Errores actualizado.
 
 **Habilitación de controles**
 - "Iniciar campaña": solo en `REVISION`.
@@ -432,19 +455,19 @@ Todas se declaran como `pyqtSignal(object)`, salvo `batch_failed`, que es `pyqtS
 
 | Pantalla | Datos que muestra | Fuente |
 |---|---|---|
-| 01 Login | Usuario, contraseña, error, versión | `LocalAuthenticator` |
-| Cabecera (todas) | Archivo, lote, filas, chip de estado, usuario | `CurrentBatchQuery`, `SesionUsuario` |
+| 01 Login | Usuario, contraseña, error, versión | `ILocalAuthenticator` |
+| Cabecera (todas) | Archivo, lote, filas, chip de estado, usuario | `ICurrentBatchQuery`, `SesionUsuario` |
 | 02 Carga | Dropzone y texto de columnas leídas | Estático |
 | 03 Revisión previa | Totales, aviso de menores, pestañas Listos y Descartados | `PreviewLote` |
 | 04 Login Portal 3 | Estado de espera | `operator_action_requested` |
 | 05 Lote en proceso | 6 KPI, tabla, bitácora, barra de estado | `patient_updated`, `batch_progress`, `log_line` |
 | 06 Captcha Portal 2 | Paciente y mensaje | `SolicitudOperador` |
 | 07 Lote detenido | Procesados conservados y pendientes | `ResultadoEjecucion.resumen` |
-| 08 Detalle | Rama, seguro derivado, titular, cobertura, ruta ejecutada, expediente | `PatientDetailQuery` |
-| 09 Resumen | Hora de inicio, hora de fin, duración, conteos por estado y rama, filas en rojo | `BatchSummaryQuery` |
-| 10 Entregables | 3 opciones con conteos, carpeta de destino | `ResumenLote`, `OutputFolderSettings`, `DeliverablesExporter` |
-| 11 Errores | Lista, motivo, intentos, selección | `ErrorListQuery` |
-| 12 Ajustes | Carpeta de salida | `OutputFolderSettings` |
+| 08 Detalle | Rama, seguro derivado, titular, cobertura, ruta ejecutada, expediente | `IPatientDetailQuery` |
+| 09 Resumen | Hora de inicio, hora de fin, duración, conteos por estado y rama, filas en rojo | `IBatchSummaryQuery` |
+| 10 Entregables | 3 opciones con conteos, carpeta de destino | `ResumenLote`, `IOutputFolderSettings`, `IDeliverablesExporter` |
+| 11 Errores | Lista, motivo, intentos, selección | `IErrorListQuery` |
+| 12 Ajustes | Carpeta de salida | `IOutputFolderSettings` |
 
 **Columnas de la tabla de lote (05, canónica):** Paciente, Cédula, Edad, Rama, Seguro derivado, Ruta (P1·P2·P3), Estado, Hora. Los pendientes muestran "—" en Hora.
 
@@ -499,7 +522,7 @@ Medido con la paleta anterior (2026-09-21): todos los pares de texto superan 4,5
 
 Todos bajo `app/infrastructure/ui/` salvo indicación. Los 4 archivos vacíos del scaffold se reubican: `login_view.py`, `upload_view.py` y `processing_view.py` pasan a `screens/`, y `main_window.py` a `shell/`.
 
-**Fase 0b · Contratos** (`app/domain/`): completar `entities.py` (enums y DTOs de las secciones 3 y 4) y `ports.py` (Protocols de la sección 5), que hoy están vacíos. Ver pregunta 4.
+**Fase 0b · Contratos** (`app/application/`): crear `dto.py` (enums y DTOs de las secciones 3 y 4) y `ui_ports.py` (clases `ABC` de la sección 5). No toca `app/domain/entities.py` ni `app/domain/ports.py`, ya mergeados en `main`.
 
 **Fase 1 · Tema**
 - `main.py` (raíz, composición mínima)
@@ -543,14 +566,12 @@ Todos bajo `app/infrastructure/ui/` salvo indicación. Los 4 archivos vacíos de
 
 ## 12. Preguntas abiertas
 
+Cerradas en la ronda SDD del 2026-09-22 (ver §1 reglas 3 y 8, y §2): ubicación de los contratos, convención de nombres, versión de Python y lecturas desde el hilo principal. Quedan estas, ninguna bloquea las Fases 1 a 3:
+
 1. **Banner de la pantalla 11.** El mock muestra "El Portal 3 presentó intermitencia entre las 14:18 y las 14:31" y un chip "HTTP 504 Gateway Timeout". No hay dato de origen para eso. Propuesta: omitir el banner y mostrar solo el motivo por fila.
 2. **KPI "Inválidos".** Propuesta: `CEDULA_INVALIDA` + `NO_ENCONTRADO` (sección 4). Las cifras del mock 05 no cuadran con esa regla y son ilustrativas.
-3. **Lecturas desde el hilo principal.** `AGENTS.md` §4 prohíbe escribir en SQLite y leer con Pandas en el hilo principal, pero no menciona las lecturas de SQLite. Propuesta: permitir consultas de lectura acotadas (detalle, errores, cabecera) y ejecutar en `TaskThread` todo lo demás.
-4. **Ubicación de los contratos.** Los enums, DTOs y puertos se definen en `app/domain/`, que también es territorio de la rama `domain`. Hay que coordinar para no chocar en el merge.
-5. **Tabla tras `FINALIZADO`.** La pantalla 09 no permite volver a ver la tabla de pacientes. Propuesta: añadir un acceso "Ver pacientes" que abra la tabla en modo lectura.
-6. **Estado de lectura del Excel.** El mock 02 no muestra qué ocurre mientras se lee el archivo. Propuesta: la dropzone muestra "Leyendo archivo…" y se deshabilita.
-7. **Bitácora.** Propuesta: vive solo en memoria durante el lote y no se persiste.
-8. **`EXPORTADO_DUAL`.** Propuesta: la UI no lo expone; tras generar entregables solo muestra confirmación.
-9. **Roles (RBAC).** `ARCHITECTURE.md` §7 nombra RBAC básico sin definir roles. Propuesta: la UI no diferencia permisos; `SesionUsuario` solo lleva usuario e iniciales.
-10. **Versión de Python.** `ARCHITECTURE.md` dice 3.11+, el `Pipfile` 3.14 y los `.pyc` son de 3.13. Falta fijar la versión objetivo.
-11. **Convención de nombres** de la sección 2.
+3. **Tabla tras `FINALIZADO`.** La pantalla 09 no permite volver a ver la tabla de pacientes. Propuesta: añadir un acceso "Ver pacientes" que abra la tabla en modo lectura.
+4. **Estado de lectura del Excel.** El mock 02 no muestra qué ocurre mientras se lee el archivo. Propuesta: la dropzone muestra "Leyendo archivo…" y se deshabilita.
+5. **Bitácora.** Propuesta: vive solo en memoria durante el lote y no se persiste.
+6. **`EXPORTADO_DUAL`.** Propuesta: la UI no lo expone; tras generar entregables solo muestra confirmación.
+7. **Roles (RBAC).** `ARCHITECTURE.md` §7 nombra RBAC básico sin definir roles. Propuesta: la UI no diferencia permisos; `SesionUsuario` solo lleva usuario e iniciales.

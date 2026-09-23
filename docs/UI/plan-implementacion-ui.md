@@ -1,13 +1,11 @@
 # Plan de implementación de la UI (PyQt6)
 
-> **Estado:** plan para aprobación. No existe código de la UI todavía.
-> **Fecha:** 2026-09-21. **Rama de trabajo:** `UI`. **Base:** `main` @ `ae884df` (merge del PR #3, `backup` → `main`).
+> **Estado:** decisiones de arquitectura cerradas (ronda SDD 2026-09-22, ver sección 2). Autoriza abrir el PR de documentación y empezar las Fases 1 a 3. No existe código de la UI todavía.
+> **Fecha:** 2026-09-21, actualizado 2026-09-22. **Rama de trabajo:** `UI`. **Base:** `main` @ `ae884df` (merge del PR #3, `backup` → `main`).
 > **Documentos relacionados:** `spec-ui-contrato.md` (contratos, señales, estados y archivos por fase), `propuesta-cambios-spec-sin-pausa.md` (decisiones de producto y de arquitectura de la UI) y `stitch/v2/` (mocks).
 > **Skill de apoyo:** `.claude/skills/pyqt6-desktop-ui-hexagonal/` (local, fuera de git).
-
-> ## 🛑 Bloqueante (2026-09-22)
-> Decisión del usuario: **no abrir ningún PR** (ni este de documentación ni ninguno de código) hasta cerrar la ronda SDD de la sección 2 (versión de Python, ubicación de los contratos de UI, convención de nombres). Este documento ya está commiteado en la rama `docs`, pero **se queda sin PR** hasta entonces.
-> Orden acordado: 1) cerrar esos pendientes en ronda SDD, 2) actualizar las ramas correspondientes con `main` y abrir el PR hacia `main`, 3) una vez mergeado, se puede trabajar libremente en cualquier rama (`UI`, `infrastructure/PlayWright`, etc.), porque todas partirán de la misma base ya acordada.
+>
+> **Bloqueo del 2026-09-22 levantado.** La ronda SDD de la sección 2 (versión de Python, ubicación de los contratos de UI, convención de nombres, lecturas de SQLite) ya se cerró. Sigue pendiente: llevar `main` a la rama `UI` antes de escribir código (sección 6), y abrir el PR de este documento hacia `main`.
 
 ---
 
@@ -18,24 +16,25 @@
 | Backend | `main` ya trae núcleo, tres portales, `excel_handler`, `pdf_merger` y SQLite. Está por detrás de `business-rules.md` v1.3.0 (ver sección 4) |
 | CI | Workflow `tests.yml` en `main`: fronteras hexagonales y pytest en Windows bloquean; ruff y mypy son informativos. Corrió en verde sobre el merge |
 | UI | Esqueleto vacío: `login_view.py`, `main_window.py`, `processing_view.py`, `upload_view.py` (0 bytes), `main.py` vacío |
-| Specs | Contratos de UI redactados y pendientes de aprobación. Decisiones de producto y arquitectura cerradas en la ronda SDD del 2026-09-21 |
-| Dependencias | `requirements.txt` con PyQt6 6.7.1 (Qt 6.7.2) y `requirements-dev.txt` con `pytest-qt`. El `Pipfile` sigue pidiendo Python 3.14 |
+| Specs | `spec-ui-contrato.md` con decisiones de arquitectura cerradas (ronda SDD 2026-09-22). Preguntas menores de su §12 (Fase 4 en adelante) siguen abiertas y no bloquean |
+| Dependencias | `requirements.txt` con PyQt6 6.7.1 (Qt 6.7.2) y `requirements-dev.txt` con `pytest-qt`. El `Pipfile` sigue pidiendo Python 3.14 (pendiente de bajar a 3.12) |
 
-**Decisiones ya cerradas** (detalle en `propuesta-cambios-spec-sin-pausa.md` §4 y §6): UI en `app/infrastructure/ui/` con subcarpetas; DTOs congelados con `pyqtSignal(object)`; puerto `OperatorGate` con `threading.Event`; `QThread` como subclase; fuentes embebidas y SVG propios; `pytest-qt` solo en desarrollo; `PENDIENTE` como nombre canónico; errores persistidos entre sesiones; cerrar la ventana con lote en curso pide confirmación; tabla canónica del mock 05; entregables habilitados en `DETENIDO`; resumen solo con Rama A y Rama B.
+**Decisiones ya cerradas** (detalle en `propuesta-cambios-spec-sin-pausa.md` §4 y §6): UI en `app/infrastructure/ui/` con subcarpetas; DTOs congelados con `pyqtSignal(object)`; puerto `IOperatorGate` con `threading.Event`; `QThread` como subclase; fuentes embebidas y SVG propios; `pytest-qt` solo en desarrollo; `PENDIENTE` como nombre canónico; errores persistidos entre sesiones; cerrar la ventana con lote en curso pide confirmación; tabla canónica del mock 05; entregables habilitados en `DETENIDO`; resumen solo con Rama A y Rama B.
 
 ---
 
-## 2. Pendientes que condicionan el plan (bloqueante)
+## 2. Ronda SDD del 2026-09-22 (cerrada)
 
-**Bloquean la apertura de cualquier PR** (ver aviso al inicio del documento), no solo la Fase 0b. La ronda SDD de la UI quedó en pausa; se retoma antes de seguir.
+Resuelto contra el dominio real ya mergeado en `main` (`app/domain/entities.py` con `EstadoValidacion`; `app/domain/ports.py` con `IPacienteRepository`, `IExcelHandler`, `IPdfConsolidator`, `IScraperService`). Detalle completo en `spec-ui-contrato.md` §1 (reglas 3 y 8) y §2.
 
-| # | Pendiente | Qué cambió tras revisar el código real |
+| # | Pendiente | Decisión |
 |---|---|---|
-| 1 | Versión de Python | El `Pipfile` pide 3.14 (`pandas==2.2.2` y `greenlet==3.0.3` no tienen rueda para 3.13 ni 3.14 en Windows). El CI usa 3.12. En el equipo hay 3.11.9 y 3.13. Propuesta: 3.11 o 3.12 |
-| 2 | Ubicación de los contratos de UI | `app/domain/entities.py` y `ports.py` ya tienen otro modelo (`EstadoValidacion`, puertos `I*`). Propuesta: DTOs de vista y puertos de entrada en `app/application/`, y los enums de negocio nuevos en `domain` coordinados con Israel |
-| 3 | Convención de nombres | El código usa clases abstractas con prefijo `I` (`IPacienteRepository`, `IExcelHandler`). El spec usa `Protocol` sin prefijo. Propuesta: `ABC` con prefijo `I` |
-| 4 | Lecturas de SQLite en el hilo principal | `AGENTS.md` §4 prohíbe escribir, no leer. Requiere modo WAL en el adaptador |
-| 5 | Preguntas 1, 2 y 5 a 9 de `spec-ui-contrato.md` §12 | Sin cambios; ver ese documento |
+| 1 | Versión de Python | **3.12**, igual que el CI ya mergeado, dentro del entorno virtual del proyecto. Pendiente bajar el `Pipfile` de 3.14 a 3.12 (cambio aparte, no de la UI) |
+| 2 | Ubicación de los contratos de UI | **`app/application/`**: `dto.py` (enums y DTOs) y `ui_ports.py` (puertos). No toca `app/domain/` |
+| 3 | Convención de nombres | **`ABC` con prefijo `I`**, rol en inglés, igual que los puertos ya mergeados (`IPacienteRepository`, `IExcelHandler`...). Enums y DTOs de negocio siguen en español |
+| 4 | Lecturas de SQLite en el hilo principal | **Permitidas si son acotadas** (detalle, errores, cabecera), con modo WAL y timeout en `sqlite_adapter.py`. Todo lo demás va en `TaskThread` |
+
+Quedan abiertas, sin bloquear, las preguntas 1, 2 y 5 a 7 de `spec-ui-contrato.md` §12 (banner de errores, KPI "Inválidos", tabla tras `FINALIZADO`, estado de lectura del Excel, bitácora, `EXPORTADO_DUAL` y roles).
 
 ---
 
@@ -43,20 +42,20 @@
 
 Cada fase se entrega en un PR pequeño a `main`, así el CI de Windows la valida. Los archivos de cada fase están listados en `spec-ui-contrato.md` §10.
 
-### Fase 0b · Reconciliar el spec con el dominio real (sin código de UI)
-- **Objetivo:** que los contratos del spec coincidan con lo que ya existe en `main`.
-- **Trabajo:** actualizar `spec-ui-contrato.md` §4 y §5 con las decisiones de la sección 2 y con esta correspondencia:
+### Fase 0b · Crear los contratos en `app/application/`
+- **Objetivo:** escribir `dto.py` y `ui_ports.py` según `spec-ui-contrato.md` §3 a §5, ya con ubicación y nombres decididos.
+- **Correspondencia con el código ya mergeado** (para la Fase 5, no bloquea la Fase 0b):
 
-| Puerto del spec | Lo que ya existe en el código |
+| Puerto nuevo | Lo que ya existe en el código |
 |---|---|
-| `BatchIntake` | `IExcelHandler.leer_pacientes` más `ValidatorService.higienizar_y_clasificar` |
-| `OperatorGate` con `LOGIN_PORTAL_3` | `IScraperService.existe_autenticacion_portal_3` y `vincular_sesion_portal_3` (hoy sin interacción con la UI) |
-| `OperatorGate` con `CAPTCHA_PORTAL_2` | `AltchaHandler`, que hoy solo espera 30 s |
-| `DeliverablesExporter` | `IExcelHandler.exportar_excel_limpio` y `exportar_excel_auditoria`, más `IPdfConsolidator` |
-| `BatchExecution` | `OrchestratorService.procesar_cola`, síncrono y sin progreso |
+| `IBatchIntake` | `IExcelHandler.leer_pacientes` más `ValidatorService.higienizar_y_clasificar` |
+| `IOperatorGate` con `LOGIN_PORTAL_3` | `IScraperService.existe_autenticacion_portal_3` y `vincular_sesion_portal_3` (hoy sin interacción con la UI) |
+| `IOperatorGate` con `CAPTCHA_PORTAL_2` | `AltchaHandler`, que hoy solo espera 30 s |
+| `IDeliverablesExporter` | `IExcelHandler.exportar_excel_limpio` y `exportar_excel_auditoria`, más `IPdfConsolidator` |
+| `IBatchExecution` | `OrchestratorService.procesar_cola`, síncrono y sin progreso |
 | Consultas de detalle, errores y resumen | `IPacienteRepository` (una sola tabla `pacientes`, sin lote) |
 
-- **Hecho cuando:** el spec está aprobado y sus preguntas abiertas cerradas o aplazadas de forma explícita.
+- **Hecho cuando:** `dto.py` y `ui_ports.py` existen, pasan `tests/architecture` (no importan Qt) y las preguntas abiertas de `spec-ui-contrato.md` §12 quedan cerradas o aplazadas de forma explícita.
 
 ### Fase 1 · Tema
 - **Entregables:** `bootstrap.py`, `theme/` (`tokens.py`, `palette.py`, `stylesheet.py`, `luxmed.qss.tpl`, `fonts.py`, `icons.py`), `assets/` (3 familias de fuentes y ~20 SVG) y `main.py` mínimo.
@@ -121,7 +120,7 @@ No es alcance de la UI. Se coordina con Israel, que decide quién lo hace y en q
 
 1. Llevar `main` a la rama `UI` (merge o rebase, según el flujo que acuerde Israel). El `.gitignore` local tiene cambios sin commitear que chocarán con el de `main`; `main` ya ignora `.claude/`, `.env` y `.pytest_cache`. Faltan `.mypy_cache/`, `.ruff_cache/` y `.mcp.json`.
 2. Un PR por fase hacia `main`. Nombres de rama sin mayúsculas que colisionen en Windows (`PlayWright` frente a `playwright`).
-3. Los documentos de `docs/UI/` (untracked hoy) se commitean en su propio PR de documentación, separados del código.
+3. Los documentos de `docs/UI/` ya están commiteados en la rama `docs` (separados del código); falta abrir su PR hacia `main` (sección 8).
 
 ---
 
@@ -130,9 +129,9 @@ No es alcance de la UI. Se coordina con Israel, que decide quién lo hace y en q
 | Riesgo | Mitigación |
 |---|---|
 | Backend por detrás de las decisiones de producto | Fases 1 a 4 sobre el simulador; la Fase 5 solo arranca cuando el backend ofrezca lote, progreso y login manual |
-| Los contratos de UI chocan con `domain` de otras ramas | Definirlos en `application` y coordinar los enums nuevos con Israel antes de tocar `domain` |
+| Los contratos de UI chocan con `domain` de otras ramas | Resuelto: viven en `app/application/`, no en `app/domain/` (ronda SDD 2026-09-22) |
 | Playwright síncrono y `QThread` | Crear `sync_playwright()` dentro de `run()`; los adaptadores actuales ya son sin estado, lo que encaja |
-| Versión de Python sin fijar | Decidir 3.11 o 3.12 antes de la Fase 1 y alinear `Pipfile` y CI |
+| `Pipfile` sigue en Python 3.14, distinto del 3.12 acordado | Bajarlo a 3.12 en un cambio aparte, antes o junto con la Fase 0b |
 | PII en la UI o en logs (LOPDP) | DTOs sin PII fuera de lo que se muestra; `batch_failed` solo con el nombre del tipo de error |
 | Mocks con inconsistencias | Aplicar los cambios de `propuesta-cambios-spec-sin-pausa.md` §7; la propuesta prevalece sobre el PNG |
 
@@ -140,8 +139,8 @@ No es alcance de la UI. Se coordina con Israel, que decide quién lo hace y en q
 
 ## 8. Siguiente paso
 
-1. **Retomar la ronda SDD** con los pendientes de la sección 2 (Python, ubicación de contratos y nombres). Bloqueante: sin esto no se abre ningún PR.
-2. **Actualizar con `main`** las ramas que lo necesiten (`UI` y las que Israel indique, por ejemplo `infrastructure/PlayWright`) y abrir el PR correspondiente hacia `main`.
-3. **Tras ese merge,** trabajar libremente en cualquier rama: todas parten de la misma base ya acordada.
-4. Aprobar `spec-ui-contrato.md`, que autoriza la lista de archivos de la Fase 1 a la 6.
-5. Arrancar la Fase 1. Las Fases 1 a 3 no dependen del backend.
+1. **Abrir el PR de la rama `docs`** hacia `main` (ya tiene los 3 documentos de `docs/UI/` y este mismo plan; la ronda SDD que lo bloqueaba ya cerró).
+2. **Actualizar con `main`** las ramas que lo necesiten (`UI` y las que Israel indique, por ejemplo `infrastructure/PlayWright`).
+3. **Tras esos merges,** trabajar libremente en cualquier rama: todas parten de la misma base ya acordada.
+4. **Fase 0b:** crear `app/application/dto.py` y `ui_ports.py`.
+5. **Arrancar la Fase 1.** Las Fases 1 a 3 no dependen del backend ni de la Fase 0b.
