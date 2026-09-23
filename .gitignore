@@ -9,3 +9,9 @@ backup_historico
 __pycache__/
 *.py[cod]
 *$py.class
+.mcp.json
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+ANALISIS_RAMAS.md
+.env
