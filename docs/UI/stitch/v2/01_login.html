@@ -1,0 +1,278 @@
+<!DOCTYPE html><html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=800, initial-scale=1.0">
+  <title>Acceso local</title>
+  <!-- Google Fonts: Archivo y IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  
+  <style>
+    /* Reset and strict PyQt6 base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      min-width: 1280px;
+      min-height: 800px;
+      max-width: 1280px;
+      max-height: 800px;
+      overflow: hidden;
+      background-color: #E6E6E2; /* Lienzo sala */
+      font-family: 'Archivo', sans-serif;
+      color: #1A1A18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Contenedor central de 400px de ancho */
+    .login-dialog {
+      width: 400px;
+      background-color: #FAFAF8; /* Panel */
+      border: 1px solid #C9C9C3; /* Filete estándar */
+      border-radius: 5px; /* Radio panel 5px */
+      padding: 40px 32px 32px 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabecera / Identidad */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background-color: #1A1A18;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Archivo', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 2px;
+      line-height: 1;
+    }
+
+    .brand-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1A1A18;
+      letter-spacing: -0.01em;
+    }
+
+    /* Títulos */
+    .title-group {
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 20px;
+      line-height: 26px;
+      font-weight: 600;
+      color: #1A1A18;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      line-height: 18px;
+      color: #5C5C57; /* Tinta secundaria */
+      font-weight: 400;
+    }
+
+    /* Formulario */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      color: #5C5C57;
+      margin-bottom: 6px;
+    }
+
+    /* QLineEdit normal */
+    .input-control {
+      height: 36px;
+      background-color: #FFFFFF;
+      border: 1px solid #C9C9C3;
+      border-radius: 3px;
+      padding: 0 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: #1A1A18;
+      outline: none;
+      width: 100%;
+    }
+
+    /* Wrapper para campo con icono de ojo */
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    /* QLineEdit con estado de error */
+    .input-control.has-error {
+      background-color: #F6E4E3; /* fondo_chip_claro / error tenue */
+      border: 1px solid #A3231D; /* Invalido semantico */
+      color: #A3231D;
+      padding-right: 36px;
+    }
+
+    .eye-button {
+      position: absolute;
+      right: 6px;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #A3231D;
+      border-radius: 2px;
+    }
+
+    .eye-button svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.75;
+      fill: none;
+    }
+
+    /* Mensaje de error */
+    .error-text {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 16px;
+      color: #A3231D; /* Semantico error */
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .error-text svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* Botón primario de ancho completo */
+    .btn-submit {
+      margin-top: 8px;
+      height: 36px;
+      background-color: #1A1A18;
+      color: #FFFFFF;
+      border: 1px solid #1A1A18;
+      border-radius: 3px;
+      font-family: 'Archivo', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .btn-submit:hover {
+      background-color: #2D2D29;
+    }
+
+    .btn-submit:active {
+      background-color: #0F0F0E;
+    }
+
+    /* Pie de ventana */
+    .footer-version {
+      margin-top: 32px;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #8E8E88; /* Tinta 3 */
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-dialog">
+    <!-- Logotipo LuxMed -->
+    <div class="brand-header">
+      <div class="brand-logo">L</div>
+      <span class="brand-name">LuxMed</span>
+    </div>
+
+    <!-- Título y subtítulo -->
+    <div class="title-group">
+      <h1 class="title">Acceso local</h1>
+      <p class="subtitle">Ingresa con tu usuario de este equipo.</p>
+    </div>
+
+    <!-- Campo Usuario -->
+    <div class="form-group">
+      <label class="form-label">Usuario</label>
+      <input type="text" class="input-control" value="admision.01" readonly="" spellcheck="false">
+    </div>
+
+    <!-- Campo Contraseña con error -->
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <div class="password-wrapper">
+        <input type="password" class="input-control has-error" value="12345678" readonly="" spellcheck="false">
+        <button class="eye-button" type="button" aria-label="Mostrar contraseña">
+          <!-- Icono Ojo lineal nativo -->
+          <svg viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+      <div class="error-text">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>Usuario o contraseña incorrectos</span>
+      </div>
+    </div>
+
+    <!-- Botón Primario -->
+    <button class="btn-submit" type="button">Entrar</button>
+
+    <!-- Versión al pie -->
+    <div class="footer-version">Versión 1.0.0</div>
+  </div>
+
+
+
+</body></html>
