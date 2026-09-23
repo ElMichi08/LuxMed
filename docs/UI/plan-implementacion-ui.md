@@ -5,6 +5,10 @@
 > **Documentos relacionados:** `spec-ui-contrato.md` (contratos, señales, estados y archivos por fase), `propuesta-cambios-spec-sin-pausa.md` (decisiones de producto y de arquitectura de la UI) y `stitch/v2/` (mocks).
 > **Skill de apoyo:** `.claude/skills/pyqt6-desktop-ui-hexagonal/` (local, fuera de git).
 
+> ## 🛑 Bloqueante (2026-09-22)
+> Decisión del usuario: **no abrir ningún PR** (ni este de documentación ni ninguno de código) hasta cerrar la ronda SDD de la sección 2 (versión de Python, ubicación de los contratos de UI, convención de nombres). Este documento ya está commiteado en la rama `docs`, pero **se queda sin PR** hasta entonces.
+> Orden acordado: 1) cerrar esos pendientes en ronda SDD, 2) actualizar las ramas correspondientes con `main` y abrir el PR hacia `main`, 3) una vez mergeado, se puede trabajar libremente en cualquier rama (`UI`, `infrastructure/PlayWright`, etc.), porque todas partirán de la misma base ya acordada.
+
 ---
 
 ## 1. Punto de partida
@@ -21,9 +25,9 @@
 
 ---
 
-## 2. Pendientes que condicionan el plan
+## 2. Pendientes que condicionan el plan (bloqueante)
 
-La ronda SDD de la UI quedó en pausa. Estas preguntas se retoman antes de la Fase 0b (contratos), no antes de las Fases 1 a 3.
+**Bloquean la apertura de cualquier PR** (ver aviso al inicio del documento), no solo la Fase 0b. La ronda SDD de la UI quedó en pausa; se retoma antes de seguir.
 
 | # | Pendiente | Qué cambió tras revisar el código real |
 |---|---|---|
@@ -136,6 +140,8 @@ No es alcance de la UI. Se coordina con Israel, que decide quién lo hace y en q
 
 ## 8. Siguiente paso
 
-1. Retomar la ronda SDD con los pendientes de la sección 2 (en especial Python, ubicación de contratos y nombres).
-2. Aprobar `spec-ui-contrato.md`, que autoriza la lista de archivos de la Fase 1 a la 6.
-3. Con eso, arrancar la Fase 1. Las Fases 1 a 3 no dependen del backend.
+1. **Retomar la ronda SDD** con los pendientes de la sección 2 (Python, ubicación de contratos y nombres). Bloqueante: sin esto no se abre ningún PR.
+2. **Actualizar con `main`** las ramas que lo necesiten (`UI` y las que Israel indique, por ejemplo `infrastructure/PlayWright`) y abrir el PR correspondiente hacia `main`.
+3. **Tras ese merge,** trabajar libremente en cualquier rama: todas parten de la misma base ya acordada.
+4. Aprobar `spec-ui-contrato.md`, que autoriza la lista de archivos de la Fase 1 a la 6.
+5. Arrancar la Fase 1. Las Fases 1 a 3 no dependen del backend.
