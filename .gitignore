@@ -21,3 +21,4 @@ __pycache__/
 .ruff_cache/
 ANALISIS_RAMAS.md
 .env
+tests/ui/_capturas/
