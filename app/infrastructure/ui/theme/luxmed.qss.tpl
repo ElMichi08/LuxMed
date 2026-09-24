@@ -166,6 +166,7 @@ QToolButton#item_riel_historial {
   background-color: transparent;
   color: $tinta_ter;
   border: none;
+  border-left: 3px solid transparent;
 }
 
 QLabel#riel_insignia {

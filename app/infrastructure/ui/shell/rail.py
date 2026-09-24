@@ -1,21 +1,31 @@
 from __future__ import annotations
 
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QResizeEvent
+from PyQt6.QtGui import QFont, QResizeEvent
 from PyQt6.QtWidgets import (
     QButtonGroup,
     QFrame,
     QLabel,
+    QSizePolicy,
     QToolButton,
     QVBoxLayout,
     QWidget,
 )
 
 from app.infrastructure.ui.theme.icons import icono
-from app.infrastructure.ui.theme.tokens import COLORES, GEOMETRIA
+from app.infrastructure.ui.theme.tokens import COLORES, GEOMETRIA, TIPOGRAFIA
 
 ALTO_ITEM = 60
 LADO_INSIGNIA = 14
+
+
+def configurar_boton_riel(boton: QToolButton) -> None:
+    boton.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    boton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+    boton.setFixedHeight(ALTO_ITEM)
+    boton.setFont(
+        QFont(TIPOGRAFIA.familia_sans, TIPOGRAFIA.tamano_chip, TIPOGRAFIA.peso_medio)
+    )
 
 
 class ItemRiel(QToolButton):
@@ -25,9 +35,8 @@ class ItemRiel(QToolButton):
         super().__init__(parent)
         self._nombre_icono = nombre_icono
         self.setObjectName("item_riel")
-        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        configurar_boton_riel(self)
         self.setText(etiqueta)
-        self.setFixedHeight(ALTO_ITEM)
         self.setCheckable(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._contador = 0
@@ -76,11 +85,8 @@ class Rail(QFrame):
 
         self.boton_historial = QToolButton()
         self.boton_historial.setObjectName("item_riel_historial")
-        self.boton_historial.setToolButtonStyle(
-            Qt.ToolButtonStyle.ToolButtonTextUnderIcon
-        )
+        configurar_boton_riel(self.boton_historial)
         self.boton_historial.setText("Historial")
-        self.boton_historial.setFixedHeight(ALTO_ITEM)
         self.boton_historial.setIcon(icono("history", COLORES.tinta_ter, 20))
         self.boton_historial.setEnabled(False)
         self.boton_historial.setCursor(Qt.CursorShape.ForbiddenCursor)
