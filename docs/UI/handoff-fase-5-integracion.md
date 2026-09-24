@@ -116,7 +116,7 @@ Implementarlos en `app/infrastructure/` **sin importarse entre sí** (AGENTS §1
 | Tema | Detalle |
 |---|---|
 | Fixture del lote incompleto | Cerrado el 2026-09-23 (spec §13.1): 308 de 428, con 120 pendientes. |
-| `shell_lote.png` | Se reportó visualmente descuadrado; no se reprodujo con análisis de píxeles ni de geometría. Diferido hasta tener detalle de qué se ve mal. |
+| `shell_lote.png` | Cerrado el 2026-09-24: el botón Lote del riel medía 44 px en vez de 64 por su política de tamaño horizontal `Fixed`. Corregido en la rama `UI` (commit `b7dd012`) con tests en `tests/ui/test_rail.py`. |
 | Pulido visual | Las pantallas son fieles a los mocks pero sin acabado final. Aceptado para el MVP. |
 | Cierre de la spec §12 | Abiertas y sin bloquear: banner de la pantalla 11 (omitido), definición del KPI "Inválidos" (`CEDULA_INVALIDA` + `NO_ENCONTRADO`), bitácora solo en memoria, `EXPORTADO_DUAL` no expuesto, sin roles. Cerradas el 2026-09-23 (spec §13): "Ver pacientes" se omite en el MVP y la confirmación de entregables es el paso 2 del diálogo 10. |
 | Botón "Cambiar…" de Ajustes y de entregables | Abren el selector nativo de carpetas; no están cubiertos por tests (un diálogo nativo bloquea en modo offscreen). |

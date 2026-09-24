@@ -594,4 +594,4 @@ Cerradas en la ronda SDD del 2026-09-22 (ver §1 reglas 3 y 8, y §2): ubicació
 
 **13.4 Omitido en el MVP.** Acceso "Ver pacientes" tras `FINALIZADO` (§12.3). Los pacientes se consultan en el Excel auditado. Mejora futura.
 
-**13.5 Abierto.** `shell_lote.png` percibido como descuadrado: pendiente de una captura del usuario.
+**13.5 Cerrado (2026-09-24).** `shell_lote.png` descuadrado: los botones del riel usaban política de tamaño horizontal `Fixed` y medían lo que pedía su texto (Lote 44 px, los demás 64 px). Ahora los cuatro ocupan los 64 px del riel y usan la tipografía de 10 px del mock.
