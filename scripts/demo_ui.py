@@ -97,6 +97,7 @@ class VentanaDemo(QMainWindow):
         self._dialogos_abiertos: list[QDialog] = []
         self._ajustes = FakeOutputFolderSettings()
         self._cabecera_demo = cabecera_simulada()
+        self._lote_detenido = False
 
         self._paginas_raiz = QStackedWidget()
         self._paginas_raiz.addWidget(self._crear_pagina_login())
@@ -284,6 +285,7 @@ class VentanaDemo(QMainWindow):
         return contenedor
 
     def _al_simular_lote_detenido(self) -> None:
+        self._lote_detenido = True
         self._vista_procesando.establecer_cabecera(
             cabecera_simulada(EstadoLote.DETENIDO)
         )
@@ -291,17 +293,24 @@ class VentanaDemo(QMainWindow):
         self._vista_procesando.mostrar_lote_detenido(resultado_detenido_simulado())
 
     def _al_simular_lote_finalizado(self) -> None:
+        self._lote_detenido = False
         self._top_bar.establecer_lote(self._texto_lote(), "Finalizado", "exito")
         self._subpaginas_lote.setCurrentIndex(SUBPAGINA_RESUMEN)
 
-    def _abrir_dialogo_entregables(self) -> None:
+    def _crear_dialogo_entregables(self) -> DeliverablesDialog:
         dialogo = DeliverablesDialog(
-            resumen_lote_simulado(), self._ajustes.obtener(), self
+            resumen_lote_simulado(incompleto=self._lote_detenido),
+            self._ajustes.obtener(),
+            self,
         )
         exportador = FakeDeliverablesExporter()
         dialogo.generar_solicitado.connect(
-            lambda seleccion: exportador.exportar(seleccion)
+            lambda seleccion: dialogo.mostrar_resultado(exportador.exportar(seleccion))
         )
+        return dialogo
+
+    def _abrir_dialogo_entregables(self) -> None:
+        dialogo = self._crear_dialogo_entregables()
         dialogo.show()
         self._dialogos_abiertos.append(dialogo)
 
@@ -349,9 +358,7 @@ class VentanaDemo(QMainWindow):
             ),
             (
                 "10 Generar entregables",
-                lambda: DeliverablesDialog(
-                    resumen_lote_simulado(), self._ajustes.obtener(), self
-                ),
+                self._crear_dialogo_entregables,
             ),
             (
                 "Confirmar cierre con lote en curso",

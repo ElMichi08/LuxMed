@@ -116,7 +116,7 @@ class FakeDeliverablesExporter(IDeliverablesExporter):
         resumen = resumen_lote_simulado()
         return ResultadoEntregables(
             carpeta=seleccion.carpeta_destino,
-            filas_excel=resumen.procesados,
+            filas_excel=resumen.cabecera.total_filas,
             filas_en_rojo=resumen.filas_en_rojo,
             expedientes_generados=resumen.expedientes_consolidados
             if seleccion.expedientes

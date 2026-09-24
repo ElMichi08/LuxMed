@@ -440,12 +440,15 @@ _ESTADOS_RESUMEN = (
 _ESTADOS_SIN_RAMA = (EstadoPaciente.CEDULA_INVALIDA, EstadoPaciente.NO_ENCONTRADO)
 HORA_INICIO_LOTE = datetime(2026, 9, 8, 8, 32, 0)
 HORA_FIN_LOTE = datetime(2026, 9, 8, 11, 47, 0)
+CORTE_LOTE_DETENIDO = 308
 
 
-def _conteos_por_estado() -> tuple[ConteoEstado, ...]:
+def _conteos_por_estado(
+    pacientes: tuple[PacienteSimulado, ...] = PACIENTES_SIMULADOS,
+) -> tuple[ConteoEstado, ...]:
     conteos = []
     for estado in _ESTADOS_RESUMEN:
-        pacientes_estado = tuple(p for p in PACIENTES_SIMULADOS if p.estado is estado)
+        pacientes_estado = tuple(p for p in pacientes if p.estado is estado)
         if estado in _ESTADOS_SIN_RAMA:
             rama_a: int | None = None
             rama_b: int | None = None
@@ -461,21 +464,27 @@ def _conteos_por_estado() -> tuple[ConteoEstado, ...]:
 
 
 def resumen_lote_simulado(incompleto: bool = False) -> ResumenLote:
-    conteos = _conteos_por_estado()
-    total = sum(conteo.total for conteo in conteos)
-    filas_en_rojo = total - TOTAL_COMPLETADOS
+    procesados_simulados = (
+        PACIENTES_SIMULADOS[:CORTE_LOTE_DETENIDO] if incompleto else PACIENTES_SIMULADOS
+    )
+    conteos = _conteos_por_estado(procesados_simulados)
+    procesados = len(procesados_simulados)
+    completados = sum(
+        1 for p in procesados_simulados if p.estado is EstadoPaciente.COMPLETADO
+    )
+    pendientes = TOTAL_FILAS - procesados
     return ResumenLote(
         cabecera=cabecera_simulada(
             EstadoLote.DETENIDO if incompleto else EstadoLote.FINALIZADO
         ),
-        procesados=total,
-        pendientes=0,
+        procesados=procesados,
+        pendientes=pendientes,
         conteos=conteos,
         hora_inicio=HORA_INICIO_LOTE,
         hora_fin=None if incompleto else HORA_FIN_LOTE,
         duracion=None if incompleto else (HORA_FIN_LOTE - HORA_INICIO_LOTE),
-        filas_en_rojo=filas_en_rojo,
-        expedientes_consolidados=TOTAL_COMPLETADOS,
+        filas_en_rojo=TOTAL_FILAS - completados,
+        expedientes_consolidados=completados,
         incompleto=incompleto,
     )
 
