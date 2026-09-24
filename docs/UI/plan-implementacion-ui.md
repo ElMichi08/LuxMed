@@ -1,6 +1,6 @@
 # Plan de implementación de la UI (PyQt6)
 
-> **Estado:** decisiones de arquitectura cerradas (ronda SDD 2026-09-22, ver sección 2). Autoriza abrir el PR de documentación y empezar las Fases 1 a 3. No existe código de la UI todavía.
+> **Estado (2026-09-23):** Fases 0b a 4 completas en la rama `UI` (tema, shell, widgets, 8 pantallas, 5 diálogos, modelos, presenters y fakes; demo con `scripts/demo_ui.py`). Fases 5 y 6 a cargo de Israel: ver `handoff-fase-5-integracion.md`. Decisiones de arquitectura cerradas en la ronda SDD 2026-09-22 (sección 2).
 > **Fecha:** 2026-09-21, actualizado 2026-09-22. **Rama de trabajo:** `UI`. **Base:** `main` @ `ae884df` (merge del PR #3, `backup` → `main`).
 > **Documentos relacionados:** `spec-ui-contrato.md` (contratos, señales, estados y archivos por fase), `propuesta-cambios-spec-sin-pausa.md` (decisiones de producto y de arquitectura de la UI) y `stitch/v2/` (mocks).
 > **Skill de apoyo:** `.claude/skills/pyqt6-desktop-ui-hexagonal/` (local, fuera de git).

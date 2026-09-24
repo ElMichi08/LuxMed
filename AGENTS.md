@@ -101,3 +101,11 @@ El agente debe estructurar la comunicación entre el adaptador visual de PyQt6 y
 
 - **Comunicación Unidireccional por Señales:**  
   El hilo de procesamiento pasivo interactuará con la ventana gráfica enviando exclusivamente datos tipados e inmutables de actualización mediante señales nativas (`pyqtSignal(str)`). Esto garantiza el determinismo de la UI de Stitch mientras Playwright extrae los PDFs en memoria de forma transparente de fondo.
+
+---
+
+## 5. Continuación del trabajo de la UI
+
+- **Fases 5 y 6 (integración con el backend real y verificación):** el plano de contexto está en `docs/UI/handoff-fase-5-integracion.md`. Léelo después de este archivo; solo autoriza los archivos y cambios que allí se listan.
+- **Contratos y estados:** `docs/UI/spec-ui-contrato.md` (puertos §5, señales §6, máquina de estados §7, decisiones SDD §13).
+- **Ver la UI sobre datos simulados:** `python scripts/demo_ui.py`.

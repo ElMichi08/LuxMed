@@ -570,8 +570,28 @@ Cerradas en la ronda SDD del 2026-09-22 (ver §1 reglas 3 y 8, y §2): ubicació
 
 1. **Banner de la pantalla 11.** El mock muestra "El Portal 3 presentó intermitencia entre las 14:18 y las 14:31" y un chip "HTTP 504 Gateway Timeout". No hay dato de origen para eso. Propuesta: omitir el banner y mostrar solo el motivo por fila.
 2. **KPI "Inválidos".** Propuesta: `CEDULA_INVALIDA` + `NO_ENCONTRADO` (sección 4). Las cifras del mock 05 no cuadran con esa regla y son ilustrativas.
-3. **Tabla tras `FINALIZADO`.** La pantalla 09 no permite volver a ver la tabla de pacientes. Propuesta: añadir un acceso "Ver pacientes" que abra la tabla en modo lectura.
+3. **Tabla tras `FINALIZADO`.** La pantalla 09 no permite volver a ver la tabla de pacientes. **Resuelta (2026-09-23):** se omite en el MVP (ver §13).
 4. **Estado de lectura del Excel.** El mock 02 no muestra qué ocurre mientras se lee el archivo. Propuesta: la dropzone muestra "Leyendo archivo…" y se deshabilita.
 5. **Bitácora.** Propuesta: vive solo en memoria durante el lote y no se persiste.
-6. **`EXPORTADO_DUAL`.** Propuesta: la UI no lo expone; tras generar entregables solo muestra confirmación.
+6. **`EXPORTADO_DUAL`.** Propuesta: la UI no lo expone; tras generar entregables solo muestra confirmación. **Resuelta (2026-09-23):** la confirmación es un segundo paso del diálogo 10 (ver §13).
 7. **Roles (RBAC).** `ARCHITECTURE.md` §7 nombra RBAC básico sin definir roles. Propuesta: la UI no diferencia permisos; `SesionUsuario` solo lleva usuario e iniciales.
+
+---
+
+## 13. Decisiones SDD del 2026-09-23 (cierre de la Fase 4)
+
+**13.1 Lote `DETENIDO` simulado.** El fixture `resumen_lote_simulado(incompleto=True)` representa un lote detenido tras 308 de 428 filas. Los 308 primeros pacientes conservan su estado, incluidas las 94 `CEDULA_INVALIDA` (se descartan al leer el Excel, antes de consultar ningún portal); los 120 restantes quedan `PENDIENTE`. Cifras: 308 procesados (199 `COMPLETADO`, 94 `CEDULA_INVALIDA`, 12 `NO_ENCONTRADO`, 3 `ERROR_PORTAL_3`), 120 pendientes, 199 expedientes, 229 filas en rojo (todo lo que no es `COMPLETADO`, pendientes incluidos). Afecta al resumen 09 y al diálogo 07. Sin `hora_fin` ni `duracion`.
+
+**13.2 Diálogo 10 en dos pasos.**
+- Paso 1 (selección): igual que hoy. Al pulsar "Generar", el diálogo emite `generar_solicitado(SeleccionEntregables)` y **ya no se cierra**: pasa al estado "Generando…" con los controles deshabilitados.
+- Paso 2 (resultado): `mostrar_resultado(ResultadoEntregables)` muestra la carpeta (monoespaciada), una línea por entregable generado (Excel limpio con `filas_excel`; Excel auditado con `filas_excel` y `filas_en_rojo`; expedientes con `expedientes_generados`) y los botones "Abrir carpeta" (acción de SO, solo en la UI) y "Cerrar".
+- Error: `mostrar_error(mensaje: str)` muestra el mensaje (solo el nombre del tipo de error, sin PII) y "Cerrar".
+- Quien cablee la exportación (Fase 5) conecta el resultado de `DeliverablesPresenter` a `mostrar_resultado` y el `failed(str)` de `TaskThread` a `mostrar_error`.
+
+**13.3 Derivados de decisiones ya cerradas (a confirmar).**
+- El "Excel limpio" es copia idéntica al original y el "Excel auditado" es el original con filas en rojo (business-rules): sus contadores en el diálogo 10 usan `cabecera.total_filas`, no `procesados`. En un lote terminado dan lo mismo (428); en uno `DETENIDO` son 428, no 308.
+- Propuesta §7 (mock 10): con `ResumenLote.incompleto`, el subtítulo del diálogo muestra "procesados de total" y la palabra "incompleto" (por ejemplo "Lote 2026-09-08-01 · 308 de 428 · incompleto"; sin la palabra "pacientes" para que quepa en la cabecera de 560 px).
+
+**13.4 Omitido en el MVP.** Acceso "Ver pacientes" tras `FINALIZADO` (§12.3). Los pacientes se consultan en el Excel auditado. Mejora futura.
+
+**13.5 Cerrado (2026-09-24).** `shell_lote.png` descuadrado: los botones del riel usaban política de tamaño horizontal `Fixed` y medían lo que pedía su texto (Lote 44 px, los demás 64 px). Ahora los cuatro ocupan los 64 px del riel y usan la tipografía de 10 px del mock.
