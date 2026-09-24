@@ -72,7 +72,12 @@ APELLIDOS = (
     "Salazar Ponce",
     "Bravo Cedeno",
 )
-SEGUROS = ("IESS", "Entidad Previsional Especial", "ISSFA", "ISSPOL")
+SEGUROS = (
+    "IESS",
+    "Entidad Previsional Especial",
+    "IESS",
+    "Entidad Previsional Especial",
+)
 ESTABLECIMIENTOS = (
     "Hosp. Teodoro Maldonado",
     "Clinica Guayaquil Norte",
