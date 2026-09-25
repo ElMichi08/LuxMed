@@ -81,10 +81,22 @@ def filas_conteo(resumen: ResumenLote) -> list[FilaConteo]:
     if resumen.contar(EstadoPaciente.PENDIENTE):
         estados.append(EstadoPaciente.PENDIENTE)
     filas = [
-        FilaConteo(estado, resumen.contar(estado), tuple(resumen.contar(estado, rama) for rama in RAMAS))
+        FilaConteo(
+            estado,
+            resumen.contar(estado),
+            (
+                resumen.contar(estado, Rama.A),
+                resumen.contar(estado, Rama.B),
+                resumen.contar(estado, Rama.SIN_RAMA),
+            ),
+        )
         for estado in estados
     ]
-    total = FilaConteo(None, resumen.total, tuple(resumen.contar_rama(rama) for rama in RAMAS))
+    total = FilaConteo(
+        None,
+        resumen.total,
+        (resumen.contar_rama(Rama.A), resumen.contar_rama(Rama.B), resumen.contar_rama(Rama.SIN_RAMA)),
+    )
     return [*filas, total]
 
 

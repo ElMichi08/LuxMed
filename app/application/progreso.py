@@ -130,18 +130,23 @@ class RastreadorPaciente:
         return self._avance
 
     def iniciar(self, portal: Portal) -> None:
-        self._actualizar(
-            estado=EstadoPaciente.EN_PROCESO,
-            pasos=self._avance.pasos.con(portal, EstadoPaso.EN_CURSO),
-            portal_actual=portal,
+        self._publicar(
+            replace(
+                self._avance,
+                estado=EstadoPaciente.EN_PROCESO,
+                pasos=self._avance.pasos.con(portal, EstadoPaso.EN_CURSO),
+                portal_actual=portal,
+            )
         )
 
     def terminar(self, portal: Portal, exito: bool) -> None:
         resultado = EstadoPaso.HECHO if exito else EstadoPaso.FALLIDO
-        self._actualizar(pasos=self._avance.pasos.con(portal, resultado), portal_actual=None)
+        self._publicar(
+            replace(self._avance, pasos=self._avance.pasos.con(portal, resultado), portal_actual=None)
+        )
 
     def omitir(self, portal: Portal) -> None:
-        self._actualizar(pasos=self._avance.pasos.con(portal, EstadoPaso.OMITIDO))
+        self._publicar(replace(self._avance, pasos=self._avance.pasos.con(portal, EstadoPaso.OMITIDO)))
 
     def fallo_en_curso(self) -> None:
         portal = self._avance.portal_actual
@@ -153,17 +158,23 @@ class RastreadorPaciente:
         self.terminar(Portal.P1, exito=False)
 
     def clasificar(self, paciente: Paciente) -> None:
-        self._actualizar(
-            rama=rama_de(paciente.entidad_detectada),
-            seguro_derivado=(
-                paciente.seguro_derivado if paciente.entidad_detectada is EntidadSeguro.IESS else None
-            ),
+        seguro_derivado = (
+            paciente.seguro_derivado if paciente.entidad_detectada is EntidadSeguro.IESS else None
+        )
+        self._publicar(
+            replace(
+                self._avance,
+                rama=rama_de(paciente.entidad_detectada),
+                seguro_derivado=seguro_derivado,
+            )
         )
 
     def resolver(self, paciente: Paciente) -> AvancePaciente:
         estado = self._estado_final(paciente)
         paciente.es_auditoria_rojo = estado is not EstadoPaciente.COMPLETADO
-        self._actualizar(estado=estado, portal_actual=None, hora=datetime.now().time())
+        self._publicar(
+            replace(self._avance, estado=estado, portal_actual=None, hora=datetime.now().time())
+        )
         return self._avance
 
     def _estado_final(self, paciente: Paciente) -> EstadoPaciente:
@@ -182,6 +193,6 @@ class RastreadorPaciente:
             return EstadoPaciente.ERROR_PORTAL_3
         return EstadoPaciente.COMPLETADO
 
-    def _actualizar(self, **cambios: object) -> None:
-        self._avance = replace(self._avance, **cambios)
+    def _publicar(self, avance: AvancePaciente) -> None:
+        self._avance = avance
         self._observador.paciente_actualizado(self._avance)

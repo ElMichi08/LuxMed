@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TypeVar
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QBoxLayout,
@@ -15,6 +17,8 @@ from PyQt6.QtWidgets import (
 from app.infrastructure.ui.theme.icons import icono, tamano_icono
 from app.infrastructure.ui.theme.stylesheet import repolish
 from app.infrastructure.ui.theme.tokens import COLORES, GEOMETRIA
+
+LayoutCaja = TypeVar("LayoutCaja", bound=QBoxLayout)
 
 
 def establecer_propiedad(widget: QWidget, nombre: str, valor: object) -> None:
@@ -73,7 +77,7 @@ def separador_vertical(alto: int = 16) -> QFrame:
     return resultado
 
 
-def _configurar(layout: QBoxLayout, margenes: tuple[int, int, int, int], espacio: int) -> QBoxLayout:
+def _configurar(layout: LayoutCaja, margenes: tuple[int, int, int, int], espacio: int) -> LayoutCaja:
     layout.setContentsMargins(*margenes)
     layout.setSpacing(espacio)
     return layout
