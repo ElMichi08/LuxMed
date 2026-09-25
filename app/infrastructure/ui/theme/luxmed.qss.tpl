@@ -194,6 +194,28 @@ QLineEdit[solo_lectura="true"] {
   min-height: 34px;
 }
 
+QComboBox {
+  background-color: $blanco;
+  color: $tinta;
+  border: 1px solid $filete;
+  border-radius: 3px;
+  padding: 0px 8px;
+  font-family: "IBM Plex Mono";
+  font-size: 12px;
+}
+
+QComboBox:focus, QComboBox:on {
+  border: 1px solid $indigo;
+}
+
+QComboBox QAbstractItemView {
+  background-color: $blanco;
+  border: 1px solid $filete;
+  selection-background-color: $indigo_suave;
+  selection-color: $tinta;
+  outline: 0;
+}
+
 QLabel[tono="exito"], QLabel[tono="proceso"], QLabel[tono="neutro"], QLabel[tono="alerta"] {
   font-size: 11px;
   font-weight: 600;

@@ -10,6 +10,7 @@ from app.application.lote_service import (
     ServicioLote,
     motivo_descarte,
 )
+from app.application.mes_atencion import ConteoMes, MesAtencion
 from app.application.progreso import AvancePaciente, ResumenLote
 from app.application.validator import ValidatorService
 from app.domain.entities import CredencialesPortal3, EstadoPaciente
@@ -50,7 +51,9 @@ def test_cargar_listado_real(tmp_path: Path) -> None:
     assert all(fila.es_valida for fila in revision.filas)
     assert all(fila.fecha_nacimiento is not None and fila.fecha_nacimiento.year > 1900 for fila in revision.filas)
     assert revision.filas[0].fila_excel == 2
-    assert revision.lote_id.endswith("-01")
+    assert revision.meses_encontrados == (ConteoMes(MesAtencion(2026, 4), 6),)
+    assert revision.mes_sugerido == MesAtencion(2026, 4)
+    assert not revision.tiene_meses_mezclados
 
 
 @pytest.mark.skipif(not EXCEL_REAL.is_file(), reason="Falta docs/data/BASE.xlsx")
@@ -58,7 +61,7 @@ def test_ejecutar_exige_credenciales(tmp_path: Path) -> None:
     servicio = _servicio(tmp_path, CredencialesPortal3("", ""))
     revision = servicio.cargar_listado(str(EXCEL_REAL))
     with pytest.raises(ErrorPrecondicion):
-        servicio.ejecutar(revision, MagicMock())
+        servicio.ejecutar(revision, MagicMock(), MesAtencion(2026, 4))
 
 
 @pytest.mark.skipif(not EXCEL_REAL.is_file(), reason="Falta docs/data/BASE.xlsx")
@@ -71,10 +74,10 @@ def test_ejecutar_usa_credenciales_vigentes_y_completa_resumen(tmp_path: Path) -
     fabrica = MagicMock(return_value=orquestador)
     servicio = _servicio(tmp_path, credenciales, fabrica)
     revision = servicio.cargar_listado(str(EXCEL_REAL))
-    resumen = servicio.ejecutar(revision, MagicMock())
+    resumen = servicio.ejecutar(revision, MagicMock(), MesAtencion(2026, 4))
     credenciales_usadas, carpeta_pdfs = fabrica.call_args.args
     assert credenciales_usadas == credenciales
-    assert carpeta_pdfs.endswith("pdfs")
+    assert Path(carpeta_pdfs) == tmp_path / "2026-04 Abril" / "pdfs"
     assert resumen.total == 6
     assert resumen.contar(EstadoPaciente.COMPLETADO) == 1
     assert resumen.contar(EstadoPaciente.PENDIENTE) == 5

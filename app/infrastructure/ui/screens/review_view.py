@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from datetime import date
+
 from PyQt6.QtWidgets import QWidget
 
 from app.application.lote_service import FilaRevision, RevisionLote
+from app.application.mes_atencion import MesAtencion
 from app.infrastructure.ui.models.columnas import DERECHA, Columna, ModeloColumnas
 from app.infrastructure.ui.models.filtro_proxy import FiltroProxy
 from app.infrastructure.ui.presentacion import SIN_DATO, texto_edad, texto_fecha
@@ -11,6 +14,7 @@ from app.infrastructure.ui.widgets.base import boton, columna, etiqueta, fila, m
 from app.infrastructure.ui.widgets.controles import SearchField, Tabs
 from app.infrastructure.ui.widgets.kpi import DefinicionKpi, panel_kpi
 from app.infrastructure.ui.widgets.paneles import NoticeBanner, ScreenHeader
+from app.infrastructure.ui.widgets.selector_mes import SelectorMes
 from app.infrastructure.ui.widgets.tabla import crear_tabla
 
 COLUMNA_MOTIVO = 7
@@ -48,6 +52,22 @@ def _busqueda(valor: object) -> str:
     return f"{fila_revision.cedula} {fila_revision.nombre}"
 
 
+def _avisos(revision: RevisionLote) -> list[str]:
+    avisos: list[str] = []
+    if revision.tiene_meses_mezclados and revision.mes_sugerido is not None:
+        detalle = ", ".join(f"{conteo.mes.nombre} ({conteo.filas})" for conteo in revision.meses_encontrados)
+        avisos.append(
+            f"El archivo tiene fechas de atención de varios meses: {detalle}. "
+            f"Se guardará en {revision.mes_sugerido.nombre_carpeta}; puedes cambiarlo abajo."
+        )
+    if revision.menores_listos:
+        avisos.append(
+            f"{revision.menores_listos} menores de edad entre los listos. Se consultan igual; "
+            "si no tienen cobertura quedan como No encontrado."
+        )
+    return avisos
+
+
 class ReviewView(QWidget):
     def __init__(self) -> None:
         super().__init__()
@@ -79,8 +99,12 @@ class ReviewView(QWidget):
         self.boton_descartar = boton("Descartar lote")
         self.boton_iniciar = boton("Iniciar campaña", "primario")
         self._texto_pie = etiqueta("", "ayuda")
+        self.selector_mes = SelectorMes()
         pie_layout = fila((16, 0, 16, 0), 12)
         pie_layout.addWidget(self._texto_pie, 1)
+        pie_layout.addWidget(etiqueta("Guardar en", "ayuda"))
+        pie_layout.addWidget(self.selector_mes)
+        pie_layout.addSpacing(8)
         pie_layout.addWidget(self.boton_descartar)
         pie_layout.addWidget(self.boton_iniciar)
         pie = marco("pie_acciones", pie_layout)
@@ -104,13 +128,8 @@ class ReviewView(QWidget):
             f"Se leyeron {len(revision.filas)} filas. Revisa los descartados antes de iniciar."
         )
         self._kpis.establecer_valores({"total": len(revision.filas), "listos": listos, "descartados": descartados})
-        menores = revision.menores_listos
-        self._aviso.mostrar(
-            f"{menores} menores de edad entre los listos. Se consultan igual; "
-            "si no tienen cobertura quedan como No encontrado."
-            if menores
-            else ""
-        )
+        self._aviso.mostrar("\n".join(_avisos(revision)))
+        self.selector_mes.establecer_opciones(revision.meses_encontrados, MesAtencion.de_fecha(date.today()))
         self._pestanas.establecer_contador("listos", listos)
         self._pestanas.establecer_contador("descartados", descartados)
         self._texto_pie.setText(
@@ -120,6 +139,10 @@ class ReviewView(QWidget):
         self._busqueda.clear()
         self._modelo.establecer_filas(revision.filas)
         self._pestanas.seleccionar("descartados" if descartados and not listos else "listos")
+
+    @property
+    def mes_seleccionado(self) -> MesAtencion | None:
+        return self.selector_mes.mes
 
     def _cambiar_pestana(self, clave: str) -> None:
         quiere_validas = clave == "listos"

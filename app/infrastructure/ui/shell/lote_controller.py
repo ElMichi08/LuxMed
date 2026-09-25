@@ -13,6 +13,7 @@ from app.application.lote_service import (
     RevisionLote,
     ServicioLote,
 )
+from app.application.mes_atencion import MesAtencion
 from app.application.progreso import ResumenLote
 from app.domain.entities import CredencialesPortal3
 from app.domain.ports import IConfiguracionRepository
@@ -48,6 +49,7 @@ class LoteController(QObject):
         self._tareas: set[TaskThread] = set()
         self._runner: BatchRunnerThread | None = None
         self._revision: RevisionLote | None = None
+        self._mes: MesAtencion | None = None
         self._cerrando = False
 
         dropzone = ventana.upload.dropzone
@@ -93,6 +95,7 @@ class LoteController(QObject):
         assert isinstance(revision, RevisionLote)
         self._terminar_espera(self._accion_cargar)
         self._revision = revision
+        self._mes = None
         self._sanitizador.registrar(
             IdentidadPaciente(f"Fila {fila.fila_excel:04d}", fila.cedula, fila.nombre)
             for fila in revision.filas
@@ -110,7 +113,8 @@ class LoteController(QObject):
 
     def _iniciar_campana(self) -> None:
         revision = self._revision
-        if revision is None or self.lote_en_curso or not self._accion_iniciar.intentar():
+        mes = self._v.review.mes_seleccionado
+        if revision is None or mes is None or self.lote_en_curso or not self._accion_iniciar.intentar():
             return
         try:
             self._servicio.verificar_precondiciones()
@@ -118,6 +122,7 @@ class LoteController(QObject):
             self._accion_iniciar.liberar()
             self._avisar_precondicion(str(error))
             return
+        self._mes = mes
         self._v.logs.mostrar_archivo(str(self._archivo_log.abrir(revision.lote_id)))
         self._v.processing.iniciar(revision)
         self._v.settings.boton_carpeta.setEnabled(False)
@@ -125,7 +130,9 @@ class LoteController(QObject):
         self._v.top_bar.mostrar_estado("En curso", "proceso")
         self._v.ir_a_lote(PaginaLote.PROCESO)
         self._v.overlay.mostrar("Iniciando campaña", "Preparando el navegador para el primer paciente…")
-        runner = BatchRunnerThread(lambda observador: self._servicio.ejecutar(revision, observador), self)
+        runner = BatchRunnerThread(
+            lambda observador: self._servicio.ejecutar(revision, observador, mes), self
+        )
         runner.patient_updated.connect(self._v.processing.aplicar_avance)
         runner.batch_ended.connect(self._lote_terminado)
         runner.batch_failed.connect(self._lote_fallido)
@@ -134,9 +141,9 @@ class LoteController(QObject):
         runner.start()
 
     def _lote_terminado(self, resumen: object) -> None:
-        assert isinstance(resumen, ResumenLote) and self._revision is not None
+        assert isinstance(resumen, ResumenLote) and self._revision is not None and self._mes is not None
         self._v.processing.finalizar()
-        self._v.summary.mostrar(self._revision, resumen)
+        self._v.summary.mostrar(self._revision, resumen, self._servicio.carpeta_destino(self._mes))
         detenido = resumen.detenido
         self._v.top_bar.mostrar_estado("Detenido" if detenido else "Finalizado", "alerta" if detenido else "exito")
         self._accion_entregables.establecer_habilitada(True)
@@ -161,11 +168,12 @@ class LoteController(QObject):
 
     def _generar_entregables(self) -> None:
         revision = self._revision
-        if revision is None or self.lote_en_curso or not self._accion_entregables.intentar():
+        mes = self._mes or self._v.review.mes_seleccionado
+        if revision is None or mes is None or self.lote_en_curso or not self._accion_entregables.intentar():
             return
         self._v.overlay.mostrar("Generando entregables", "Escribiendo el Excel limpio y el Excel auditado…")
         self._en_segundo_plano(
-            lambda: self._servicio.generar_entregables(revision),
+            lambda: self._servicio.generar_entregables(revision, mes),
             self._entregables_generados,
             self._entregables_fallidos,
         )
@@ -197,6 +205,7 @@ class LoteController(QObject):
         if self.lote_en_curso:
             return
         self._revision = None
+        self._mes = None
         self._v.top_bar.limpiar()
         self._v.logs.mostrar_sesion("—")
         self._v.upload.dropzone.mostrar_error("")

@@ -38,7 +38,12 @@ def test_carga_real_y_entregables(qtbot: QtBot, tmp_path: Path) -> None:
 
     controlador._generar_entregables()
     qtbot.waitUntil(lambda: ventana.pagina_lote is PaginaLote.RESUMEN, timeout=10000)
-    carpetas = list(tmp_path.glob("Lote_*"))
-    assert len(carpetas) == 1
-    assert (carpetas[0] / "BASE_limpio.xlsx").is_file()
-    assert (carpetas[0] / "BASE_auditado.xlsx").is_file()
+    carpeta_mes = tmp_path / "2026-04 Abril"
+    assert ventana.review.mes_seleccionado is not None
+    assert ventana.review.mes_seleccionado.nombre_carpeta == "2026-04 Abril"
+    assert (carpeta_mes / "BASE_limpio.xlsx").is_file()
+    assert (carpeta_mes / "BASE_auditado.xlsx").is_file()
+
+    controlador._generar_entregables()
+    qtbot.waitUntil(lambda: not ventana.overlay.activo, timeout=10000)
+    assert [hijo.name for hijo in tmp_path.iterdir() if hijo.is_dir() and hijo.name != "logs"] == ["2026-04 Abril"]

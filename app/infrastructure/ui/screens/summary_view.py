@@ -121,14 +121,14 @@ class SummaryView(QWidget):
         layout.addWidget(desplazable)
         self.setLayout(layout)
 
-    def mostrar(self, revision: RevisionLote, resumen: ResumenLote) -> None:
+    def mostrar(self, revision: RevisionLote, resumen: ResumenLote, carpeta_destino: str) -> None:
         procesados = resumen.total - resumen.contar(EstadoPaciente.PENDIENTE)
         estado = (
             f"Lote detenido: {procesados} de {resumen.total} filas de {revision.nombre_archivo} alcanzaron un estado final."
             if resumen.detenido
             else f"Procesamiento finalizado para las {resumen.total} filas de {revision.nombre_archivo}."
         )
-        self._encabezado.establecer_subtitulo(estado)
+        self._encabezado.establecer_subtitulo(f"{estado}\nCarpeta de salida: {carpeta_destino}")
         self._tiempos.establecer_valores(
             {
                 "inicio": resumen.inicio.strftime("%H:%M"),

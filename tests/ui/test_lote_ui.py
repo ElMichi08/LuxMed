@@ -14,9 +14,9 @@ from app.application.progreso import AvancePaciente, IObservadorLote, ResumenLot
 from app.domain.entities import CredencialesPortal3, EstadoPaciente, Paciente
 from app.infrastructure.ui.guards import AccionUnica
 from app.infrastructure.ui.log_bridge import EmisorLog
-from app.infrastructure.ui.privacidad_logs import SanitizadorPii
 from app.infrastructure.ui.models.columnas import Columna, ModeloColumnas
 from app.infrastructure.ui.models.filtro_proxy import FiltroProxy
+from app.infrastructure.ui.privacidad_logs import SanitizadorPii
 from app.infrastructure.ui.shell.lote_controller import LoteController
 from app.infrastructure.ui.shell.main_window import MainWindow, PaginaLote
 
@@ -70,7 +70,7 @@ def test_doble_clic_en_iniciar_campana_lanza_un_solo_lote(qtbot: QtBot, tmp_path
     liberar = threading.Event()
     llamadas: list[int] = []
 
-    def ejecutar(revision: RevisionLote, observador: IObservadorLote) -> ResumenLote:
+    def ejecutar(revision: RevisionLote, observador: IObservadorLote, mes: object) -> ResumenLote:
         llamadas.append(1)
         observador.paciente_actualizado(AvancePaciente(0, EstadoPaciente.EN_PROCESO))
         liberar.wait(5)

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
-import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
+from app.application.mes_atencion import ConteoMes, MesAtencion, detectar_meses
 from app.application.orchestrator import OrchestratorService
 from app.application.progreso import AvancePaciente, IObservadorLote, ResumenLote
 from app.application.validator import ValidatorService
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 FECHA_NO_LEGIBLE = date(1900, 1, 1)
 PRIMERA_FILA_DE_DATOS = 2
-PREFIJO_CARPETA_LOTE = "Lote_"
+FORMATO_LOTE_ID = "%Y-%m-%d-%H%M"
 
 FabricaOrquestador = Callable[[CredencialesPortal3, str], OrchestratorService]
 
@@ -70,6 +70,7 @@ class RevisionLote:
     ruta_origen: str
     filas: tuple[FilaRevision, ...]
     pacientes: tuple[Paciente, ...] = field(repr=False, compare=False)
+    meses_encontrados: tuple[ConteoMes, ...] = ()
 
     @property
     def nombre_archivo(self) -> str:
@@ -86,6 +87,14 @@ class RevisionLote:
     @property
     def menores_listos(self) -> int:
         return sum(1 for fila in self.listos if fila.es_menor)
+
+    @property
+    def mes_sugerido(self) -> MesAtencion | None:
+        return self.meses_encontrados[0].mes if self.meses_encontrados else None
+
+    @property
+    def tiene_meses_mezclados(self) -> bool:
+        return len(self.meses_encontrados) > 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,9 +139,15 @@ class ServicioLote:
         if not pacientes:
             raise ErrorCargaListado("El archivo no tiene filas de pacientes.")
         filas = tuple(self._revisar(indice, paciente) for indice, paciente in enumerate(pacientes))
-        lote_id = self._nuevo_lote_id()
+        lote_id = datetime.now().strftime(FORMATO_LOTE_ID)
         logger.info("Listado cargado: %s (%d filas) · Lote %s", Path(ruta).name, len(filas), lote_id)
-        return RevisionLote(lote_id=lote_id, ruta_origen=ruta, filas=filas, pacientes=tuple(pacientes))
+        return RevisionLote(
+            lote_id=lote_id,
+            ruta_origen=ruta,
+            filas=filas,
+            pacientes=tuple(pacientes),
+            meses_encontrados=detectar_meses(paciente.fecha_atencion for paciente in pacientes),
+        )
 
     def verificar_precondiciones(self) -> None:
         if not self._configuracion.obtener_credenciales_portal3().completas:
@@ -142,22 +157,32 @@ class ServicioLote:
         if not self._carpeta_salida().is_dir():
             raise ErrorPrecondicion("La carpeta de salida no existe. Elige una en Ajustes.")
 
-    def ejecutar(self, revision: RevisionLote, observador: IObservadorLote) -> ResumenLote:
+    def carpeta_destino(self, mes: MesAtencion) -> str:
+        return str(self._carpeta_mes(mes))
+
+    def ejecutar(
+        self, revision: RevisionLote, observador: IObservadorLote, mes: MesAtencion
+    ) -> ResumenLote:
         self.verificar_precondiciones()
         self._repositorio.guardar_lote(list(revision.pacientes))
-        carpeta_pdfs = self._carpeta_lote(revision) / "pdfs"
+        carpeta_pdfs = self._carpeta_mes(mes) / "pdfs"
         orquestador = self._fabrica_orquestador(
             self._configuracion.obtener_credenciales_portal3(), str(carpeta_pdfs)
         )
         cola = [
             (fila.indice, revision.pacientes[fila.indice]) for fila in revision.filas if fila.es_valida
         ]
-        logger.info("Campaña iniciada · Lote %s · %d pacientes en cola", revision.lote_id, len(cola))
+        logger.info(
+            "Campaña iniciada · Lote %s · %d pacientes en cola · Carpeta %s",
+            revision.lote_id,
+            len(cola),
+            mes.nombre_carpeta,
+        )
         resumen = orquestador.procesar_pacientes(cola, observador)
         return self._resumen_completo(revision, resumen)
 
-    def generar_entregables(self, revision: RevisionLote) -> Entregables:
-        carpeta = self._carpeta_lote(revision)
+    def generar_entregables(self, revision: RevisionLote, mes: MesAtencion) -> Entregables:
+        carpeta = self._carpeta_mes(mes)
         carpeta.mkdir(parents=True, exist_ok=True)
         base = Path(revision.nombre_archivo).stem
         excel_limpio = carpeta / f"{base}_limpio.xlsx"
@@ -211,16 +236,5 @@ class ServicioLote:
     def _carpeta_salida(self) -> Path:
         return Path(self._configuracion.obtener_carpeta_salida())
 
-    def _carpeta_lote(self, revision: RevisionLote) -> Path:
-        return self._carpeta_salida() / f"{PREFIJO_CARPETA_LOTE}{revision.lote_id}"
-
-    def _nuevo_lote_id(self) -> str:
-        prefijo = datetime.now().strftime("%Y-%m-%d")
-        patron = re.compile(rf"^{PREFIJO_CARPETA_LOTE}{prefijo}-(\d+)$")
-        carpeta = self._carpeta_salida()
-        existentes = [
-            int(coincidencia.group(1))
-            for hijo in (carpeta.iterdir() if carpeta.is_dir() else ())
-            if (coincidencia := patron.match(hijo.name))
-        ]
-        return f"{prefijo}-{max(existentes, default=0) + 1:02d}"
+    def _carpeta_mes(self, mes: MesAtencion) -> Path:
+        return self._carpeta_salida() / mes.nombre_carpeta
