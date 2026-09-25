@@ -12,6 +12,7 @@ from app.infrastructure.ui.screens.review_view import ReviewView
 from app.infrastructure.ui.screens.settings_view import SettingsView
 from app.infrastructure.ui.screens.summary_view import SummaryView
 from app.infrastructure.ui.screens.upload_view import UploadView
+from app.infrastructure.ui.widgets.animaciones import cambiar_con_fundido
 from app.infrastructure.ui.widgets.base import columna, fila
 from app.infrastructure.ui.widgets.loading_overlay import LoadingOverlay
 from app.infrastructure.ui.widgets.nav_rail import NavRail
@@ -96,11 +97,13 @@ class MainWindow(QMainWindow):
     def mostrar_seccion(self, clave: str) -> None:
         seccion = Seccion(clave)
         self.rail.marcar(seccion)
-        self._pila_principal.setCurrentWidget(self._secciones[seccion])
+        cambiar_con_fundido(self._pila_principal, self._secciones[seccion])
         self._refrescar_barra_estado()
 
     def ir_a_lote(self, pagina: PaginaLote) -> None:
-        self._pila_lote.setCurrentIndex(pagina.value)
+        destino = self._pila_lote.widget(pagina.value)
+        if destino is not None:
+            cambiar_con_fundido(self._pila_lote, destino)
         self.mostrar_seccion(Seccion.LOTE)
 
     @property
