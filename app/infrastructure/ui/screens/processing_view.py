@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QWidget
 
 from app.application.lote_service import FilaRevision, RevisionLote
 from app.application.progreso import AvancePaciente, PasosRuta
-from app.domain.entities import EstadoPaciente, Portal, Rama
+from app.domain.entities import EstadoPaciente, Portal
 from app.infrastructure.ui.log_bridge import LineaLog
 from app.infrastructure.ui.models.columnas import CENTRO, Columna, ModeloColumnas
 from app.infrastructure.ui.models.delegados import (
@@ -25,7 +25,6 @@ from app.infrastructure.ui.presentacion import (
     texto_edad,
     texto_estado,
     texto_hora,
-    texto_rama,
     texto_seguro_derivado,
 )
 from app.infrastructure.ui.theme.tokens import COLORES, GEOMETRIA
@@ -36,8 +35,8 @@ from app.infrastructure.ui.widgets.kpi import DefinicionKpi, KpiStrip
 from app.infrastructure.ui.widgets.tabla import crear_tabla
 
 INTERVALO_COALESCENCIA_MS = 150
-COLUMNA_RUTA = 5
-COLUMNA_ESTADO = 6
+COLUMNA_RUTA = 4
+COLUMNA_ESTADO = 5
 
 FILTROS = (
     ("todos", "Todos"),
@@ -63,11 +62,6 @@ class FilaLote:
 def _f(valor: object) -> FilaLote:
     assert isinstance(valor, FilaLote)
     return valor
-
-
-def _color_rama(valor: object) -> str | None:
-    rama = _f(valor).avance.rama
-    return {Rama.A: COLORES.indigo, Rama.B: COLORES.tinta_sec}.get(rama, COLORES.tinta_ter)
 
 
 def _color_derivado(valor: object) -> str | None:
@@ -97,7 +91,6 @@ COLUMNAS = (
     Columna("Paciente", lambda f: _f(f).revision.nombre, None, negrita=lambda _f: True),
     Columna("Cédula", lambda f: _f(f).revision.cedula, 124, mono=True, color=_color_cedula, negrita=_en_proceso),
     Columna("Edad", lambda f: texto_edad(_f(f).revision.edad), 64, CENTRO),
-    Columna("Rama", lambda f: texto_rama(_f(f).avance.rama), 70, CENTRO, color=_color_rama, negrita=lambda f: _f(f).avance.rama is Rama.A),
     Columna("Seguro derivado", lambda f: texto_seguro_derivado(_f(f).avance.seguro_derivado), 130, CENTRO, color=_color_derivado, negrita=lambda f: _f(f).avance.seguro_derivado is True),
     Columna("Ruta (P1 · P2 · P3)", lambda f: texto_tooltip_ruta(_f(f).avance.pasos), 160, CENTRO),
     Columna("Estado", lambda f: texto_estado(_f(f).estado), 160),

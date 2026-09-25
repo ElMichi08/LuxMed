@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, time, timedelta
 
-from app.domain.entities import EstadoPaciente, Rama
+from app.domain.entities import EstadoPaciente
 
 SIN_DATO = "—"
 
@@ -44,23 +44,9 @@ ESTADOS_RESUMEN = (
     EstadoPaciente.ERROR_PORTAL_3,
 )
 
-RAMAS_POSIBLES = {
-    EstadoPaciente.COMPLETADO: frozenset({Rama.A, Rama.B}),
-    EstadoPaciente.CEDULA_INVALIDA: frozenset({Rama.SIN_RAMA}),
-    EstadoPaciente.NO_ENCONTRADO: frozenset({Rama.SIN_RAMA}),
-    EstadoPaciente.ERROR_PORTAL_1: frozenset({Rama.A, Rama.B, Rama.SIN_RAMA}),
-    EstadoPaciente.ERROR_PORTAL_2: frozenset({Rama.A}),
-    EstadoPaciente.ERROR_PORTAL_3: frozenset({Rama.A, Rama.B}),
-    EstadoPaciente.PENDIENTE: frozenset({Rama.A, Rama.B, Rama.SIN_RAMA}),
-}
-
 
 def texto_estado(estado: EstadoPaciente) -> str:
     return ETIQUETA_ESTADO.get(estado, estado.value)
-
-
-def texto_rama(rama: Rama) -> str:
-    return SIN_DATO if rama is Rama.SIN_RAMA else rama.value
 
 
 def texto_seguro_derivado(valor: bool | None) -> str:
@@ -90,9 +76,3 @@ def texto_duracion(duracion: timedelta) -> str:
     if minutos:
         return f"{minutos} min"
     return f"{segundos} s"
-
-
-def texto_conteo(estado: EstadoPaciente, rama: Rama, cantidad: int) -> str:
-    if cantidad == 0 and rama not in RAMAS_POSIBLES.get(estado, frozenset()):
-        return SIN_DATO
-    return str(cantidad)

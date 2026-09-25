@@ -8,14 +8,13 @@ from PyQt6.QtWidgets import QScrollArea, QWidget
 
 from app.application.lote_service import Entregables, RevisionLote
 from app.application.progreso import ResumenLote
-from app.domain.entities import EstadoPaciente, Rama
+from app.domain.entities import EstadoPaciente
 from app.infrastructure.ui.models.columnas import DERECHA, Columna, ModeloColumnas
 from app.infrastructure.ui.models.delegados import ChipDelegate
 from app.infrastructure.ui.presentacion import (
     CON_ERROR,
     ESTADOS_RESUMEN,
     TONO_ESTADO,
-    texto_conteo,
     texto_duracion,
 )
 from app.infrastructure.ui.theme.tokens import COLORES, GEOMETRIA
@@ -25,7 +24,6 @@ from app.infrastructure.ui.widgets.paneles import Panel, ScreenHeader, lista_de_
 from app.infrastructure.ui.widgets.tabla import crear_tabla
 
 ANCHO_MAXIMO = 1140
-RAMAS = (Rama.A, Rama.B, Rama.SIN_RAMA)
 TEXTO_TOTAL = "Total procesados"
 
 
@@ -33,13 +31,6 @@ TEXTO_TOTAL = "Total procesados"
 class FilaConteo:
     estado: EstadoPaciente | None
     total: int
-    por_rama: tuple[int, int, int]
-
-    def texto_rama(self, posicion: int) -> str:
-        cantidad = self.por_rama[posicion]
-        if self.estado is None:
-            return str(cantidad)
-        return texto_conteo(self.estado, RAMAS[posicion], cantidad)
 
 
 def _c(valor: object) -> FilaConteo:
@@ -51,16 +42,9 @@ def _es_total(valor: object) -> bool:
     return _c(valor).estado is None
 
 
-def _color_rama(valor: object) -> str | None:
-    return None if _es_total(valor) else COLORES.tinta_sec
-
-
 COLUMNAS = (
     Columna("Estado", lambda f: TEXTO_TOTAL if _es_total(f) else "", None, negrita=_es_total),
     Columna("Total", lambda f: str(_c(f).total), 180, DERECHA, mono=True, negrita=lambda _f: True),
-    Columna("Rama A", lambda f: _c(f).texto_rama(0), 180, DERECHA, mono=True, color=_color_rama, negrita=_es_total),
-    Columna("Rama B", lambda f: _c(f).texto_rama(1), 180, DERECHA, mono=True, color=_color_rama, negrita=_es_total),
-    Columna("Sin rama", lambda f: _c(f).texto_rama(2), 180, DERECHA, mono=True, color=_color_rama, negrita=_es_total),
 )
 
 
@@ -80,24 +64,8 @@ def filas_conteo(resumen: ResumenLote) -> list[FilaConteo]:
     estados = list(ESTADOS_RESUMEN)
     if resumen.contar(EstadoPaciente.PENDIENTE):
         estados.append(EstadoPaciente.PENDIENTE)
-    filas = [
-        FilaConteo(
-            estado,
-            resumen.contar(estado),
-            (
-                resumen.contar(estado, Rama.A),
-                resumen.contar(estado, Rama.B),
-                resumen.contar(estado, Rama.SIN_RAMA),
-            ),
-        )
-        for estado in estados
-    ]
-    total = FilaConteo(
-        None,
-        resumen.total,
-        (resumen.contar_rama(Rama.A), resumen.contar_rama(Rama.B), resumen.contar_rama(Rama.SIN_RAMA)),
-    )
-    return [*filas, total]
+    filas = [FilaConteo(estado, resumen.contar(estado)) for estado in estados]
+    return [*filas, FilaConteo(None, resumen.total)]
 
 
 class SummaryView(QWidget):
@@ -155,11 +123,12 @@ class SummaryView(QWidget):
 
     def mostrar(self, revision: RevisionLote, resumen: ResumenLote) -> None:
         procesados = resumen.total - resumen.contar(EstadoPaciente.PENDIENTE)
-        self._encabezado.establecer_subtitulo(
+        estado = (
             f"Lote detenido: {procesados} de {resumen.total} filas de {revision.nombre_archivo} alcanzaron un estado final."
             if resumen.detenido
             else f"Procesamiento finalizado para las {resumen.total} filas de {revision.nombre_archivo}."
         )
+        self._encabezado.establecer_subtitulo(estado)
         self._tiempos.establecer_valores(
             {
                 "inicio": resumen.inicio.strftime("%H:%M"),
@@ -189,7 +158,6 @@ class SummaryView(QWidget):
         self._notas.addWidget(
             lista_de_vinetas(
                 (
-                    "<b>Sin rama:</b> pacientes que terminaron antes de que el Portal 1 determinara su cobertura.",
                     (
                         f'<b style="color:{COLORES.rojo}">{filas_en_rojo} filas</b> quedarán en rojo en el '
                         "Excel auditado (todo estado distinto de COMPLETADO)."
