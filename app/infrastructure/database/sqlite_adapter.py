@@ -1,12 +1,15 @@
 from __future__ import annotations
 import sqlite3
 from datetime import date
+from pathlib import Path
 from app.domain.entities import Paciente, EstadoValidacion, EntidadSeguro
 from app.domain.ports import IPacienteRepository
  
 class SQLiteAdapter(IPacienteRepository):
     def __init__(self, ruta_db: str = "data/luxmed.db") -> None:
         self._ruta_db = ruta_db
+        # Crear directorio padre si no existe
+        Path(ruta_db).parent.mkdir(parents=True, exist_ok=True)
         self._inicializar_tabla()
 
     def _inicializar_tabla(self) -> None:
