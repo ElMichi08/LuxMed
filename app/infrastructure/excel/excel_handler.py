@@ -25,14 +25,14 @@ class ExcelHandler(IExcelHandler):
             f_at_raw = str(fila.get("FECHA ATENCION", "")).strip()
             
             try:
-                dt_nac = datetime.strptime(f_nac_raw, "%d/%m/%Y")
+                dt_nac = _parsear_fecha(f_nac_raw)
                 fecha_nacimiento = dt_nac.date()
             except (ValueError, TypeError):
                 fecha_nacimiento = date(1900, 1, 1)
                 aporta = "FECHA ERRÓNEA"
 
             try:
-                dt_at = datetime.strptime(f_at_raw, "%d/%m/%Y")
+                dt_at = _parsear_fecha(f_at_raw)
                 fecha_atencion = dt_at.date()
             except (ValueError, TypeError):
                 fecha_atencion = date.today()
@@ -93,3 +93,15 @@ class ExcelHandler(IExcelHandler):
                         ws.cell(row=row_idx, column=col_idx).fill = self._relleno_rojo
                         
         wb.save(ruta_destino)
+
+
+FORMATOS_FECHA = ("%d/%m/%Y", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d")
+
+
+def _parsear_fecha(texto: str) -> datetime:
+    for formato in FORMATOS_FECHA:
+        try:
+            return datetime.strptime(texto, formato)
+        except ValueError:
+            continue
+    raise ValueError(texto)
