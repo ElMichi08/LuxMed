@@ -22,3 +22,7 @@ __pycache__/
 ANALISIS_RAMAS.md
 .env
 tests/ui/_capturas/
+data/*.db
+data/logs/
+data/salidas/
+data/pdf_exports/

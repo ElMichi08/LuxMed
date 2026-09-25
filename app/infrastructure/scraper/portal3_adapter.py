@@ -29,16 +29,20 @@ class Portal3Adapter:
         login_url: str = LOGIN_URL,
         headless: bool = True,
         timeout_ms: int = 300000,
+        usuario: str | None = None,
+        contrasena: str | None = None,
     ) -> None:
         self._login_url = login_url
         self._headless = headless
         self._timeout_ms = timeout_ms
+        self._usuario = PORTAL3_USUARIO if usuario is None else usuario
+        self._contrasena = PORTAL3_CONTRASENA if contrasena is None else contrasena
 
     ADAPTIVE_TIMEOUTS_MS = [30000, 45000, 60000]
     MAX_FULL_RETRIES = 1  
 
     def procesar_portal_3(self, paciente: Paciente) -> bytes | None:
-        if not PORTAL3_USUARIO or not PORTAL3_CONTRASENA:
+        if not self._usuario or not self._contrasena:
             logger.error("Credenciales Portal 3 no encontradas en .env")
             return None
 
@@ -135,9 +139,9 @@ class Portal3Adapter:
             logger.error("No se encontraron campos de usuario/password")
             return False
 
-        user_field.fill(PORTAL3_USUARIO)
+        user_field.fill(self._usuario)
         page.wait_for_timeout(500)
-        pass_field.fill(PORTAL3_CONTRASENA)
+        pass_field.fill(self._contrasena)
         page.wait_for_timeout(500)
 
         login_btn = page.locator(

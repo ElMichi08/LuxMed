@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date
 from abc import ABC, abstractmethod
-from app.domain.entities import Paciente
+from app.domain.entities import CredencialesPortal3, Paciente
 
 class IPacienteRepository(ABC):
     @abstractmethod
@@ -44,3 +44,14 @@ class IScraperService(ABC):
     @abstractmethod
     def extraer_acreditador_portal_2(self, paciente: Paciente) -> str | None:
         pass
+
+
+class IConfiguracionRepository(ABC):
+    @abstractmethod
+    def obtener_carpeta_salida(self) -> str: pass
+    @abstractmethod
+    def guardar_carpeta_salida(self, ruta: str) -> None: pass
+    @abstractmethod
+    def obtener_credenciales_portal3(self) -> CredencialesPortal3: pass
+    @abstractmethod
+    def guardar_credenciales_portal3(self, credenciales: CredencialesPortal3) -> None: pass
