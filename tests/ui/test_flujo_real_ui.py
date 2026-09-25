@@ -11,6 +11,7 @@ from app.application.validator import ValidatorService
 from app.domain.entities import CredencialesPortal3
 from app.infrastructure.excel.excel_handler import ExcelHandler
 from app.infrastructure.ui.log_bridge import EmisorLog
+from app.infrastructure.ui.privacidad_logs import SanitizadorPii
 from app.infrastructure.ui.shell.lote_controller import LoteController
 from app.infrastructure.ui.shell.main_window import MainWindow, PaginaLote
 
@@ -26,7 +27,7 @@ def test_carga_real_y_entregables(qtbot: QtBot, tmp_path: Path) -> None:
     servicio = ServicioLote(ExcelHandler(), MagicMock(), ValidatorService(), configuracion, MagicMock())
     ventana = MainWindow("admision.01", "v-test")
     qtbot.addWidget(ventana)
-    controlador = LoteController(servicio, configuracion, ventana, EmisorLog(), tmp_path / "logs")
+    controlador = LoteController(servicio, configuracion, ventana, EmisorLog(), tmp_path / "logs", SanitizadorPii())
 
     ventana.upload.dropzone.archivo_elegido.emit(str(EXCEL_REAL))
     ventana.upload.dropzone.archivo_elegido.emit(str(EXCEL_REAL))

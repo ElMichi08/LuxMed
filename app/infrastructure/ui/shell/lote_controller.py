@@ -18,6 +18,7 @@ from app.domain.entities import CredencialesPortal3
 from app.domain.ports import IConfiguracionRepository
 from app.infrastructure.ui.guards import AccionUnica
 from app.infrastructure.ui.log_bridge import ArchivoLogLote, EmisorLog, LineaLog
+from app.infrastructure.ui.privacidad_logs import IdentidadPaciente, SanitizadorPii
 from app.infrastructure.ui.shell.main_window import MainWindow, PaginaLote, Seccion
 from app.infrastructure.ui.threads import BatchRunnerThread, TaskThread
 
@@ -36,12 +37,14 @@ class LoteController(QObject):
         ventana: MainWindow,
         emisor_log: EmisorLog,
         carpeta_logs: Path,
+        sanitizador: SanitizadorPii,
     ) -> None:
         super().__init__(ventana)
         self._servicio = servicio
         self._configuracion = configuracion
         self._v = ventana
-        self._archivo_log = ArchivoLogLote(carpeta_logs)
+        self._sanitizador = sanitizador
+        self._archivo_log = ArchivoLogLote(carpeta_logs, sanitizador)
         self._tareas: set[TaskThread] = set()
         self._runner: BatchRunnerThread | None = None
         self._revision: RevisionLote | None = None
@@ -90,6 +93,10 @@ class LoteController(QObject):
         assert isinstance(revision, RevisionLote)
         self._terminar_espera(self._accion_cargar)
         self._revision = revision
+        self._sanitizador.registrar(
+            IdentidadPaciente(f"Fila {fila.fila_excel:04d}", fila.cedula, fila.nombre)
+            for fila in revision.filas
+        )
         self._v.review.mostrar(revision)
         self._v.top_bar.mostrar_lote(revision.nombre_archivo, revision.lote_id, len(revision.filas))
         self._v.top_bar.mostrar_estado("Sin iniciar", "neutro")

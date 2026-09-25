@@ -7,6 +7,8 @@ from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from app.infrastructure.ui.privacidad_logs import FormatterSanitizado, SanitizadorPii
+
 FORMATO_ARCHIVO = "[%(asctime)s] %(levelname)-5s [%(name)s] %(message)s"
 
 ORIGENES = (
@@ -59,15 +61,17 @@ class EmisorLog(QObject):
 
 
 class QtLogHandler(logging.Handler):
-    def __init__(self, emisor: EmisorLog) -> None:
+    def __init__(self, emisor: EmisorLog, sanitizador: SanitizadorPii) -> None:
         super().__init__(logging.INFO)
         self._emisor = emisor
+        self._sanitizador = sanitizador
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
             mensaje = record.getMessage()
         except Exception:
             mensaje = str(record.msg)
+        mensaje = self._sanitizador.limpiar(mensaje)
         self._emisor.linea.emit(
             LineaLog(
                 hora=datetime.fromtimestamp(record.created),
@@ -79,8 +83,9 @@ class QtLogHandler(logging.Handler):
 
 
 class ArchivoLogLote:
-    def __init__(self, carpeta: Path) -> None:
+    def __init__(self, carpeta: Path, sanitizador: SanitizadorPii) -> None:
         self._carpeta = carpeta
+        self._sanitizador = sanitizador
         self._handler: logging.FileHandler | None = None
         self.ruta: Path | None = None
 
@@ -89,7 +94,7 @@ class ArchivoLogLote:
         self._carpeta.mkdir(parents=True, exist_ok=True)
         self.ruta = self._carpeta / f"lote_{lote_id}.log"
         self._handler = logging.FileHandler(self.ruta, encoding="utf-8")
-        self._handler.setFormatter(logging.Formatter(FORMATO_ARCHIVO))
+        self._handler.setFormatter(FormatterSanitizado(self._sanitizador, FORMATO_ARCHIVO))
         self._handler.setLevel(logging.INFO)
         logging.getLogger().addHandler(self._handler)
         return self.ruta
@@ -102,10 +107,10 @@ class ArchivoLogLote:
         self._handler = None
 
 
-def instalar_puente(emisor: EmisorLog) -> QtLogHandler:
+def instalar_puente(emisor: EmisorLog, sanitizador: SanitizadorPii) -> QtLogHandler:
     raiz = logging.getLogger()
     if raiz.level > logging.INFO or raiz.level == logging.NOTSET:
         raiz.setLevel(logging.INFO)
-    handler = QtLogHandler(emisor)
+    handler = QtLogHandler(emisor, sanitizador)
     raiz.addHandler(handler)
     return handler

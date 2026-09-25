@@ -14,6 +14,7 @@ from app.application.progreso import AvancePaciente, IObservadorLote, ResumenLot
 from app.domain.entities import CredencialesPortal3, EstadoPaciente, Paciente
 from app.infrastructure.ui.guards import AccionUnica
 from app.infrastructure.ui.log_bridge import EmisorLog
+from app.infrastructure.ui.privacidad_logs import SanitizadorPii
 from app.infrastructure.ui.models.columnas import Columna, ModeloColumnas
 from app.infrastructure.ui.models.filtro_proxy import FiltroProxy
 from app.infrastructure.ui.shell.lote_controller import LoteController
@@ -86,7 +87,7 @@ def test_doble_clic_en_iniciar_campana_lanza_un_solo_lote(qtbot: QtBot, tmp_path
     configuracion.obtener_credenciales_portal3.return_value = CredencialesPortal3("u", "p")
     ventana = MainWindow("admision.01", "v-test")
     qtbot.addWidget(ventana)
-    controlador = LoteController(servicio, configuracion, ventana, EmisorLog(), tmp_path / "logs")
+    controlador = LoteController(servicio, configuracion, ventana, EmisorLog(), tmp_path / "logs", SanitizadorPii())
     controlador._listado_cargado(_revision())
     assert ventana.pagina_lote is PaginaLote.REVISION
 
@@ -115,7 +116,7 @@ def test_iniciar_sin_credenciales_no_lanza_hilo(qtbot: QtBot, tmp_path: Path, mo
     configuracion.obtener_credenciales_portal3.return_value = CredencialesPortal3("", "")
     ventana = MainWindow("admision.01", "v-test")
     qtbot.addWidget(ventana)
-    controlador = LoteController(servicio, configuracion, ventana, EmisorLog(), tmp_path / "logs")
+    controlador = LoteController(servicio, configuracion, ventana, EmisorLog(), tmp_path / "logs", SanitizadorPii())
     avisos: list[str] = []
     monkeypatch.setattr(controlador, "_avisar_precondicion", avisos.append)
     controlador._listado_cargado(_revision())
